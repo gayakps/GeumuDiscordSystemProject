@@ -1,6 +1,6 @@
-package gaya.pe.kr.network.encoder;
+package gaya.pe.kr.network.connection.decoder;
 
-import gaya.pe.kr.network.packet.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.MinecraftPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

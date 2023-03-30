@@ -1,12 +1,15 @@
-package gaya.pe.kr.network.packet;
+package gaya.pe.kr.network.packet.global;
 
 
+import gaya.pe.kr.network.packet.bound.server.PlayerMessage;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.util.CharsetUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.UUID;
 
 public abstract class MinecraftPacket {
     private final PacketType type;
@@ -21,14 +24,14 @@ public abstract class MinecraftPacket {
 
     public abstract ByteBuf getData();
 
-    public static MinecraftPacket fromData(byte typeId, ByteBuf data) {
+    public static MinecraftPacket fromData(byte typeId, ByteBuf byteBuf) {
         PacketType type = PacketType.fromId(typeId);
         switch (type) {
-
             case PLAYER_MESSAGE:
 
-            case PLAYER_TITLE:
-
+                String message = ByteBufUtil.readUtf8(data);
+                return new PlayerMessage(UUID.fromString(targetPlayerUUID), targetPlayerName, message);
+            // 다른 패킷 타입들에 대한 처리
             default:
                 throw new IllegalArgumentException("Unknown packet type: " + type);
         }

@@ -1,12 +1,11 @@
 package gaya.pe.kr.network.packet.bound.server;
 
-import gaya.pe.kr.network.packet.MinecraftPacket;
-import gaya.pe.kr.network.packet.PacketType;
+import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.PacketType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
@@ -30,7 +29,9 @@ public class PlayerMessage extends MinecraftPacket {
         ByteBufUtil.writeUtf8(buf, targetPlayerUUID.toString());
         ByteBufUtil.writeUtf8(buf, targetPlayerName);
         ByteBufUtil.writeUtf8(buf, message);
+        System.out.println("getData 실행");
         return buf;
     }
+
 
 }

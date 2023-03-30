@@ -1,19 +1,18 @@
-package gaya.pe.kr.network.packet;
+package gaya.pe.kr.network.packet.global;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public enum PacketType {
 
-    PLAYER_MESSAGE(0x01, PacketBound.SERVER_BOUND),
-    PLAYER_TITLE(0x02, PacketBound.SERVER_BOUND);
+    PLAYER_MESSAGE(0x01, PacketStartDirection.SERVER),
+    PLAYER_TITLE(0x02, PacketStartDirection.SERVER);
 
     private final byte id;
-    private final PacketBound packetBound;
-    PacketType(int id, PacketBound packetBound) {
+    private final PacketStartDirection packetStartDirection;
+    PacketType(int id, PacketStartDirection packetStartDirection) {
         this.id = (byte) id;
-        this.packetBound = packetBound;
+        this.packetStartDirection = packetStartDirection;
     }
 
 
