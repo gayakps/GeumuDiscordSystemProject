@@ -24,9 +24,12 @@ public abstract class MinecraftPacket {
 
     public abstract ByteBuf getData();
 
-    public abstract MinecraftPacket fromData(ByteBuf byteBuf);
+    public static MinecraftPacket fromData(int byteId, ByteBuf byteBuf) {
+        System.out.println("fromData 실행 " + byteId + " ||| " + byteBuf.readableBytes());
+        return null;
+    }
 
-    public static <T extends MinecraftPacket> ByteBuf getParseData(T data, ByteBuf buf) {
+    protected final <T> ByteBuf bufAddObjectData(ByteBuf buf, T data) {
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);

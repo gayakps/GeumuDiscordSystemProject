@@ -31,14 +31,11 @@ public class PlayerMessage extends MinecraftPacket {
         ByteBufUtil.writeUtf8(buf, targetPlayerUUID.toString());
         ByteBufUtil.writeUtf8(buf, targetPlayerName);
         ByteBufUtil.writeUtf8(buf, message);
-        System.out.println("getData 실행");
+        bufAddObjectData(buf, serverInitializer);
+        System.out.println("getData 실행 크기 : " + buf.readableBytes());
         return buf;
     }
 
-    @Override
-    public MinecraftPacket fromData(ByteBuf byteBuf) {
-        return null;
-    }
 
 
 }
