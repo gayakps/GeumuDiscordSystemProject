@@ -24,18 +24,7 @@ public abstract class MinecraftPacket {
 
     public abstract ByteBuf getData();
 
-    public static MinecraftPacket fromData(byte typeId, ByteBuf byteBuf) {
-        PacketType type = PacketType.fromId(typeId);
-        switch (type) {
-            case PLAYER_MESSAGE:
-
-                String message = ByteBufUtil.readUtf8(data);
-                return new PlayerMessage(UUID.fromString(targetPlayerUUID), targetPlayerName, message);
-            // 다른 패킷 타입들에 대한 처리
-            default:
-                throw new IllegalArgumentException("Unknown packet type: " + type);
-        }
-    }
+    public abstract MinecraftPacket fromData(ByteBuf byteBuf);
 
     public static <T extends MinecraftPacket> ByteBuf getParseData(T data, ByteBuf buf) {
         try {
