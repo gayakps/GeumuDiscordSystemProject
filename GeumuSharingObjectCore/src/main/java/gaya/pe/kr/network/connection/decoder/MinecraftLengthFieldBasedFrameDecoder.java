@@ -1,13 +1,18 @@
 package gaya.pe.kr.network.connection.decoder;
 
 import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 public class MinecraftLengthFieldBasedFrameDecoder extends io.netty.handler.codec.LengthFieldBasedFrameDecoder {
 
-    public MinecraftLengthFieldBasedFrameDecoder() {
+    PacketStartDirection packetStartDirection;
+
+
+    public MinecraftLengthFieldBasedFrameDecoder(PacketStartDirection packetStartDirection) {
         super(1048576, 0, 2, 0, 2); // 최대 1MB, 길이 필드는 2바이트
+        this.packetStartDirection = packetStartDirection;
     }
 
     @Override
@@ -15,9 +20,20 @@ public class MinecraftLengthFieldBasedFrameDecoder extends io.netty.handler.code
         ByteBuf frame = (ByteBuf) super.decode(ctx, in);
 
         if (frame == null) {
+            System.out.printf("%s -> [MinecraftLengthFieldBasedFrameDecoder] FRAME IS NULL\n", packetStartDirection.name());
             return null;
         }
 
-        return MinecraftPacket.fromData(frame.readByte(), frame);
+        try {
+            byte packetId = frame.readByte();
+            int packetSize = frame.readableBytes();
+
+//            System.out.printf("%s -> [MinecraftLengthFieldBasedFrameDecoder] Packet Id : %d Data Size : %d\n", packetStartDirection.name(), packetId, packetSize);
+            return MinecraftPacket.fromData(packetId, frame);
+
+        } finally {
+            frame.release();
+        }
     }
+
 }

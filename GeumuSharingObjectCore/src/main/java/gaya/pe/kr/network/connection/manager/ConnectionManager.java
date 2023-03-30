@@ -40,7 +40,7 @@ public class ConnectionManager {
                     Thread thread = new Thread( ()-> {
                         try {
                             while (true) {
-                                Thread.sleep(1000);
+                                Thread.sleep(2000);
                                 Random random = new Random();
                                 PlayerMessage playerMessage = new PlayerMessage(UUID.randomUUID(), String.format("User-%d", random.nextInt(100)), "안녕하세요 Message-" + random.nextInt(1000));
                                 channel.writeAndFlush(playerMessage);

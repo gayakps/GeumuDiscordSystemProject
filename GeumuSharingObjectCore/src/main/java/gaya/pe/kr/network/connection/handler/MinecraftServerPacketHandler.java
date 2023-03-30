@@ -1,11 +1,11 @@
 package gaya.pe.kr.network.connection.handler;
 
+import gaya.pe.kr.network.packet.bound.client.ServerPacketResponse;
 import gaya.pe.kr.network.packet.global.MinecraftPacket;
-import gaya.pe.kr.network.packet.bound.server.PlayerMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class MinecraftPacketServerHandler extends SimpleChannelInboundHandler<MinecraftPacket> {
+public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<MinecraftPacket> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -23,15 +23,13 @@ public class MinecraftPacketServerHandler extends SimpleChannelInboundHandler<Mi
     protected void messageReceived(ChannelHandlerContext channelHandlerContext, MinecraftPacket minecraftPacket) throws Exception {
         // 패킷 타입에 따라 분기 처리
 
-        System.out.printf("RECEIVED PACKET [FOR CLIENT] : %s\n", minecraftPacket.getType().name());
+        System.out.printf("RECEIVED PACKET [FROM CLIENT] : %s\n", minecraftPacket.getType().name());
 
         switch (minecraftPacket.getType()) {
-            case PLAYER_MESSAGE:
-                PlayerMessage loginPacket = (PlayerMessage) minecraftPacket;
+            case SERVER_PACKET_RESPONSE:
+                ServerPacketResponse loginPacket = (ServerPacketResponse) minecraftPacket;
+                System.out.println(loginPacket.toString());
                 // 로그인 처리
-                break;
-            case PLAYER_TITLE:
-                // 채팅 처리
                 break;
             // ...
             default:

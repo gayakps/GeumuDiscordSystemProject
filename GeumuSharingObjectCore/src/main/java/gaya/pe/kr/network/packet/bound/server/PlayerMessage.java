@@ -3,37 +3,28 @@ package gaya.pe.kr.network.packet.bound.server;
 import gaya.pe.kr.network.connection.initializer.MinecraftServerInitializer;
 import gaya.pe.kr.network.packet.global.MinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
+import gaya.pe.kr.util.ObjectConverter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @Getter
+@ToString
 public class PlayerMessage extends MinecraftPacket {
 
     UUID targetPlayerUUID;
     String targetPlayerName;
     String message;
-    MinecraftServerInitializer serverInitializer;
 
     public PlayerMessage(UUID targetPlayerUUID, String targetPlayerName, String message) {
         super(PacketType.PLAYER_MESSAGE);
         this.targetPlayerUUID = targetPlayerUUID;
         this.targetPlayerName = targetPlayerName;
         this.message = message;
-    }
-
-    @Override
-    public ByteBuf getData() {
-        ByteBuf buf = Unpooled.buffer();
-        ByteBufUtil.writeUtf8(buf, targetPlayerUUID.toString());
-        ByteBufUtil.writeUtf8(buf, targetPlayerName);
-        ByteBufUtil.writeUtf8(buf, message);
-        bufAddObjectData(buf, serverInitializer);
-        System.out.println("getData 실행 크기 : " + buf.readableBytes());
-        return buf;
     }
 
 
