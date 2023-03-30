@@ -12,7 +12,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="GeumuDiscordProxyServer" target="11" />
+      <module name="GeumuDiscordProxyServer" target="1.5" />
       <module name="GeumuDiscordSystem" target="1.8" />
       <module name="GeumuSharingObjectCore" target="11" />
     </bytecodeTargetLevel>
