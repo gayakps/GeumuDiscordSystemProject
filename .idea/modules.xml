@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/GeumuDiscordProxyServer/GeumuDiscordProxyServer.iml" filepath="$PROJECT_DIR$/GeumuDiscordProxyServer/GeumuDiscordProxyServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GeumuDiscordSystem/GeumuDiscordSystem.iml" filepath="$PROJECT_DIR$/GeumuDiscordSystem/GeumuDiscordSystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GeumuDiscordSystemProject.iml" filepath="$PROJECT_DIR$/.idea/GeumuDiscordSystemProject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GeumuSharingObjectCore/GeumuSharingObjectCore.iml" filepath="$PROJECT_DIR$/GeumuSharingObjectCore/GeumuSharingObjectCore.iml" />
+    </modules>
+  </component>
+</project>

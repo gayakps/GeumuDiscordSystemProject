@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.velocitypowered:velocity-api:3.1.2-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/velocitypowered/velocity-api/3.1.2-SNAPSHOT/velocity-api-3.1.2-20230101.180944-102.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/velocitypowered/velocity-api/3.1.2-SNAPSHOT/velocity-api-3.1.2-20230101.180944-102-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/velocitypowered/velocity-api/3.1.2-SNAPSHOT/velocity-api-3.1.2-20230101.180944-102-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

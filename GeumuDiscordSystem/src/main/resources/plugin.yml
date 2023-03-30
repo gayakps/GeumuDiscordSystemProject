@@ -1,0 +1,9 @@
+name: GeumuDiscordSystem
+version: '${project.version}'
+main: gaya.pe.kr.core.GeumuDiscordSystem
+authors: [GEUMU]
+description: Geumu Discord & Minecraft Question System
+
+
+commands:
+  test123:
