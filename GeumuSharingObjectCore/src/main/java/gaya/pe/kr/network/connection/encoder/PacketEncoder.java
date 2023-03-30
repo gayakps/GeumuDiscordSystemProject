@@ -24,7 +24,7 @@ public class PacketEncoder extends MessageToByteEncoder<MinecraftPacket> {
         out.writeShort(packetLength); // 패킷 길이 쓰기
         out.writeBytes(data, 0, packetLength); // 패킷 데이터 쓰기
 
-//        System.out.printf("%s -> [ENCODING] PACKET CREATED TYPE : [%s] LENGTH : %d TOTAL : %d\n",packetStartDirection.name(), packet.getType().name(), packetLength, out.readableBytes());
+        System.out.printf("%s -> [ENCODING] PACKET CREATED TYPE : [%s] LENGTH : %d TOTAL : %d\n",packetStartDirection.name(), packet.getType().name(), packetLength, out.readableBytes());
 
     }
 

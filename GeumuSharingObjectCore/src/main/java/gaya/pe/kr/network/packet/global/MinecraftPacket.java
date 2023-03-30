@@ -18,16 +18,16 @@ import java.util.Random;
 public abstract class MinecraftPacket implements Serializable {
 
     static Random random = new Random();
-    private final PacketType type;
+    private final byte packetType;
     private final Long packetID;
 
     protected MinecraftPacket(PacketType type) {
-        this.type = type;
+        this.packetType = type.getId();
         this.packetID = random.nextLong();
     }
 
     public PacketType getType() {
-        return type;
+        return PacketType.fromId(getPacketType());
     }
 
     public ByteBuf getData() {

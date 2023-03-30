@@ -2,10 +2,13 @@ package gaya.pe.kr.util;
 
 import gaya.pe.kr.network.packet.global.MinecraftPacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 
 import java.io.*;
 import java.util.Base64;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class ObjectConverter {
 
@@ -29,8 +32,17 @@ public class ObjectConverter {
             ObjectOutputStream os = new ObjectOutputStream(io);
             os.writeObject(object);
             os.flush();
-            byte[] data = io.toByteArray();
-            return Unpooled.wrappedBuffer(data);
+            byte[] serializedData = io.toByteArray();
+
+            ByteBuf compressed = Unpooled.buffer();
+            ByteBufOutputStream out = new ByteBufOutputStream(compressed);
+            GZIPOutputStream gzip = new GZIPOutputStream(out);
+            gzip.write(serializedData);
+            gzip.finish();
+            gzip.close();
+            out.close();
+
+            return compressed;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -51,17 +63,33 @@ public class ObjectConverter {
 
     public static <T extends MinecraftPacket> T getMinecraftPacket(ByteBuf byteBuf, Class<T> packetClass) {
         try {
-            byte[] data = new byte[byteBuf.readableBytes()];
-            byteBuf.readBytes(data);
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
-            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            // 압축 해제
+            byte[] compressedData = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(compressedData);
+            ByteArrayInputStream compressedInputStream = new ByteArrayInputStream(compressedData);
+            GZIPInputStream gzipInputStream = new GZIPInputStream(compressedInputStream);
+            ByteArrayOutputStream decompressedOutputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = gzipInputStream.read(buffer)) > 0) {
+                decompressedOutputStream.write(buffer, 0, length);
+            }
+            gzipInputStream.close();
+            decompressedOutputStream.close();
+            byte[] decompressedData = decompressedOutputStream.toByteArray();
+
+            // 직렬화된 데이터 복원
+            ByteArrayInputStream serializedInputStream = new ByteArrayInputStream(decompressedData);
+            ObjectInputStream objectInputStream = new ObjectInputStream(serializedInputStream);
             Object object = objectInputStream.readObject();
+
             return packetClass.cast(object);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
 
 
 
