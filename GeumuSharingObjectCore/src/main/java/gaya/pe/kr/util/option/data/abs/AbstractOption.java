@@ -17,6 +17,14 @@ public abstract class AbstractOption {
 
     abstract protected void load();
 
+    protected void addStringValue(String key, String value) {
+        stringAsData.put(key, value);
+    }
+
+    protected void addStringValue(String key, List<String> value) {
+        stringAsArrayListData.put(key, value);
+    }
+
     public String getString(String key) {
 
         if ( stringAsArrayListData.containsKey(key) ) {
