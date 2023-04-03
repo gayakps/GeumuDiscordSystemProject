@@ -7,7 +7,7 @@ import gaya.pe.kr.network.packet.type.ResponseType;
 
 import java.util.UUID;
 
-public class WaitingPacket {
+public class WaitAndGetPacketResponse {
 
     boolean wait = false;
     UUID requestUUID;
@@ -16,7 +16,7 @@ public class WaitingPacket {
     @CanBeNull
     Object responseObject;
 
-    public WaitingPacket(UUID requestUUID) {
+    public WaitAndGetPacketResponse(UUID requestUUID) {
         this.requestUUID = requestUUID;
     }
 

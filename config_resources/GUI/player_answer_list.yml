@@ -1,0 +1,35 @@
+GUI:
+  player_answer_list_answered_question:
+    name: 'Q: %question_content%'
+    lore: 
+      - ''
+      - 'A: %answer_content%'
+      - ''
+      - '질문 번호: #%question_number%'
+      - '질문자: %question_playername%'
+      - '질문한 시간: %question_time%'
+      - '답변한 시간: %answer_time%'
+      - ''
+      - '답변자: %answer_playername%'
+
+  player_answer_list_player_answer_info:
+    name: '[ %playername% 답변 정보 ]'
+    lore: 
+      - '어제 답변수: %answer_count_yesterday%'
+      - '일간 답변수: %answer_count_daily%'
+      - '주간 답변수: %answer_count_weekly%'
+      - '월간 답변수: %answer_count_monthly%'
+      - '전체 기간 답변수: %answer_count_total%'
+      - ''
+      - '정산 받을 답변 보상 개수: %reward_count%개'
+
+  player_answer_list_weekly_answer_ranking:
+    name: '[ 주간 답변수 랭킹 ]'
+    lore: 
+      - '1. %answer_top_player_weekly_1% | 답변수 %answer_top_count_weekly_1%회'
+      - '2. %answer_top_player_weekly_2% | 답변수 %answer_top_count_weekly_2%회'
+      - '3. %answer_top_player_weekly_3% | 답변수 %answer_top_count_weekly_3%회'
+      - '4. %answer_top_player_weekly_4% | 답변수 %answer_top_count_weekly_4%회'
+      - '5. %answer_top_player_weekly_5% | 답변수 %answer_top_count_weekly_5%회'
+      - ''
+      - '클릭 시 자세한 답변 랭킹 순위를 확인합니다.'

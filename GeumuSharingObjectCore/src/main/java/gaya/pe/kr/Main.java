@@ -7,5 +7,6 @@ public class Main {
         ConnectionManager connectionManager = new ConnectionManager();
         connectionManager.init();
         System.out.println("Hello world!");
+        DiscordManager.getInstance().init();
     }
 }

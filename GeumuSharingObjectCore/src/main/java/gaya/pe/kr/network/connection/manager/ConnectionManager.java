@@ -49,7 +49,6 @@ public class ConnectionManager {
                             e.printStackTrace();
                         }
                     });
-                    thread.start();
                     future.channel().closeFuture().sync();
                 } catch (Exception e) {
                     e.printStackTrace();

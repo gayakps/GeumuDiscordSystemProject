@@ -15,10 +15,8 @@ public class ServerPacketResponse extends MinecraftPacket {
     boolean success;
     public ServerPacketResponse() {
         super(PacketType.SERVER_PACKET_RESPONSE);
-
         Random random = new Random();
         success = random.nextInt(100) < 50;
-
     }
 
 

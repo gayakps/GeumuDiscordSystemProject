@@ -5,9 +5,8 @@ import gaya.pe.kr.util.option.type.OptionType;
 
 import java.util.HashMap;
 
-public class WaitingAnswerListOption extends AbstractOption {
-
-    public WaitingAnswerListOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
+public class QuestionRankingOption extends AbstractOption {
+    public QuestionRankingOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
         super(dataKeyValue, optionType);
     }
 }

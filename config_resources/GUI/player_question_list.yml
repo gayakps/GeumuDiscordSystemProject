@@ -1,0 +1,43 @@
+GUI:
+  player_question_list_remain_question:
+    name: 'Q: %question_content%'
+    lore: 
+      - ''
+      - '질문 번호: #%question_number%'
+      - '질문자: %question_playername%'
+      - '질문한 시간: %question_time%'
+      - ''
+      - '클릭 시 해당 질문에 답변합니다.'
+
+  player_question_list_answered_question:
+    name: 'Q: %question_content%'
+    lore: 
+      - ''
+      - 'A: %answer_content%'
+      - ''
+      - '질문 번호: #%question_number%'
+      - '질문자: %question_playername%'
+      - '질문한 시간: %question_time%'
+      - '답변한 시간: %answer_time%'
+      - ''
+      - '답변자: %answer_playername%'
+
+  player_question_list_daily_question_ranking:
+    name: '[ 일간 질문수 랭킹 ]'
+    lore: 
+      - '1. %question_top_player_daily_1% | 질문수 %question_top_count_daily_1%회'
+      - '2. %question_top_player_daily_2% | 질문수 %question_top_count_daily_2%회'
+      - '3. %question_top_player_daily_3% | 질문수 %question_top_count_daily_3%회'
+      - '4. %question_top_player_daily_4% | 질문수 %question_top_count_daily_4%회'
+      - '5. %question_top_player_daily_5% | 질문수 %question_top_count_daily_5%회'
+      - ''
+      - '클릭 시 자세한 질문 랭킹 순위를 확인합니다.'
+
+  player_question_list_player_question_info:
+    name: '[ %playername% 질문 정보 ]'
+    lore: 
+      - '어제 질문수: %question_count_yesterday%'
+      - '일간 질문수: %question_count_daily%'
+      - '주간 질문수: %question_count_weekly%'
+      - '월간 질문수: %question_count_monthly%'
+      - '전체 기간 질문수: %question_count_total%'

@@ -1,0 +1,160 @@
+DataBase:
+  DB_HOST: "localhost"
+  DB_PORT: 3306
+  DB_DATABASE: "pixelmon_01_answer"
+  DB_USERNAME: "root"
+  DB_PASSWORD: "password"
+
+Discord:
+  token: 'FDJHOHA98S3Y89RFHOIUHDBFJIKASDHUIHAESDIUFHI324Y7932Y78DFHJKFH'
+  question_channel_id: '869503228918767626'
+  authentication_channel_id: '869503228918767626'
+  # ↑ 계정 인증용 채널 ID입니다. 질문 플러그인을 사용하기 위해서는 굳이 계정 인증을 할 필요는 없지만 할 경우, 디스코드에서 답변한 것들이 기록으로 남는 장점이 있습니다.
+  # 디스코드 인증 채널에서 '!인증 [마인크래프트_아이디]'울 치면 봇이 해당 유저에게 디스코드로 8자리 숫자로 된 인증 코드를 보내고 인게임에서 '/답변 디스코드 인증 [인증_코드]'를 사용하면 인증이 완료됩니다. 인증 채널에서 치는 채팅들은 3초 뒤에 전부 사라집니다.
+  discord_question_prefix: '!'
+  # 질문 채널에서는 질문 앞에 !를 붙이고 질문해야 질문으로 인식합니다. !를 적지 않은 메시지들은 안내 메시지가 뜨고 전부 제거됩니다.
+  # 안내 메시지 예시: https://cdn.discordapp.com/attachments/900351298061365308/956172367061737552/unknown.png
+  
+config:
+  question_min_length: 5
+  question_max_length: 100
+  answer_announcer_delay_when_log_in: 7
+  # ↑ 오프라인일 때 답변이 달린 경우, 로그인 후 질문에 답변이 달렸다는 것을 알려주는 메시지의 딜레이입니다. 초 단위입니다.
+  question_cooldown: 60
+  # ↑ '/질문 <할말>' 쿨타임입니다. 초 단위 입니다.
+  answer_cooldown: 10
+  # ↑ '/답변 아이디 <할말>' 쿨타임입니다. 초 단위입니다.
+  recent_question_answer_time: 60
+  # ↑ '/질문 [할말]'에 대해 '/답변 [아이디] [할말]' 명령어로 답변할 수 있는 시간입니다. 초 단위입니다.
+  authentication_code_expire_time: 120
+  # ↑ 인증에 사용되는 코드가 만료되는 시간입니다. 초 단위입니다.
+  answer_receive_title_fade_in_time: 20
+  # ↑ 틱 단위 입니다.
+  answer_receive_title_stay_time: 60
+  # ↑ 틱 단위 입니다.
+  answer_receive_title_fade_out_time: 40
+  # ↑ 틱 단위 입니다.
+  reward_grace_period_day: '1'
+  reward_grace_period_time: '20:00:00'
+  # ↑ 질문에 답변을 하면 보상을 받는데, 바로 지급이 되는 것이 아니라 하루 뒤에 답변 보상이 지급됩니다. 이는 답변 시스템을 악용하는 유저를 막기 위해 존재하는 기능입니다.
+  # ↑ 월요일날 답변을 달면 다음날 화요일 오후 8시에 답변 보상이 지급 됩니다.
+  reward_command:
+    - cmi money give %playername% 1000
+    - cmi money give %playername% 1000
+  
+sound:
+  answer_receive_success: 'entity_player_levelup:1:1'
+  # ↑ 질문을 한 당사자한테만 들립니다.
+  answer_send_success: 'entity_player_levelup:1:1'
+  
+title:
+  player_question_list: '%playername% 질문 목록 - %current_page% / %total_page%'
+  player_answer_list: '%playername% 답변 목록 - %current_page% / %total_page%'
+  waiting_answer_list: '답변 대기 목록 - %current_page% / %total_page%'
+
+message:
+  invalid_playername: '&f[&c!&f] 존재하지 않는 플레이어 이름입니다!'
+  invalid_answer_number: '&f[&c답변&f] 존재하지 않거나 잘못된 질문 번호입니다!'
+  invalid_authentication_code: '&f[&c답변&f] 잘못된 인증 코드입니다! 숫자 8자리를 입력해주세요.'
+  question_help_success:
+    user:
+      - '&7&m----------------------------------------------------'
+      - ' &6&l질문 도움말'
+      - '&7&m----------------------------------------------------'
+      - '&e/질문 &f[할말] &8- &7전체 채팅에 질문합니다.'
+      - '&e/답변 &f[아이디] &f[할말] &8- &7해당 플레이어가 최근 60초 동안 질문하였던 것에 답변합니다.'
+      - '&e/답변 &f[질문_번호] &f[할말] &8- &7해당 질문에 답변합니다. ex) /답변 #14053 안녕하세요'
+      - '&e/질문 목록 &f(아이디) &8- &7해당 플레이어의 질문을 목록을 확인합니다.'
+      - '&e/답변 목록 &f(아이디) &8- &7해당 플레이어의 답변 목록을 확인합니다.'
+      - '&e/답변 디스코드 인증 [인증_코드] &8- &7디스코드 계정과 마인크래프트 계정을 연결합니다.'
+      - '&e/답변 대기 목록 &8- &7인게임 및 디스코드에서 답변을 기다리는 목록을 전부 띄웁니다.'
+    staff:
+      - '&7&m----------------------------------------------------'
+      - ' &6&l질문 도움말'
+      - '&7&m----------------------------------------------------'
+      - '&e/질문 &f[할말] &8- &7전체 채팅에 질문합니다.'
+      - '&e/답변 &f[아이디] &f[할말] &8- &7해당 플레이어가 최근 60초 동안 질문하였던 것에 답변합니다.'
+      - '&e/답변 &f[질문_번호] &f[할말] &8- &7해당 질문에 답변합니다. ex) /답변 #14053 안녕하세요'
+      - '&e/질문 목록 &f(아이디) &8- &7해당 플레이어의 질문을 목록을 확인합니다.'
+      - '&e/답변 목록 &f(아이디) &8- &7해당 플레이어의 답변 목록을 확인합니다.'
+      - '&e/답변 디스코드 인증 [인증_코드] &8- &7디스코드 계정과 마인크래프트 계정을 연결합니다.'
+      - '&e/답변 대기 목록 &8- &7인게임 및 디스코드에서 답변을 기다리는 목록을 전부 띄웁니다.'
+      - '&e/answer removeq &f[질문_번호] &8- &7해당 질문을 제거합니다.'
+      - '&e/answer removea &f[질문_번호] &8- &7해당 질문의 답변을 제거합니다.'
+    admin:
+      - '&7&m----------------------------------------------------'
+      - ' &6&l질문 도움말'
+      - '&7&m----------------------------------------------------'
+      - '&e/질문 &f[할말] &8- &7전체 채팅에 질문합니다.'
+      - '&e/답변 &f[아이디] &f[할말] &8- &7해당 플레이어가 최근 60초 동안 질문하였던 것에 답변합니다.'
+      - '&e/답변 &f[질문_번호] &f[할말] &8- &7해당 질문에 답변합니다. ex) /답변 #14053 안녕하세요'
+      - '&e/질문 목록 &f(아이디) &8- &7해당 플레이어의 질문을 목록을 확인합니다.'
+      - '&e/답변 목록 &f(아이디) &8- &7해당 플레이어의 답변 목록을 확인합니다.'
+      - '&e/답변 디스코드 인증 [인증_코드] &8- &7디스코드 계정과 마인크래프트 계정을 연결합니다.'
+      - '&e/답변 대기 목록 &8- &7인게임 및 디스코드에서 답변을 기다리는 목록을 전부 띄웁니다.'
+      - '&e/answer removeq &f[질문_번호] &8- &7해당 질문을 제거합니다.'
+      - '&e/answer removea &f[질문_번호] &8- &7해당 질문의 답변을 제거합니다.'
+      - '&e/answer removereward &f[아이디] &8- &7해당 유저에게 지급될 답변 보상을 전부 제거합니다.'
+      - '&e/answer reload &8- &7파일을 리로드합니다.'
+  question_success_broadcast: '&f[&e질문&f] &a%playername%: %question_content%'
+  question_fail_question_too_short: '&f[&c질문&f] 질문이 입력되지 않았거나 너무 짧습니다! (최소 %question_min_length%자)'
+  # ↑ 디스코드 질문에도 적용됩니다.
+  question_fail_question_too_long: '&f[&c질문&f] 질문은 최대 %question_max_length%자까지만 입력이 가능합니다!'
+  # ↑ 디스코드 질문에도 적용됩니다.
+  question_fail_question_cooldown: '&f[&c질문&f] 질문은 %question_cooldown%초에 한번만 할 수 있습니다. 남은 쿨다운: %question_remain_cooldown%'
+  # ↑ 디스코드 질문에도 적용됩니다.
+  answer_send_success_if_questioner_online_broadcast: '&f[&e답변&f] &f&l%answer_playername%&f: %answer%'
+  answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%님(온라인)에게 답변을 보냈습니다. 전체 답변수: %answer_count_total%'
+  answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%님(오프라인)에게 답변을 보냈습니다. 전체 답변수: %answer_count_total%'
+  answer_receive_success_if_questioner_online_title: '답변이 도착했습니다!'
+  answer_receive_success_if_questioner_online_subtitle: '채팅창을 봐주세요!'
+  answer_receive_success_if_questioner_offline_and_join_after: '&f[&e답변&f] %arrived_answer_count%개의 답변이 도착했습니다! &e/질문 목록'
+  answer_receive_success_if_questioner_offline_and_join_after_title: '%arrived_answer_count%개의 답변이 도착했습니다!'
+  answer_receive_success_if_questioner_offline_and_join_after_subtitle: '/질문 목록'
+  answer_send_fail_answer_cooldown: '&f[&c답변&f] 답변은 %answer_cooldown%초에 한번만 할 수 있습니다. 남은 쿨다운: %answer_remain_cooldown%'
+  # ↑ 디스코드 답변에도 적용됩니다.
+  answer_send_fail_can_not_self_answer: '&f[&c답변&f] 자신이 만든 질문에는 답변할 수 없습니다.'
+  answer_send_fail_already_answered_recent_question_and_no_remain_old_question: '&f[&c답변&f] 해당 플레이어는 이미 최근 질문에 대한 답변을 받았습니다!'
+  answer_send_fail_already_answered_recent_question_and_remain_old_question: '&f[&c답변&f] 해당 플레이어는 이미 최근 질문에 대한 답변을 받았습니다! 하지만 답변 받지 못한 질문 %remain_question%개가 남아 있습니다. (메시지 클릭 시 해당 유저의 남은 질문들을 확인합니다.)'
+  answer_send_fail_already_answered_recent_question_and_remain_old_question_hover_message: '클릭 시 해당 유저의 남은 질문들을 확인합니다.'
+  # ↑ 메시지 클릭 시 '/질문 목록 [아이디]' 명령어가 사용됩니다.
+  answer_send_fail_not_exist_recent_question_and_no_remain_old_question: '&f[&c답변&f] 해당 플레이어는 남은 질문이 없습니다!'
+  answer_send_fail_not_exist_recent_question_and_remain_old_question: '&f[&c답변&f] 해당 플레이어는 최근에 질문한 질문이 없습니다. 하지만 답변 받지 못한 질문 %remain_question%개가 남아 있습니다. (메시지 클릭 시 해당 유저의 남은 질문들을 확인합니다.)'
+  answer_send_fail_not_exist_recent_question_and_remain_old_question_hover_message: '클릭 시 해당 유저의 남은 질문들을 확인합니다.'
+  # ↑ 메시지 클릭 시 '/질문 목록 [아이디]' 명령어가 사용됩니다.
+  question_number_answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%(온라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변수: %answer_count_total%
+  # ↑ '/답변 [질문_번호] [할말]' 사용 시 뜨는 메시지 입니다.
+  question_number_answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%(오프라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변수: %answer_count_total%
+  question_number_answer_receive_success_if_questioner_online: '&f[&e답변&f] #%question_number% 질문에 대한 답변이 도착했습니다!'
+  question_number_answer_receive_success_if_questioner_online_title: '답변이 도착했습니다!'
+  question_number_answer_receive_success_if_questioner_online_subtitle: '/질문 목록'
+  question_number_answer_receive_success_if_questioner_offline_and_join_after: '&f[&e답변&f] %arrived_answer_count%개의 답변이 도착했습니다! &e/질문 목록'
+  question_number_answer_receive_success_if_questioner_offline_and_join_after_title: '%arrived_answer_count%개의 답변이 도착했습니다!'
+  question_number_answer_receive_success_if_questioner_offline_and_join_after_subtitle: '/질문 목록'
+  question_number_answer_send_fail_can_not_self_answer: '&f[&c답변&f] 자신이 만든 질문에는 답변할 수 없습니다.'
+  question_number_answer_send_fail_answer_cooldown: '&f[&c답변&f] 답변은 %answer_cooldown%초에 한번만 할 수 있습니다. 남은 쿨다운: %answer_remain_cooldown%'
+  authentication_success: '&f[&a답변&f] 디스코드 계정을 성공적으로 연동했습니다!'
+  authentication_fail_authentication_code_does_not_match: '&f[&a답변&f] 인증 코드가 일치하지 않습니다.'
+  authentication_code_generation_success:
+    - '> 인증 코드는 **[ %authentication_code% ]** 입니다.'
+    - '> 마인크래프트에서 **`/답변 디스코드 인증 %authentication_code%`** 명령어로 인증을 진행해 주세요.'
+    - '> 인증 코드는 %authentication_code_expire_time%초 동안만 유효합니다.'
+    - '> 마인크래프트 아이디를 잘못 입력하였을 경우 인증 코드가 만료된 이후 다시 인증 코드를 발급받을 수 있습니다.'
+  authentication_code_generation_fail_authentication_code_already_generated:
+    - '> 이미 발급된 인증 코드가 존재합니다! 해당 인증 코드로 인증해주세요. 남은 인증 코드 만료 시간: %authentication_code_expire_time%초'
+  authentication_code_generation_fail_not_exist_minecraft_account:
+    - '> 서버 내에서 존재하지 않는 마인크래프트 아이디입니다.'
+  authentication_code_expired:
+    - '> 인증 코드가 만료되었습니다.'
+  discord_authentication_channel_help_message:  '인증 하시려면 &e!인증 [마인크래프트_아이디]를 채널에 입력해주세요! 다른 메시지는 3초 뒤에 지워집니다.'
+  discord_question_channel_prefix_help_message: '%playername%님! 문장 맨 앞에 %prefix%를 입력하면 질문이 가능합니다. 예시) !포켓몬 어디서 잡나요'
+  removeq_success_remove_person: '&f[&c답변&f] #%question_number% 질문을 삭제하였습니다.'
+  removeq_success_has_been_removed_person: '&f[&c답변&f] 관리자 %playername%님이 #%question_number% 질문을 삭제하였습니다.'
+  removeq_fail_not_exist: '&f[&c답변&f] 해당 질문은 존재하지 않거나 이미 삭제된 질문입니다.'
+  removea_success_remove_person: '&f[&c답변&f] #%question_number% 질문을 삭제하였습니다.'
+  removea_success_has_been_removed_person: '&f[&c답변&f] 관리자 %playername%님이 #%question_number% 질문의 답변을 삭제하였습니다.'
+  removea_fail_not_exist: '&f[&c답변&f] 해당 질문의 답변은 존재하지 않거나 이미 삭제된 답변입니다.'
+  remove_reward_success: '&f[&c답변&f] %playername%님의 지급될 답변 보상을 전부 제거하였습니다.'
+  reload_success: '&f[&a!&f] 리로드 완료'
+  answer_playername_placeholder_auto_answer: '자동 답변'
+  reward_payment_success_broadcast: '&f[&a!&f] 답변 보상이 지급되었습니다!'
