@@ -25,6 +25,8 @@ public class DiscordManager {
     //1ec2fc1a60cba9efcf51e1874e905cf9817a3df67c038b74438215fd40ba975f public key
     //MTA5MjMxNDMzOTU1OTYwODMzMA.GTyUf-.i0c5vl5ztAnw8psyVe6gao5pCSx5emzPltQ4WQ token
 
+
+
     final String TOKEN = "OTg5MTk2NTE3ODAzOTYyNDI4.GmiO24.NAq6JH6S4ulMgXtjD4YAmPWwAgQiVPLt3QdSMc";
 
     public void init() {

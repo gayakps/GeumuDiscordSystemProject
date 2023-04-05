@@ -19,6 +19,4 @@ public class ServerPacketResponse extends MinecraftPacket {
         success = random.nextInt(100) < 50;
     }
 
-
-
 }

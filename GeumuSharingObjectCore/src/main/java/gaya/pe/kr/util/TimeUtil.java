@@ -1,4 +1,4 @@
-package gaya.pe.kr.core.util;
+package gaya.pe.kr.util;
 
 import java.util.Calendar;
 import java.util.Date;
