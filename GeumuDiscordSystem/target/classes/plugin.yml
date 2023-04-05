@@ -1,0 +1,9 @@
+name: GeumuDiscordSystem
+version: '1.0-SNAPSHOT'
+main: gaya.pe.kr.plugin.GeumuDiscordSystem
+authors: [GEUMU]
+description: Geumu Discord & Minecraft Question System
+
+
+commands:
+  test123:

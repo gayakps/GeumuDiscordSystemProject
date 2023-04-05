@@ -10,4 +10,6 @@ public class WaitingAnswerListOption extends AbstractOption {
     public WaitingAnswerListOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
         super(dataKeyValue, optionType);
     }
+
+
 }

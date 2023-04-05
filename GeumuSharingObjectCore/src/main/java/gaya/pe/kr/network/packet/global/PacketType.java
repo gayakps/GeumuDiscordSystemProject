@@ -1,11 +1,11 @@
 package gaya.pe.kr.network.packet.global;
 
-import gaya.pe.kr.network.packet.bound.client.DiscordAuthenticationRequest;
-import gaya.pe.kr.network.packet.bound.client.MinecraftOptionReloadRequest;
-import gaya.pe.kr.network.packet.bound.client.ServerPacketResponse;
-import gaya.pe.kr.network.packet.bound.server.MinecraftOption;
-import gaya.pe.kr.network.packet.bound.server.PlayerMessage;
-import gaya.pe.kr.network.packet.bound.server.response.AbstractPlayerRequestResponse;
+import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
+import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
+import gaya.pe.kr.network.packet.startDirection.client.ServerPacketResponse;
+import gaya.pe.kr.network.packet.startDirection.server.MinecraftOption;
+import gaya.pe.kr.network.packet.startDirection.server.PlayerMessage;
+import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import lombok.Getter;
 
 import java.util.HashMap;

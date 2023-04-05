@@ -3,6 +3,7 @@ package gaya.pe.kr.util.option.data.options.gui;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.type.OptionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class AnswerRankingOption extends AbstractOption {
     }
 
     public List<String> answerRankingInfoLore() {
-
+        return new ArrayList<>();
     }
 
 }
