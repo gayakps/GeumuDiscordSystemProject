@@ -2,7 +2,9 @@ package gaya.pe.kr.velocity.minecraft.discord.manager;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
+import gaya.pe.kr.velocity.minecraft.discord.handler.InitHandler;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -17,6 +19,8 @@ import javax.annotation.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
+@Getter
 public class DiscordManager {
 
 
@@ -44,102 +48,7 @@ public class DiscordManager {
 
         try {
             JDA jda = JDABuilder.createDefault(TOKEN).build();
-
-            // First, get the channel object for the specific channel
-
-
-            jda.addEventListener(new ListenerAdapter() {
-                @Override
-                public void onGenericEvent(@NotNull GenericEvent event) {
-                    if ( event instanceof ReadyEvent ) {
-                        authChannel = jda.getTextChannelById("1090859961845825566");
-                    }
-                }
-            });
-
-// Add a message listener for the channel
-            jda.addEventListener(new ListenerAdapter() {
-                @Override
-                public void onMessageReceived(MessageReceivedEvent event) {
-                    MessageChannel channel = event.getChannel();
-                    if (channel.equals(authChannel)) {
-
-                        Message receivedMessage = event.getMessage();
-                        User user = receivedMessage.getAuthor();
-
-                        if ( user.isBot() ) return;
-
-                        String receivedMessageContent = receivedMessage.getContentRaw();
-                        System.out.printf("[ID : %s] Message Type : %s 내용 : %s\n", receivedMessage.getId(), receivedMessage.getType().name(), receivedMessageContent);
-
-
-                        System.out.println(receivedMessageContent + " << 수신" + receivedMessageContent.startsWith("!"));
-
-                        if ( receivedMessageContent.isEmpty() || receivedMessageContent.isBlank() ) {
-                            receivedMessageContent = "!인증 gaya_kps";
-                            System.out.println("변경");
-                        }
-
-                        if ( !receivedMessageContent.startsWith("!")) {
-
-                            MessageAction errorReply = event.getChannel().sendMessage("```해당 채팅방에서의 모든 내용은 '!' 을 붙여주세요```");
-                            Message errorReplyMessage = errorReply.complete();
-
-                            VelocityThreadUtil.delayTask(() -> {
-                                receivedMessage.delete().queue();
-                                errorReplyMessage.delete().queue();
-                            }, 3000);
-                            return;
-                        }
-
-                        if ( receivedMessageContent.contains("!인증")) {
-
-                            String playerName = receivedMessageContent.replace("!인증", "").trim();
-                            DiscordAuthentication discordAuthentication = generateDiscordAuthentication(playerName);
-
-                            if ( discordAuthentication != null ) {
-                                user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
-                                    privateChannel.sendMessage(String.format("```인증코드 : %d | 만료 일자 : %s```"
-                                            , discordAuthentication.getCode()
-                                            , simpleDateFormat.format(discordAuthentication.getExpiredDate()))
-                                    ).queue();
-                                });
-                            } else {
-                                user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
-                                    privateChannel.sendMessage("```이미 만료된 코드거나, 이미 등록되어있는 사용자의 이름입니다```").queue();
-                                });
-                            }
-
-                            VelocityThreadUtil.delayTask(() -> {
-                                receivedMessage.delete().queue();
-                            }, 3000);
-
-                        }
-
-                        // Check if the message is a reply
-//                        if (message.getType().equals(MessageType.INLINE_REPLY)) {
-//                            // Get the replied message
-//                            Message repliedMessage = event.getMessage().getReferencedMessage();
-//                            // Check if the replied message matches a certain condition
-//                            if (repliedMessage.getContentDisplay().equals("test")) {
-//                                // Do something with the reply
-//                                // For example, reply to the reply message
-//
-//                                MessageAction messageAction = event.getChannel().sendMessage("I detected the reply!");
-//
-//                                Message removeTargetMessage = event.getChannel().retrieveMessageById(message.getId()).complete();
-//
-//                                VelocityThreadUtil.delayTask( ()-> {
-//                                    removeTargetMessage.delete().queue();
-//                                    System.out.println("메시지 제거");
-//                                }, 5000);
-//
-//                                messageAction.queue();
-//                            }
-//                        }
-                    }
-                }
-            });
+            jda.addEventListener(new InitHandler("1090859961845825566", "1094161426005884928"));
         } catch ( Exception e ) {
             e.printStackTrace();
         }
