@@ -24,12 +24,7 @@ public class DiscordAuthentication {
     }
 
     public boolean isExpired() {
-
-        long diff = TimeUtil.getTimeDiffSec(expiredDate);
-        System.out.println("만료 날짜와 현재와의 차이 : " + diff);
-
-        return diff > 0;
-
+        return TimeUtil.getTimeDiffSec(expiredDate) > 0;
     }
 
     public boolean isEqualCodeAndPlayerName(DiscordAuthenticationRequest discordAuthenticationRequest) {

@@ -36,7 +36,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, MinecraftPacket minecraftPacket) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, MinecraftPacket minecraftPacket) throws Exception {
         // 패킷 타입에 따라 분기 처리
         System.out.printf("RECEIVED PACKET [FROM CLIENT] : %s\n", minecraftPacket.getType().name());
 
@@ -53,36 +53,39 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
                 DiscordAuthenticationRequest discordAuthenticationRequest = (DiscordAuthenticationRequest) minecraftPacket;
                 System.out.println("수신 완료 " + discordAuthenticationRequest.toString());
 
+                UUID requestPlayerUUID = discordAuthenticationRequest.getPlayerUUID();
+                long packetId = discordAuthenticationRequest.getPacketID();
+                String requestPlayerName = discordAuthenticationRequest.getPlayerName();
+
                 DiscordAuthentication discordAuthentication = discordManager.getDiscordAuthentication(discordAuthenticationRequest);
+
+                PlayerRequestResponseAsChat playerRequestResponseAsChat;
 
                 if ( discordAuthentication != null ) {
 
-                    UUID requestPlayerUUID = discordAuthenticationRequest.getPlayerUUID();
-                    long packetId = discordAuthenticationRequest.getPacketID();
-                    String requestPlayerName = discordAuthentication.getPlayerName();
-
-                    PlayerRequestResponseAsChat playerRequestResponseAsChat;
 
                     if ( discordAuthentication.isExpired() ) {
-                        playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId, requestPlayerName
+                        playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
                                 , "이미 만료된 코드입니다 재 신청 해주세요");
                     } else {
 
                         if ( discordAuthentication.isEqualCodeAndPlayerName(discordAuthenticationRequest) ) {
-                            playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId, requestPlayerName
+                            playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
                                     , "인증 성공");
                             discordManager.removeDiscordAuthentication(requestPlayerName);
                         } else {
-                            playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId, requestPlayerName
+                            playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
                                     , "틀린 인증번호 입니다");
 
                         }
                     }
 
-                    sendPacket(channel, playerRequestResponseAsChat);
                 } else {
-
+                    playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
+                            , "인증을 요청하시기 바랍니다");
                 }
+
+                sendPacket(channel, playerRequestResponseAsChat);
 
 
             }

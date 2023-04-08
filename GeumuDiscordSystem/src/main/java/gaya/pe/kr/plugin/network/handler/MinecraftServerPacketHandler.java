@@ -26,7 +26,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Mi
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, MinecraftPacket minecraftPacket) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, MinecraftPacket minecraftPacket) throws Exception {
         // 패킷 타입에 따라 분기 처리
 
         System.out.printf("RECEIVED PACKET [FROM SERVER] : %s\n", minecraftPacket.getType().name());
