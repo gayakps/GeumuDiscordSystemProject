@@ -13,11 +13,13 @@ import java.util.Date;
 public class DiscordAuthentication {
 
     String playerName;
+    long discordId;
     Date expiredDate;
     int code;
 
-    public DiscordAuthentication(String playerName, int expireSecond) {
+    public DiscordAuthentication(String playerName, long discordId, int expireSecond) {
         this.playerName = playerName;
+        this.discordId = discordId;
         this.code = Integer.parseInt(RandomStringUtils.randomNumeric(8));
         this.expiredDate = TimeUtil.getAfterSecTime(expireSecond);
         System.out.printf("Player : [%s] | Code : [%d] | ExpiredDate : [%s]\n", playerName, code, getExpiredDate());

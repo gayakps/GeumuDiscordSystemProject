@@ -67,16 +67,17 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
                     if ( discordAuthentication.isExpired() ) {
                         playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
                                 , "이미 만료된 코드입니다 재 신청 해주세요");
+                        discordManager.removeDiscordAuthentication(requestPlayerName);
                     } else {
 
                         if ( discordAuthentication.isEqualCodeAndPlayerName(discordAuthenticationRequest) ) {
                             playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
                                     , "인증 성공");
+                            discordManager.addDiscordAuthenticationUser(discordAuthentication);
                             discordManager.removeDiscordAuthentication(requestPlayerName);
                         } else {
                             playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
                                     , "틀린 인증번호 입니다");
-
                         }
                     }
 

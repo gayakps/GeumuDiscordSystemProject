@@ -24,8 +24,7 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
         Message receivedMessage = event.getMessage();
         User user = receivedMessage.getAuthor();
-
-        if ( user.isBot() ) return;
+        long userId = user.getIdLong(); // 사용자 고유 ID를 가져옵니다.
 
         String receivedMessageContent = receivedMessage.getContentRaw();
         System.out.printf("[ID : %s] Message Type : %s 내용 : %s\n", receivedMessage.getId(), receivedMessage.getType().name(), receivedMessageContent);
@@ -53,7 +52,7 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
         if ( receivedMessageContent.contains("!인증")) {
 
             String playerName = receivedMessageContent.replace("!인증", "").trim();
-            DiscordAuthentication discordAuthentication = discordManager.generateDiscordAuthentication(playerName);
+            DiscordAuthentication discordAuthentication = discordManager.generateDiscordAuthentication(playerName, userId);
 
             if ( discordAuthentication != null ) {
                 user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {

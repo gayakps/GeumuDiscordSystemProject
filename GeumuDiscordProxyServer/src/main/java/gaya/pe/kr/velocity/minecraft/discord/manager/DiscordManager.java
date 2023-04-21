@@ -2,6 +2,7 @@ package gaya.pe.kr.velocity.minecraft.discord.manager;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
+import gaya.pe.kr.velocity.minecraft.discord.exception.NonExistPlayerAuthenticationDataException;
 import gaya.pe.kr.velocity.minecraft.discord.handler.InitHandler;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import lombok.Getter;
@@ -32,11 +33,8 @@ public class DiscordManager {
         return SingleTon.DISCORD_MANAGER;
     }
 
-    //989196517803962428 App ID
-    //1ec2fc1a60cba9efcf51e1874e905cf9817a3df67c038b74438215fd40ba975f public key
-    //MTA5MjMxNDMzOTU1OTYwODMzMA.GTyUf-.i0c5vl5ztAnw8psyVe6gao5pCSx5emzPltQ4WQ token
-
-    HashMap<String, DiscordAuthentication> playerNameAsAuthentication = new HashMap<>();
+    HashMap<String, DiscordAuthentication> playerNameAsAuthentication = new HashMap<>(); // 디스코드 인증 대기자들
+    HashMap<String, Long> playerNameAsDiscordUserId = new HashMap<>(); // 디스코드 인증 <유저명, 디스코드 ID>
     Set<String> questionAllowPlayerNameList = new HashSet<>();
     final String TOKEN = "OTg5MTk2NTE3ODAzOTYyNDI4.GmiO24.NAq6JH6S4ulMgXtjD4YAmPWwAgQiVPLt3QdSMc";
 
@@ -75,7 +73,7 @@ public class DiscordManager {
      * @return 생성에 성공 하거나, 생성에 실패 ( 이미 존재할 때 )
      */
     @Nullable
-    public DiscordAuthentication generateDiscordAuthentication(String requestPlayerName) {
+    public DiscordAuthentication generateDiscordAuthentication(String requestPlayerName, long discordId) {
 
         if (playerNameAsAuthentication.containsKey(requestPlayerName) ) {
 
@@ -90,7 +88,7 @@ public class DiscordManager {
             return null;
         }
 
-        DiscordAuthentication discordAuthentication = new DiscordAuthentication(requestPlayerName, 120);
+        DiscordAuthentication discordAuthentication = new DiscordAuthentication(requestPlayerName, discordId,120);
         playerNameAsAuthentication.put(requestPlayerName, discordAuthentication);
 
         return discordAuthentication;
@@ -100,6 +98,50 @@ public class DiscordManager {
     public void removeDiscordAuthentication(String requestPlayerName) {
         questionAllowPlayerNameList.add(requestPlayerName);
         playerNameAsAuthentication.remove(requestPlayerName);
+    }
+
+    public void addDiscordAuthenticationUser(DiscordAuthentication discordAuthentication) {
+
+        long discordId = discordAuthentication.getDiscordId();
+        String playerName = discordAuthentication.getPlayerName();
+        playerNameAsDiscordUserId.put(playerName, discordId);
+        //TODO DB 에 삽입하는 과정도 포함 되어야함
+
+    }
+
+    public boolean isAuthenticationPlayer(long discordId) {
+       return playerNameAsDiscordUserId.containsValue(discordId);
+    }
+
+    public boolean isAuthenticationPlayer(String playerName) {
+        return playerNameAsDiscordUserId.containsKey(playerName);
+    }
+
+    @Nullable
+    public long getAuthenticationPlayerByDiscordId(String playerName) throws NonExistPlayerAuthenticationDataException {
+
+        if (playerNameAsDiscordUserId.containsKey(playerName) ) {
+            return playerNameAsDiscordUserId.get(playerName);
+        }
+
+        throw new NonExistPlayerAuthenticationDataException(String.format("[%s] 는 인증받지 않은 유저입니다", playerName));
+
+    }
+
+    @Nullable
+    public String getAuthenticatedPlayerByDiscordId(long discordId) throws NonExistPlayerAuthenticationDataException  {
+
+        for (Map.Entry<String, Long> stringLongEntry : playerNameAsDiscordUserId.entrySet()) {
+            String playerName = stringLongEntry.getKey();
+            long value = stringLongEntry.getValue();
+
+            if ( value == discordId ) {
+                return playerName;
+            }
+        }
+
+        throw new NonExistPlayerAuthenticationDataException(String.format("[%d] 는 인증받지 않은 유저입니다", discordId));
+
     }
 
 }
