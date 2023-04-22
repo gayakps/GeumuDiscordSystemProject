@@ -6,24 +6,34 @@ import lombok.Getter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.util.*;
 
 
 @Getter
 public abstract class AbstractOption {
 
-    HashMap<String, Object> dataKeyValue;
+    Map<String, Object> dataKeyValue;
 
     OptionType optionType;
 
     String sectionKey;
 
-    public AbstractOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
+    public AbstractOption(Map<String, Object> dataKeyValue, OptionType optionType) {
         this.dataKeyValue = dataKeyValue;
         this.optionType = optionType;
+
+        try {
+            for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
+                System.out.printf("[%s] : %s%n",this.getClass().getSimpleName(), declaredMethod.invoke(this));
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+
     }
 
-    public AbstractOption(HashMap<String, Object> dataKeyValue, OptionType optionType,  String sectionKey) {
+    public AbstractOption(Map<String, Object> dataKeyValue, OptionType optionType,  String sectionKey) {
         this.dataKeyValue = dataKeyValue;
         this.optionType = optionType;
         this.sectionKey = sectionKey;

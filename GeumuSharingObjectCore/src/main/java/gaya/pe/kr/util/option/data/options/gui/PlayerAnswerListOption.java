@@ -6,17 +6,18 @@ import gaya.pe.kr.util.option.type.OptionType;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlayerAnswerListOption extends AbstractOption {
 
-    public PlayerAnswerListOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
-        super(dataKeyValue, optionType);
+    public PlayerAnswerListOption(Map<String, Object> dataKeyValue) {
+        super(dataKeyValue, OptionType.PLAYER_ANSWER_LIST_GUI);
     }
 
 
     @RequirePlaceHolder( placeholders = {"%question_contents%"} )
     public String getAnsweredQuestionName() {
-        return (String) getNestedSectionKey("GUI", "player_answer_list_answered_question", "name").get("name");
+        return (String) getNestedSectionKey("GUI", "player_answer_list_answered_question").get("name");
     }
 
     /**
@@ -38,7 +39,7 @@ public class PlayerAnswerListOption extends AbstractOption {
 
     @RequirePlaceHolder( placeholders = {"%playername%"})
     public String getPlayerAnswerInfoName() {
-        return (String) getNestedSectionKey("GUI", "player_answer_list_player_answer_info", "name").get("name");
+        return (String) getNestedSectionKey("GUI", "player_answer_list_player_answer_info").get("name");
     }
 
     /**
@@ -58,9 +59,21 @@ public class PlayerAnswerListOption extends AbstractOption {
     }
 
     public String getWeeklyAnswerRankingName() {
-        return (String) getNestedSectionKey("GUI", "player_answer_list_weekly_answer_ranking", "name").get("name");
+        return (String) getNestedSectionKey("GUI", "player_answer_list_weekly_answer_ranking").get("name");
     }
 
+    /**
+     *     lore:
+     *       - '1. %answer_top_player_weekly_1% | 답변수 %answer_top_count_weekly_1%회'
+     *       - '2. %answer_top_player_weekly_2% | 답변수 %answer_top_count_weekly_2%회'
+     *       - '3. %answer_top_player_weekly_3% | 답변수 %answer_top_count_weekly_3%회'
+     *       - '4. %answer_top_player_weekly_4% | 답변수 %answer_top_count_weekly_4%회'
+     *       - '5. %answer_top_player_weekly_5% | 답변수 %answer_top_count_weekly_5%회'
+     *       - ''
+     *       - '클릭 시 자세한 답변 랭킹 순위를 확인합니다.'
+     * @return
+     */
+    @RequirePlaceHolder( placeholders = {"%answer_top_player_weekly_1%", "%answer_top_player_weekly_2%", "%answer_top_player_weekly_3%", "%answer_top_player_weekly_4%", "%answer_top_player_weekly_5%"})
     public List<String> getWeeklyAnswerRankingLore() {
         return getList("GUI.player_answer_list_weekly_answer_ranking.lore");
     }

@@ -1,10 +1,10 @@
 package gaya.pe.kr.velocity.minecraft.discord.handler;
 
+import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.velocity.minecraft.discord.exception.NonExistPlayerAuthenticationDataException;
 import gaya.pe.kr.velocity.minecraft.discord.handler.abs.MessageChannelHandler;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
-import gaya.pe.kr.velocity.minecraft.qa.question.data.Question;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

@@ -1,46 +1,55 @@
 package gaya.pe.kr.util.option.data.options.gui;
 
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
+import gaya.pe.kr.util.option.data.anno.RequirePlaceHolder;
 import gaya.pe.kr.util.option.type.OptionType;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlayerQuestionListOption extends AbstractOption {
 
-    public PlayerQuestionListOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
-        super(dataKeyValue, optionType);
+    public PlayerQuestionListOption(Map<String, Object> dataKeyValue) {
+        super(dataKeyValue, OptionType.PLAYER_QUESTION_LIST_GUI);
     }
 
-    public String getRemainQuestionName() {
-        return (String) getNestedSectionKey("GUI", "player_question_list_remain_question", "name").get("name");
+    @RequirePlaceHolder(placeholders = {"%question_content%"})
+    public String getPlayerQuestionListRemainQuestionName() {
+        return (String) getNestedSectionKey("GUI", "player_question_list_remain_question").get("name");
     }
 
-    public List<String> getRemainQuestionLore() {
+    @RequirePlaceHolder(placeholders = {"%question_number%", "%question_playername%", "%question_time%"})
+    public List<String> getPlayerQuestionListRemainQuestionLore() {
         return getList("GUI.player_question_list_remain_question.lore");
     }
 
-    public String getAnsweredQuestionName() {
-        return (String) getNestedSectionKey("GUI", "player_question_list_answered_question", "name").get("name");
+    @RequirePlaceHolder(placeholders = {"%question_content%"})
+    public String getPlayerQuestionListAnsweredQuestionName() {
+        return (String) getNestedSectionKey("GUI", "player_question_list_answered_question").get("name");
     }
 
-    public List<String> getAnsweredQuestionLore() {
+    @RequirePlaceHolder(placeholders = {"%answer_content%","%question_number%", "%question_playername%", "%question_time%", "%answer_time%", "%answer_playername%"})
+    public List<String> getPlayerQuestionListAnsweredQuestionLore() {
         return getList("GUI.player_question_list_answered_question.lore");
     }
 
-    public String getDailyQuestionRankingName() {
-        return (String) getNestedSectionKey("GUI", "player_question_list_daily_question_ranking", "name").get("name");
+    public String getPlayerQuestionListDailyQuestionRankingName() {
+        return (String) getNestedSectionKey("GUI", "player_question_list_daily_question_ranking").get("name");
     }
 
-    public List<String> getDailyQuestionRankingLore() {
+    @RequirePlaceHolder(placeholders = {"%question_top_player_daily_1%", "%question_top_player_daily_2%", "%question_top_count_daily_3%", "%question_top_player_daily_4%", "%question_top_count_daily_5%"})
+    public List<String> getPlayerQuestionListDailyQuestionRankingLore() {
         return getList("GUI.player_question_list_daily_question_ranking.lore");
     }
 
-    public String getPlayerQuestionInfoName() {
-        return (String) getNestedSectionKey("GUI", "player_question_list_player_question_info", "name").get("name");
+    @RequirePlaceHolder(placeholders = {"%playername%"})
+    public String getPlayerQuestionListPlayerQuestionInfoName() {
+        return (String) getNestedSectionKey("GUI", "player_question_list_player_question_info").get("name");
     }
 
-    public List<String> getPlayerQuestionInfoLore() {
+    @RequirePlaceHolder(placeholders = {"%question_count_yesterday%", "%question_count_daily%", "%question_count_weekly%", "%question_count_monthly%", "%question_count_total%"})
+    public List<String> getPlayerQuestionListPlayerQuestionInfoLore() {
         return getList("GUI.player_question_list_player_question_info.lore");
     }
 }

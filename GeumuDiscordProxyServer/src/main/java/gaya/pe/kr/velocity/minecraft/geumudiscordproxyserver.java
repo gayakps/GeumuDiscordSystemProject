@@ -36,9 +36,6 @@ public class geumudiscordproxyserver {
     public geumudiscordproxyserver(ProxyServer server, Logger logger) {
         this.server = server;
         this.logger = logger;
-        for (Player allPlayer : server.getAllPlayers()) {
-            allPlayer.getGameProfile().getName();
-        }
         logger.info("GAYA_SOFT Plugin Start");
     }
 

@@ -1,8 +1,9 @@
 package gaya.pe.kr.velocity.minecraft.qa.question.manager;
 
-import gaya.pe.kr.velocity.minecraft.qa.question.data.Question;
-import gaya.pe.kr.velocity.minecraft.qa.question.data.TransientPlayerProceedingQuestion;
-import gaya.pe.kr.velocity.minecraft.qa.question.exception.NonExistQuestionException;
+
+import gaya.pe.kr.qa.question.data.Question;
+import gaya.pe.kr.qa.question.data.TransientPlayerProceedingQuestion;
+import gaya.pe.kr.qa.question.exception.NonExistQuestionException;
 
 import java.util.HashMap;
 import java.util.Map;

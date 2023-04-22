@@ -7,11 +7,12 @@ import gaya.pe.kr.util.option.type.OptionType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class AnswerRankingOption extends AbstractOption {
-    public AnswerRankingOption(HashMap<String, Object> dataKeyValue, OptionType optionType) {
-        super(dataKeyValue, optionType);
+    public AnswerRankingOption(Map<String, Object> dataKeyValue) {
+        super(dataKeyValue, OptionType.ANSWER_RANKING_GUI);
     }
 
     public String getDailyAnswerRanking() {
