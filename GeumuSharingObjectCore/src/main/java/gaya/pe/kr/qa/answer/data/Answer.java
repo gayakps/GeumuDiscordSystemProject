@@ -10,5 +10,10 @@ public class Answer {
     int answerId;
     int questionId;
 
+    String contents;
+    String answerPlayerName;
+
+    boolean receivedToQuestionPlayer;
+
 
 }

@@ -14,7 +14,7 @@ Discord:
   discord_question_prefix: '!'
   # 질문 채널에서는 질문 앞에 !를 붙이고 질문해야 질문으로 인식합니다. !를 적지 않은 메시지들은 안내 메시지가 뜨고 전부 제거됩니다.
   # 안내 메시지 예시: https://cdn.discordapp.com/attachments/900351298061365308/956172367061737552/unknown.png
-  
+
 config:
   question_min_length: 5
   question_max_length: 100
@@ -41,12 +41,12 @@ config:
   reward_command:
     - cmi money give %playername% 1000
     - cmi money give %playername% 1000
-  
+
 sound:
   answer_receive_success: 'entity_player_levelup:1:1'
   # ↑ 질문을 한 당사자한테만 들립니다.
   answer_send_success: 'entity_player_levelup:1:1'
-  
+
 title:
   player_question_list: '%playername% 질문 목록 - %current_page% / %total_page%'
   player_answer_list: '%playername% 답변 목록 - %current_page% / %total_page%'
@@ -122,9 +122,9 @@ message:
   answer_send_fail_not_exist_recent_question_and_remain_old_question: '&f[&c답변&f] 해당 플레이어는 최근에 질문한 질문이 없습니다. 하지만 답변 받지 못한 질문 %remain_question%개가 남아 있습니다. (메시지 클릭 시 해당 유저의 남은 질문들을 확인합니다.)'
   answer_send_fail_not_exist_recent_question_and_remain_old_question_hover_message: '클릭 시 해당 유저의 남은 질문들을 확인합니다.'
   # ↑ 메시지 클릭 시 '/질문 목록 [아이디]' 명령어가 사용됩니다.
-  question_number_answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%(온라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변수: %answer_count_total%
+  question_number_answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%(온라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변수: %answer_count_total%'
   # ↑ '/답변 [질문_번호] [할말]' 사용 시 뜨는 메시지 입니다.
-  question_number_answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%(오프라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변수: %answer_count_total%
+  question_number_answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%(오프라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변수: %answer_count_total%'
   question_number_answer_receive_success_if_questioner_online: '&f[&e답변&f] #%question_number% 질문에 대한 답변이 도착했습니다!'
   question_number_answer_receive_success_if_questioner_online_title: '답변이 도착했습니다!'
   question_number_answer_receive_success_if_questioner_online_subtitle: '/질문 목록'

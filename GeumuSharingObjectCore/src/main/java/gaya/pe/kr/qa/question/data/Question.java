@@ -16,4 +16,6 @@ public class Question {
     String questionPlayerName; // 질문자 이름
     @Nullable long questionDiscordUserId = -1; // 디스코드 유저 ID
 
+    boolean answer;
+
 }

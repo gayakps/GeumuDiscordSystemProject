@@ -6,8 +6,11 @@ import gaya.pe.kr.util.option.data.options.gui.*;
 import gaya.pe.kr.velocity.minecraft.geumudiscordproxyserver;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,30 +35,33 @@ public class OptionManager {
     ConfigOption configOption;
 
     public void init() {
+        loadConfiguration();
+    }
 
+    public void loadConfiguration() {
         try {
-            String path = "config_resources/GUI";
-            answerRankingOption = new AnswerRankingOption(load(path+"/answer_ranking.yml"));
-            commonlyUsedButtonOption = new CommonlyUsedButtonOption(load(path+"/commonly_used_button.yml"));
-            playerAnswerListOption = new PlayerAnswerListOption(load(path+"/player_answer_list.yml"));
-            playerQuestionListOption = new PlayerQuestionListOption(load(path+"/player_question_list.yml"));
-            questionRankingOption = new QuestionRankingOption(load(path+"/question_ranking.yml"));
-            waitingAnswerListOption = new WaitingAnswerListOption(load(path+"/waiting_answer_list.yml"));
+            String path = "plugins/config_resources/";
+//            answerRankingOption = new AnswerRankingOption(load(path+"/GUI/answer_ranking.yml"));
+            commonlyUsedButtonOption = new CommonlyUsedButtonOption(load(path+"/GUI/commonly_used_button.yml"));
+            playerAnswerListOption = new PlayerAnswerListOption(load(path+"/GUI/player_answer_list.yml"));
+            playerQuestionListOption = new PlayerQuestionListOption(load(path+"/GUI/player_question_list.yml"));
+//            questionRankingOption = new QuestionRankingOption(load(path+"/GUI/question_ranking.yml"));
+            waitingAnswerListOption = new WaitingAnswerListOption(load(path+"/GUI/waiting_answer_list.yml"));
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
-//            Map<String, Object> obj = new Yaml().load(new FileInputStream(""));
         } catch ( Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public Map<String, Object> load(String yamlFileName) {
         Yaml yaml = new Yaml();
-        InputStream inputStream = null;
+        FileInputStream inputStream = null;
         Map<String, Object> result = new LinkedHashMap<>();
         try {
-            inputStream = getClass().getClassLoader().getResourceAsStream(yamlFileName);
+            String workingDirectory = System.getProperty("user.dir");
+            String filePath = workingDirectory + File.separator + yamlFileName;
+            inputStream = new FileInputStream(filePath);
             if (inputStream != null) {
                 result = yaml.load(inputStream);
             } else {
@@ -74,5 +80,4 @@ public class OptionManager {
         }
         return result;
     }
-
 }

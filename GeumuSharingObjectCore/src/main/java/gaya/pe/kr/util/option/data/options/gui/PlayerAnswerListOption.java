@@ -12,6 +12,9 @@ public class PlayerAnswerListOption extends AbstractOption {
 
     public PlayerAnswerListOption(Map<String, Object> dataKeyValue) {
         super(dataKeyValue, OptionType.PLAYER_ANSWER_LIST_GUI);
+
+
+
     }
 
 

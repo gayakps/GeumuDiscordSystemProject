@@ -24,8 +24,8 @@ public abstract class AbstractOption {
         this.optionType = optionType;
 
         try {
-            for (Method declaredMethod : this.getClass().getDeclaredMethods()) {
-                System.out.printf("[%s] : %s%n",this.getClass().getSimpleName(), declaredMethod.invoke(this));
+            for (Method declaredMethod : getClass().getDeclaredMethods()) {
+                System.out.printf("[%s] : %s\n",declaredMethod.getName() ,declaredMethod.invoke(this));
             }
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -33,37 +33,26 @@ public abstract class AbstractOption {
 
     }
 
-    public AbstractOption(Map<String, Object> dataKeyValue, OptionType optionType,  String sectionKey) {
-        this.dataKeyValue = dataKeyValue;
-        this.optionType = optionType;
-        this.sectionKey = sectionKey;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Map<String, Object> getSectionKey(String key) {
-        return (Map<String, Object>) dataKeyValue.get(key);
-    }
 
     @SuppressWarnings("unchecked")
     protected Map<String, Object> getNestedSectionKey(String... keys) {
-        Map<String, Object> currentMap = dataKeyValue;
+        Map<String, Object> currentMap = new LinkedHashMap<>(dataKeyValue);
 
         for (String key : keys) {
+            if (currentMap == null || !currentMap.containsKey(key)) {
+                return null;
+            }
             currentMap = (Map<String, Object>) currentMap.get(key);
         }
 
         return currentMap;
     }
 
-    @SuppressWarnings("unchecked")
-    protected Map<String, Object> getSectionKey() {
-        return (Map<String, Object>) dataKeyValue.get(sectionKey);
-    }
 
     @SuppressWarnings("unchecked")
     protected List<String> getList(String key) {
         String[] keys = key.split("\\.");
-        Map<String, Object> currentMap = dataKeyValue;
+        Map<String, Object> currentMap = new LinkedHashMap<>(dataKeyValue);
 
         for (int i = 0; i < keys.length - 1; i++) {
             currentMap = (Map<String, Object>) currentMap.get(keys[i]);
