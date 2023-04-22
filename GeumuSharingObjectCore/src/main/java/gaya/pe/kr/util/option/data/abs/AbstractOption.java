@@ -23,6 +23,8 @@ public abstract class AbstractOption {
         this.dataKeyValue = dataKeyValue;
         this.optionType = optionType;
 
+        System.out.println("------------------------------------------------"+ getClass().getSimpleName());
+
         try {
             for (Method declaredMethod : getClass().getDeclaredMethods()) {
                 System.out.printf("[%s] : %s\n",declaredMethod.getName() ,declaredMethod.invoke(this));
@@ -30,6 +32,7 @@ public abstract class AbstractOption {
         } catch ( Exception e ) {
             e.printStackTrace();
         }
+
 
     }
 

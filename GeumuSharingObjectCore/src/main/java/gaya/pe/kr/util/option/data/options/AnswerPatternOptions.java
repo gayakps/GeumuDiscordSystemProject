@@ -19,13 +19,17 @@ public class AnswerPatternOptions extends AbstractOption {
 
         for (int a = 1; a <= 1000; a++) {
             String path = a+"A";
-            Map<String, Object> nestedSection = getNestedSectionKey("patterns",path);
+            Map<String, Object> nestedSection = getNestedSectionKey(path);
             if (nestedSection != null) {
                 String matchPattern = (String) nestedSection.get("match");
                 String ignore = nestedSection.containsKey("ignore") ? (String) nestedSection.get("ignore") : "";
                 String message = (String) nestedSection.get("message");
                 patternMatcherList.add(new PatternMatcher(matchPattern, ignore, message));
             }
+        }
+
+        for (PatternMatcher patternMatcher : getPatternMatcherList()) {
+            
         }
 
     }

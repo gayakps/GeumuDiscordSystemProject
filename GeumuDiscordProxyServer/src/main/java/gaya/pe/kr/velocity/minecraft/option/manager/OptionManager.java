@@ -41,11 +41,11 @@ public class OptionManager {
     public void loadConfiguration() {
         try {
             String path = "plugins/config_resources/";
-//            answerRankingOption = new AnswerRankingOption(load(path+"/GUI/answer_ranking.yml"));
+            answerRankingOption = new AnswerRankingOption(load(path+"/GUI/answer_ranking.yml"));
+            questionRankingOption = new QuestionRankingOption(load(path+"/GUI/question_ranking.yml"));
             commonlyUsedButtonOption = new CommonlyUsedButtonOption(load(path+"/GUI/commonly_used_button.yml"));
             playerAnswerListOption = new PlayerAnswerListOption(load(path+"/GUI/player_answer_list.yml"));
             playerQuestionListOption = new PlayerQuestionListOption(load(path+"/GUI/player_question_list.yml"));
-//            questionRankingOption = new QuestionRankingOption(load(path+"/GUI/question_ranking.yml"));
             waitingAnswerListOption = new WaitingAnswerListOption(load(path+"/GUI/waiting_answer_list.yml"));
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
