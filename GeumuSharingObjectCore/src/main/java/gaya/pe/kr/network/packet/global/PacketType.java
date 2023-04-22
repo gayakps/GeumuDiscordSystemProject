@@ -1,13 +1,15 @@
 package gaya.pe.kr.network.packet.global;
 
-import gaya.pe.kr.network.packet.question.PlayerAnswerRequest;
-import gaya.pe.kr.network.packet.question.PlayerQuestionRequest;
+import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
+import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
+import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
+import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
-import gaya.pe.kr.network.packet.startDirection.client.ServerPacketResponse;
 import gaya.pe.kr.network.packet.startDirection.server.MinecraftOption;
 import gaya.pe.kr.network.packet.startDirection.server.PlayerMessage;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
+import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -16,21 +18,26 @@ import java.util.HashMap;
 public enum PacketType {
 
     PLAYER_MESSAGE(0x01, PacketStartDirection.SERVER, PlayerMessage.class),
-    SERVER_PACKET_RESPONSE(0x02, PacketStartDirection.CLIENT, ServerPacketResponse.class),
-    MINECRAFT_OPTION(0x03, PacketStartDirection.SERVER, MinecraftOption.class),
-    MINECRAFT_OPTION_RELOAD_REQUEST(0x04, PacketStartDirection.CLIENT, MinecraftOptionReloadRequest.class),
-    PLAYER_REQUEST_RESPONSE(0x05, PacketStartDirection.SERVER, AbstractPlayerRequestResponse.class),
-    DISCORD_AUTHENTICATION_REQUEST(0x06, PacketStartDirection.CLIENT, DiscordAuthenticationRequest.class),
-    PLAYER_QUESTION_REQUEST(0x07, PacketStartDirection.CLIENT, PlayerQuestionRequest.class),
+    MINECRAFT_OPTION(0x02, PacketStartDirection.SERVER, MinecraftOption.class),
+    MINECRAFT_OPTION_RELOAD_REQUEST(0x03, PacketStartDirection.CLIENT, MinecraftOptionReloadRequest.class),
 
-    PLAYER_ANSWER_REQUEST(0x08, PacketStartDirection.CLIENT, PlayerAnswerRequest.class);
+    PLAYER_REQUEST_RESPONSE_AS_OBJECT(0x4, PacketStartDirection.SERVER, AbstractPlayerRequestResponseAsObject.class),
+    PLAYER_REQUEST_RESPONSE(0x05, PacketStartDirection.SERVER, AbstractPlayerRequestResponse.class),
+
+    DISCORD_AUTHENTICATION_REQUEST(0x06, PacketStartDirection.CLIENT, DiscordAuthenticationRequest.class),
+    PLAYER_PROCEEDING_QUESTION_REQUEST(0x07, PacketStartDirection.CLIENT, PlayerProceedingQuestionRequest.class),
+
+    PLAYER_PROCEEDING_ANSWER_REQUEST(0x08, PacketStartDirection.CLIENT, PlayerProceedingAnswerRequest.class),
+
+    PLAYER_ANSWER_LIST_BY_ANSWER_ID_REQUEST(0x09, PacketStartDirection.CLIENT, PlayerAnswerListByAnswerIdRequest.class),
+    PLAYER_QUESTION_LIST_BY_QUESTION_ID_REQUEST(0x10, PacketStartDirection.CLIENT, PlayerQuestionListByQuestionIdRequest.class);
 
 
 //    PLAYER_TITLE(0x02, PacketStartDirection.SERVER, PlayerTitle.class);
 
     private final byte id;
     private final PacketStartDirection packetStartDirection;
-    private final Class<? extends MinecraftPacket> clazz;
+    private final Class<? extends AbstractMinecraftPacket> clazz;
     private static HashMap<Byte, PacketType> packetTypeHashMap = new HashMap<>();
     private static HashMap<Class<?>, PacketType> classTypeAsPacketTypeHashMap = new HashMap<>();
 
@@ -41,7 +48,7 @@ public enum PacketType {
         }
     }
 
-    PacketType(int id, PacketStartDirection packetStartDirection, Class<? extends MinecraftPacket> clazz) {
+    PacketType(int id, PacketStartDirection packetStartDirection, Class<? extends AbstractMinecraftPacket> clazz) {
         this.id = (byte) id;
         this.packetStartDirection = packetStartDirection;
         this.clazz = clazz;

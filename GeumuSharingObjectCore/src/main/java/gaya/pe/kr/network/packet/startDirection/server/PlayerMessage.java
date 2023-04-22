@@ -1,6 +1,6 @@
 package gaya.pe.kr.network.packet.startDirection.server;
 
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
 import lombok.Getter;
 import lombok.ToString;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @ToString
-public class PlayerMessage extends MinecraftPacket {
+public class PlayerMessage extends AbstractMinecraftPacket {
 
     UUID targetPlayerUUID;
     String targetPlayerName;

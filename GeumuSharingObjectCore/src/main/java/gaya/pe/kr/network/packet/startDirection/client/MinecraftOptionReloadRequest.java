@@ -1,16 +1,16 @@
 package gaya.pe.kr.network.packet.startDirection.client;
 
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPlayerRequestPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
+import lombok.Getter;
+import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
-public class MinecraftOptionReloadRequest extends MinecraftPacket {
-
-    UUID requestPlayerUUID;
+@Getter
+public class MinecraftOptionReloadRequest extends AbstractMinecraftPlayerRequestPacket {
 
 
-    protected MinecraftOptionReloadRequest() {
-        super(PacketType.MINECRAFT_OPTION_RELOAD_REQUEST);
+    protected MinecraftOptionReloadRequest(Player player) {
+        super(PacketType.MINECRAFT_OPTION_RELOAD_REQUEST, player);
     }
+
 }

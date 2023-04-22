@@ -1,6 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.qa.answer.manager;
 
-import gaya.pe.kr.velocity.minecraft.qa.question.data.Question;
+import gaya.pe.kr.qa.question.data.Question;
 
 public class AnswerManager {
 

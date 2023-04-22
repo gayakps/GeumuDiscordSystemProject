@@ -1,4 +1,4 @@
-package gaya.pe.kr.velocity.minecraft.qa.question.data;
+package gaya.pe.kr.qa.question.data;
 
 
 import lombok.Getter;

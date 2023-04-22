@@ -1,7 +1,7 @@
 package gaya.pe.kr.plugin.network.manager;
 
 import gaya.pe.kr.network.connection.initializer.MinecraftServerInitializer;
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import gaya.pe.kr.plugin.network.handler.MinecraftServerPacketHandler;
 import gaya.pe.kr.plugin.thread.SchedulerUtil;
@@ -54,7 +54,7 @@ public class NetworkManager {
 
     }
 
-    public void sendData(MinecraftPacket minecraftPacket) {
+    public void sendData(AbstractMinecraftPacket minecraftPacket) {
         SchedulerUtil.runWaitTask( ()-> {
             ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
             try {
@@ -65,7 +65,7 @@ public class NetworkManager {
         });
     }
 
-    public void sendData(MinecraftPacket minecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
+    public void sendData(AbstractMinecraftPacket minecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
 
         SchedulerUtil.runWaitTask( ()-> {
             ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);

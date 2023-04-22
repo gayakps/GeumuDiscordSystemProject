@@ -9,18 +9,20 @@ import java.io.Serializable;
 import java.util.Random;
 
 @Getter
-public abstract class MinecraftPacket implements Serializable {
+public abstract class AbstractMinecraftPacket implements Serializable {
 
     static Random random = new Random();
     private final byte packetType;
     private final Long packetID;
 
-    protected MinecraftPacket() {
-        this.packetType = PacketType.fromClass(this.getClass()).getId();
-        this.packetID = random.nextLong();
-    }
+    /**
+     protected MinecraftPacket() {
+     this.packetType = PacketType.fromClass(this.getClass()).getId();
+     this.packetID = random.nextLong();
+     }
+     */
 
-    protected MinecraftPacket(PacketType type) {
+    protected AbstractMinecraftPacket(PacketType type) {
         this.packetType = type.getId();
         this.packetID = random.nextLong();
     }
@@ -34,7 +36,7 @@ public abstract class MinecraftPacket implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends MinecraftPacket> T fromData(byte byteId, ByteBuf data) {
+    public static <T extends AbstractMinecraftPacket> T fromData(byte byteId, ByteBuf data) {
         PacketType packetType = PacketType.fromId(byteId);
         return (T) ObjectConverter.getMinecraftPacket(data, packetType.getClazz());
     }

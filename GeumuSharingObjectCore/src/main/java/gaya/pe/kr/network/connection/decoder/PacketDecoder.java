@@ -1,6 +1,6 @@
 package gaya.pe.kr.network.connection.decoder;
 
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -50,7 +50,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
 //        System.out.printf("%s -> [PACKET DECODER] Packet Id : %d Data Length : %d DATA SIZE : %d\n",packetStartDirection.name() , packetId, dataLength, data.readableBytes());
 
         // 패킷 객체를 생성합니다.
-        MinecraftPacket packet = MinecraftPacket.fromData(packetId, data);
+        AbstractMinecraftPacket packet = AbstractMinecraftPacket.fromData(packetId, data);
 
         if (in.readerIndex() != in.writerIndex()) {
             throw new DecoderException("Unused bytes exist in the end of packet: " + (in.writerIndex() - in.readerIndex()) + " bytes");

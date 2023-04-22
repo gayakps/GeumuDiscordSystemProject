@@ -1,4 +1,4 @@
-package gaya.pe.kr.velocity.minecraft.qa.answer.data;
+package gaya.pe.kr.qa.answer.data;
 
 
 /**

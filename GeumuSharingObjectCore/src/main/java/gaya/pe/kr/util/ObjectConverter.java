@@ -1,6 +1,6 @@
 package gaya.pe.kr.util;
 
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -61,7 +61,7 @@ public class ObjectConverter {
         }
     }
 
-    public static <T extends MinecraftPacket> T getMinecraftPacket(ByteBuf byteBuf, Class<T> packetClass) {
+    public static <T extends AbstractMinecraftPacket> T getMinecraftPacket(ByteBuf byteBuf, Class<T> packetClass) {
         try {
             // 압축 해제
             byte[] compressedData = new byte[byteBuf.readableBytes()];

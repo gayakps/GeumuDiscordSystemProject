@@ -1,6 +1,6 @@
 package gaya.pe.kr.network.connection.decoder;
 
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,7 +29,7 @@ public class MinecraftLengthFieldBasedFrameDecoder extends io.netty.handler.code
             int packetSize = frame.readableBytes();
 
 //            System.out.printf("%s -> [MinecraftLengthFieldBasedFrameDecoder] Packet Id : %d Data Size : %d\n", packetStartDirection.name(), packetId, packetSize);
-            return MinecraftPacket.fromData(packetId, frame);
+            return AbstractMinecraftPacket.fromData(packetId, frame);
 
         } finally {
             frame.release();

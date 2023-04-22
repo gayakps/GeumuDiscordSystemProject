@@ -1,8 +1,7 @@
-package gaya.pe.kr.velocity.minecraft.parser;
+package gaya.pe.kr.util.option.data.options;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -86,7 +85,7 @@ public enum MessageType {
 
     RELOAD_SUCCESS,
 
-    ANSWER_PLAYERNAME_PLACEHOLDER_AUTO_ANSWER,
+    ANSWER_PLAYER_NAME_PLACEHOLDER_AUTO_ANSWER,
     REWARD_PAYMENT_SUCCESS_BROADCAST;
 
     List<String> messages;
@@ -100,6 +99,8 @@ public enum MessageType {
     }
 
     public List<String> getMessages() {
-        return new ArrayList<String>(messages);
+        return new ArrayList<>(messages);
     }
+
+
 }

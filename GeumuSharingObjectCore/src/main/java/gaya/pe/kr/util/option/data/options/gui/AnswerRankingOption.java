@@ -1,6 +1,7 @@
 package gaya.pe.kr.util.option.data.options.gui;
 
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
+import gaya.pe.kr.util.option.data.anno.RequirePlaceHolder;
 import gaya.pe.kr.util.option.type.OptionType;
 
 import java.util.ArrayList;
@@ -13,28 +14,46 @@ public class AnswerRankingOption extends AbstractOption {
         super(dataKeyValue, optionType);
     }
 
-    public String dailyAnswerRanking() {
-       return (String) this.getDataKeyValue().getOrDefault("GUI.daily_answer_ranking", "NONE");
+    public String getDailyAnswerRanking() {
+        return (String) getNestedSectionKey("GUI","daily_answer_ranking").get("name");
     }
 
-    public String weeklyAnswerRanking() {
-        return (String) this.getDataKeyValue().getOrDefault("GUI.weekly_answer_ranking", "NONE");
+    public String getWeeklyAnswerRanking() {
+        return (String) getNestedSectionKey("GUI","weekly_answer_ranking").get("name");
     }
 
-    public String monthlyAnswerRanking() {
-        return (String) this.getDataKeyValue().getOrDefault("GUI.monthly_answer_ranking", "NONE");
+
+    public String getMonthlyAnswerRanking() {
+        return (String) getNestedSectionKey("GUI","monthly_answer_ranking").get("name");
     }
 
-    public String totalAnswerRanking() {
-        return (String) this.getDataKeyValue().getOrDefault("GUI.total_answer_ranking", "NONE");
+
+    public String getTotalAnswerRanking() {
+        return (String) getNestedSectionKey("GUI","total_answer_ranking").get("name");
     }
 
-    public String answerRankingInfoName() {
-        return (String) this.getDataKeyValue().getOrDefault("GUI.answer_ranking_info.name", "NONE");
+    /**
+     * PlaceHolder
+     * %playername%
+     * %ranking%
+     */
+    @RequirePlaceHolder( placeholders = {"%playername%", "%ranking%"})
+    public String getAnswerRankingInfoName() {
+        return (String) getNestedSectionKey("GUI", "answer_ranking_info").get("name");
     }
 
-    public List<String> answerRankingInfoLore() {
-        return new ArrayList<>();
+
+    /**
+     * PlaceHolder
+     - "어제 답변수: %answer_count_yesterday%"
+     - "일간 답변수: %answer_count_daily%"
+     - "주간 답변수: %answer_count_weekly%"
+     - "월간 답변수: %answer_count_monthly%"
+     - "전체 기간 답변수: %answer_count_total%"
+     */
+    @RequirePlaceHolder( placeholders = { "%answer_count_yesterday%", "%answer_count_daily%", "%answer_count_weekly%", "%answer_count_monthly%", "%answer_count_total%"})
+    public List<String> getAnswerRankingLore() {
+        return getList("GUI.answer_ranking_info.lore");
     }
 
 }

@@ -1,12 +1,12 @@
 package gaya.pe.kr.network.connection.encoder;
 
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-public class PacketEncoder extends MessageToByteEncoder<MinecraftPacket> {
+public class PacketEncoder extends MessageToByteEncoder<AbstractMinecraftPacket> {
 
     PacketStartDirection packetStartDirection;
 
@@ -15,7 +15,7 @@ public class PacketEncoder extends MessageToByteEncoder<MinecraftPacket> {
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, MinecraftPacket packet, ByteBuf out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, AbstractMinecraftPacket packet, ByteBuf out) throws Exception {
         // 패킷 ID를 쓰고
         ByteBuf data = packet.getData();
         int packetLength = data.readableBytes();

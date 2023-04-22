@@ -1,17 +1,20 @@
 package gaya.pe.kr.velocity.minecraft.network.handler;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
-import gaya.pe.kr.network.packet.startDirection.client.ServerPacketResponse;
-import gaya.pe.kr.network.packet.startDirection.server.PlayerMessage;
-import gaya.pe.kr.network.packet.global.MinecraftPacket;
+import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsChat;
+import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
+import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
+import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -19,9 +22,11 @@ import java.util.concurrent.ExecutionException;
 /**
  * 클라이언트 패킷을 처리 하는 공간
  */
-public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<MinecraftPacket> {
+public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<AbstractMinecraftPacket> {
 
     DiscordManager discordManager = DiscordManager.getInstance();
+    AnswerManager answerManager = AnswerManager.getInstance();
+    QuestionManager questionManager = QuestionManager.getInstance();
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -36,7 +41,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, MinecraftPacket minecraftPacket) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, AbstractMinecraftPacket minecraftPacket) throws Exception {
         // 패킷 타입에 따라 분기 처리
         System.out.printf("RECEIVED PACKET [FROM CLIENT] : %s\n", minecraftPacket.getType().name());
 
@@ -44,11 +49,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
 
         switch (minecraftPacket.getType()) {
 
-            case PLAYER_MESSAGE:
-                PlayerMessage loginPacket = (PlayerMessage) minecraftPacket;
-                channel.writeAndFlush(new ServerPacketResponse());
-                // 로그인 처리
-                break;
             case DISCORD_AUTHENTICATION_REQUEST: {
                 DiscordAuthenticationRequest discordAuthenticationRequest = (DiscordAuthenticationRequest) minecraftPacket;
                 System.out.println("수신 완료 " + discordAuthenticationRequest.toString());
@@ -88,7 +88,20 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
 
                 sendPacket(channel, playerRequestResponseAsChat);
 
+                break;
 
+            }
+            case PLAYER_PROCEEDING_QUESTION_REQUEST: {
+                //TODO 질문에 대한 답변 요청에 대한 내용
+
+                PlayerProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerProceedingQuestionRequest) minecraftPacket;
+
+                break;
+            }
+            case PLAYER_PROCEEDING_ANSWER_REQUEST: {
+                //TODO 질문 요청
+                PlayerProceedingAnswerRequest playerProceedingAnswerRequest = (PlayerProceedingAnswerRequest) minecraftPacket;
+                break;
             }
             default:
                 // 알 수 없는 패킷 처리
@@ -96,7 +109,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Mi
         }
     }
 
-    public void sendPacket(Channel channel, MinecraftPacket minecraftPacket) {
+    public void sendPacket(Channel channel, AbstractMinecraftPacket minecraftPacket) {
 
         VelocityThreadUtil.asyncTask( ()-> {
             ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
