@@ -39,8 +39,8 @@ config:
   # ↑ 질문에 답변을 하면 보상을 받는데, 바로 지급이 되는 것이 아니라 하루 뒤에 답변 보상이 지급됩니다. 이는 답변 시스템을 악용하는 유저를 막기 위해 존재하는 기능입니다.
   # ↑ 월요일날 답변을 달면 다음날 화요일 오후 8시에 답변 보상이 지급 됩니다.
   reward_command:
-    - cmi money give %playername% 1000
-    - cmi money give %playername% 1000
+    - "cmi money give %playername% 1000"
+    - "cmi money give %playername% 1000"
 
 sound:
   answer_receive_success: 'entity_player_levelup:1:1'
