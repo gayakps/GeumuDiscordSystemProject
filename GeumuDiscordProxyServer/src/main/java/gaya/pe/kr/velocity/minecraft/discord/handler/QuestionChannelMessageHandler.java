@@ -1,17 +1,26 @@
 package gaya.pe.kr.velocity.minecraft.discord.handler;
 
+import gaya.pe.kr.velocity.minecraft.discord.exception.NonExistPlayerAuthenticationDataException;
 import gaya.pe.kr.velocity.minecraft.discord.handler.abs.MessageChannelHandler;
+import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
+import gaya.pe.kr.velocity.minecraft.qa.question.data.Question;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageType;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.checkerframework.checker.units.qual.A;
 
 public class QuestionChannelMessageHandler extends MessageChannelHandler {
 
+    QuestionManager questionManager;
+    AnswerManager answerManager;
+    DiscordManager discordManager;
+
     public QuestionChannelMessageHandler(TextChannel textChannel) {
         super(textChannel);
+        questionManager = QuestionManager.getInstance();
+        answerManager = AnswerManager.getInstance();
+        discordManager = DiscordManager.getInstance();
     }
 
     @Override
@@ -19,27 +28,57 @@ public class QuestionChannelMessageHandler extends MessageChannelHandler {
 
         Message message = event.getMessage();
 
-        User user = event.getAuthor();
+        User answerUser = event.getAuthor();
 
-        String username = user.getName(); // 사용자 이름을 가져옵니다.
-        String discriminator = user.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
-        long userId = user.getIdLong(); // 사용자 고유 ID를 가져옵니다.
+        String username = answerUser.getName(); // 사용자 이름을 가져옵니다.
+        String discriminator = answerUser.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
+        long answerUserId = answerUser.getIdLong(); // 사용자 고유 ID를 가져옵니다.
 
-        String fullName = username + "#" + discriminator; // 전체 사용자 이름을 생성합니다.
+        String answerFullName = username + "#" + discriminator; // 전체 사용자 이름을 생성합니다.
 
         MessageType messageType = message.getType();
 
         if ( messageType.equals(MessageType.INLINE_REPLY ) ) {
 
+            if ( !discordManager.isAuthenticationPlayer(answerUserId) ) {
+                //TODO 미 인증 유저는 답변할 수 없음
+                return;
+            }
+
             Message repliedMessage = event.getMessage().getReferencedMessage(); // 레퍼런스 메시지
 
             long repliedMessageId = repliedMessage.getIdLong();
 
-            QuestionManager questionManager = QuestionManager.getInstance();
-
             if ( questionManager.existQuestionByDiscordMessageId(repliedMessageId) ) {
                 //TODO 존재하는 메시지 일때
+
+                Question question = questionManager.getQuestionByDiscordMessageId(repliedMessageId);
+
+                String questionPlayerFullName = question.getQuestionPlayerName();
+
+                try {
+                    long questionPlayerDiscordID = discordManager.getAuthenticationPlayerByDiscordId(questionPlayerFullName);
+                    User questionPlayerDiscordUser = discordManager.getJda().getUserById(questionPlayerDiscordID);
+
+                    if ( questionPlayerDiscordUser != null ) {
+                        questionPlayerFullName = discordManager.getFullName(questionPlayerDiscordUser);
+                    } else {
+                        // 디스코드 에서 떠난 유저
+                        questionPlayerFullName = questionPlayerFullName + " ( 서버 탈퇴 유저 )";
+                    }
+
+                } catch ( NonExistPlayerAuthenticationDataException ignore ) {}
+
+                // TODO 답변 시스템 진행
+
+
+
+            } else {
+                //TODO 삭제된 메세지 일때
             }
+
+        }
+        else {
 
         }
 

@@ -1,6 +1,7 @@
 package gaya.pe.kr.velocity.minecraft.qa.question.manager;
 
 import gaya.pe.kr.velocity.minecraft.qa.question.data.Question;
+import gaya.pe.kr.velocity.minecraft.qa.question.data.TransientPlayerProceedingQuestion;
 import gaya.pe.kr.velocity.minecraft.qa.question.exception.NonExistQuestionException;
 
 import java.util.HashMap;
@@ -56,6 +57,10 @@ public class QuestionManager {
         }
 
         throw new NonExistQuestionException(String.format("[%d] Discord Message Id 의 질문은 존재하지 않습니다", messageId));
+
+    }
+
+    public void broadCastQuestion(TransientPlayerProceedingQuestion playerProceedingQuestion) {
 
     }
 

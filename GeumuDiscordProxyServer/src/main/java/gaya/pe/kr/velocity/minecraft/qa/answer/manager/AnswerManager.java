@@ -1,6 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.qa.answer.manager;
 
-import gaya.pe.kr.question.PlayerProceedingQuestion;
+import gaya.pe.kr.velocity.minecraft.qa.question.data.Question;
 
 public class AnswerManager {
 
@@ -20,9 +20,13 @@ public class AnswerManager {
     }
 
 
-    public void broadCastQuestion(PlayerProceedingQuestion playerProceedingQuestion) {
+    public void answer(Question question) {
+
+
 
     }
+
+
 
 
 }

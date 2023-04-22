@@ -1,6 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.qa.question.exception;
 
-public class NonExistQuestionException extends Exception{
+public class NonExistQuestionException extends RuntimeException {
 
     public NonExistQuestionException() {
     }

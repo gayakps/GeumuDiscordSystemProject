@@ -1,6 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.discord.exception;
 
-public class NonExistPlayerAuthenticationDataException extends Exception {
+public class NonExistPlayerAuthenticationDataException extends RuntimeException  {
 
     public NonExistPlayerAuthenticationDataException() {
     }

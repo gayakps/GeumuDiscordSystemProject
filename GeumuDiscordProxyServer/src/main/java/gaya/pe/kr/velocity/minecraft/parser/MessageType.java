@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Message Type 이지 PlaceHolder 와의 연관성이 없음
+ * 콘피그 로드할 때 진행해야함
  */
 public enum MessageType {
 
@@ -15,7 +16,7 @@ public enum MessageType {
     TITLE_PLAYER_ANSWER_LIST,
     TITLE_ANSWER_LIST,
 
-    INVALID_PLAYERNAME,
+    INVALID_PLAYER_NAME,
     INVALID_ANSWER_NUMBER,
     INVALID_AUTHENTICATION_CODE,
     QUESTION_HELP_SUCCESS_USER,

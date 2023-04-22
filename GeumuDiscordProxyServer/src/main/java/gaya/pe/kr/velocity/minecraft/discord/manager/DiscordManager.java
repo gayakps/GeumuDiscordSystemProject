@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-@Getter
 public class DiscordManager {
 
 
@@ -40,12 +39,13 @@ public class DiscordManager {
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    JDA jda;
     TextChannel authChannel;
 
     public void init() {
 
         try {
-            JDA jda = JDABuilder.createDefault(TOKEN).build();
+            jda = JDABuilder.createDefault(TOKEN).build();
             jda.addEventListener(new InitHandler("1090859961845825566", "1094161426005884928"));
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -142,6 +142,25 @@ public class DiscordManager {
 
         throw new NonExistPlayerAuthenticationDataException(String.format("[%d] 는 인증받지 않은 유저입니다", discordId));
 
+    }
+
+    public SimpleDateFormat getSimpleDateFormat() {
+        return simpleDateFormat;
+    }
+
+    public TextChannel getAuthChannel() {
+        return authChannel;
+    }
+
+    public JDA getJda() {
+        return jda;
+    }
+
+    public String getFullName(User user) {
+        String username = user.getName(); // 사용자 이름을 가져옵니다.
+        String discriminator = user.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
+        long userId = user.getIdLong(); // 사용자 고유 ID를 가져옵니다.
+        return username + "#" + discriminator;
     }
 
 }
