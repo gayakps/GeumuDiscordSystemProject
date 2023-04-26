@@ -3,11 +3,13 @@ package gaya.pe.kr.velocity.minecraft.network.handler;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsChat;
+import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
+import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
-import gaya.pe.kr.velocity.minecraft.option.manager.OptionManager;
+import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
@@ -15,8 +17,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.checkerframework.checker.units.qual.A;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -39,9 +41,10 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
 
-        OptionManager optionManager = OptionManager.getInstance();
-
-        System.out.printf("%s Client Join\n", ctx.channel().toString());
+        ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
+        List<AbstractOption> abstractOptionList = serverOptionManager.getAllOptions();
+        sendPacket(ctx.channel(), new ServerOption(abstractOptionList));
+        System.out.printf("%s Client Connection & send packet\n", ctx.channel().toString());
     }
 
     @Override

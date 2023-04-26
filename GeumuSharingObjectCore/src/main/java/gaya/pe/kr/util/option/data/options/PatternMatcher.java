@@ -5,17 +5,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 @Getter
 @ToString
-public class PatternMatcher {
+public class PatternMatcher implements Serializable {
 
     String match;
     String ignore;
-
     String message;
 
     public PatternMatcher(String match, String ignore, String message) {

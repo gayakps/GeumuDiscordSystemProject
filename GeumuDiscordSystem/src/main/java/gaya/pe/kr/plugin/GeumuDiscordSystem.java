@@ -2,42 +2,35 @@ package gaya.pe.kr.plugin;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
+import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.manager.QAManager;
 import io.netty.channel.ChannelFuture;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public final class GeumuDiscordSystem extends JavaPlugin implements CommandExecutor {
 
-
     static Plugin plugin;
-    String pattern = "(여행용|도구|여행자|여행용 도구|여행용도구|여행).*(가방|세트|셋트|상자|키트).*";
-    String ignore = "지닌도구상자|지닌 도구 상자|지닌도구 상자|지닌 도구상자";
+
+    NetworkManager networkManager = NetworkManager.getInstance();
+    QAManager qaManager = QAManager.getInstance();
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
-        NetworkManager networkManager = NetworkManager.getInstance();
+
         networkManager.init();
-        getCommand("test123").setExecutor(this);
-//        JDA jda = null;
-//
-//        TextChannel textChannel = jda.getTextChannelById(123);
-//
-//        textChannel.sendMessage("messageContent").queue(message -> {
-//            // message sent successfully
-//            String messageId = message.getId();
-//            System.out.println("Sent message with ID: " + messageId);
-//        }, error -> {
-//            // message failed to send
-//            System.out.println("Error sending message: " + error.getMessage());
-//        });
-//
+        qaManager.init();
     }
 
     @Override
@@ -51,15 +44,11 @@ public final class GeumuDiscordSystem extends JavaPlugin implements CommandExecu
         if ( var1 instanceof Player) {
             Player player = (Player) var1;
             String code = var4[0];
-
             DiscordAuthenticationRequest discordAuthenticationRequest = new DiscordAuthenticationRequest(player.getUniqueId(), player.getName(), Integer.parseInt(code) );
             NetworkManager.getInstance().sendData(discordAuthenticationRequest, player, (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다")));
-
-
         }
 
         return false;
-
     }
 
     public static Plugin getPlugin() {
@@ -72,7 +61,31 @@ public final class GeumuDiscordSystem extends JavaPlugin implements CommandExecu
             plugin.getLogger().info(ChatColor.translateAlternateColorCodes('&', message));
         }
 
+    }
 
+    public static void registerEvent(Listener listener) {
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
+        log(String.format("&f[&6&l%s&f]의 클래스가 정상적으로 이벤트 핸들러에 등록됐습니다", listener.getClass().getName()));
+
+    }
+
+    public static void registerCommand(String command, CommandExecutor commandExecutor) {
+        Bukkit.getPluginCommand(command).setExecutor(commandExecutor);
+        log(String.format("&f[&6&l%s&f]의 클래스가 정상적으로 커맨드 핸들러에 등록됐습니다 커맨드 : &f[&6&l%s&f]", commandExecutor.getClass().getName(), command));
+    }
+
+    public static void registerTabCommand(String command, TabCompleter tabCompleter) {
+        Bukkit.getPluginCommand(command).setTabCompleter(tabCompleter);
+    }
+
+    public static BukkitScheduler getBukkitScheduler() {
+        return Bukkit.getScheduler();
+    }
+
+    public static void msg(Player player, String... s) {
+        for (String s1 : s) {
+            player.sendMessage(String.format("&6&l| SYSTEM &f%s ", s1).replace("&", "§"));
+        }
     }
 
 }

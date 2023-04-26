@@ -6,12 +6,13 @@ import lombok.Getter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 
 
 @Getter
-public abstract class AbstractOption {
+public abstract class AbstractOption implements Serializable {
 
     Map<String, Object> dataKeyValue;
 

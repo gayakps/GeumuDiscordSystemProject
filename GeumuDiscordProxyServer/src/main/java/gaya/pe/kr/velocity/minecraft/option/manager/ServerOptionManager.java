@@ -1,30 +1,30 @@
 package gaya.pe.kr.velocity.minecraft.option.manager;
 
+import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.util.option.data.options.gui.*;
-import gaya.pe.kr.velocity.minecraft.geumudiscordproxyserver;
 import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
 @Getter
-public class OptionManager {
+public class ServerOptionManager {
 
     private static class SingleTon {
-        private static final OptionManager OPTION_MANAGER = new OptionManager();
+        private static final ServerOptionManager OPTION_MANAGER = new ServerOptionManager();
     }
 
-    public static OptionManager getInstance() {
-        return OptionManager.SingleTon.OPTION_MANAGER;
+    public static ServerOptionManager getInstance() {
+        return ServerOptionManager.SingleTon.OPTION_MANAGER;
     }
 
     AnswerRankingOption answerRankingOption;
@@ -83,4 +83,12 @@ public class OptionManager {
         }
         return result;
     }
+
+    public List<AbstractOption> getAllOptions() {
+
+        return Arrays.asList(getConfigOption(), getAnswerPatternOptions(), getAnswerRankingOption(), getQuestionRankingOption()
+        , getPlayerAnswerListOption(), getPlayerQuestionListOption(), getWaitingAnswerListOption(), getCommonlyUsedButtonOption());
+
+    }
+
 }

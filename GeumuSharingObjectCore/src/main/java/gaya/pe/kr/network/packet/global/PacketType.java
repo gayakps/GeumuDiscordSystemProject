@@ -1,6 +1,7 @@
 package gaya.pe.kr.network.packet.global;
 
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
+import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
@@ -30,7 +31,9 @@ public enum PacketType {
     PLAYER_PROCEEDING_ANSWER_REQUEST(0x08, PacketStartDirection.CLIENT, PlayerProceedingAnswerRequest.class),
 
     PLAYER_ANSWER_LIST_BY_ANSWER_ID_REQUEST(0x09, PacketStartDirection.CLIENT, PlayerAnswerListByAnswerIdRequest.class),
-    PLAYER_QUESTION_LIST_BY_QUESTION_ID_REQUEST(0x10, PacketStartDirection.CLIENT, PlayerQuestionListByQuestionIdRequest.class);
+    PLAYER_QUESTION_LIST_BY_QUESTION_ID_REQUEST(0x10, PacketStartDirection.CLIENT, PlayerQuestionListByQuestionIdRequest.class),
+
+    SERVER_OPTION(0x11, PacketStartDirection.SERVER, ServerOption.class);
 
 
 //    PLAYER_TITLE(0x02, PacketStartDirection.SERVER, PlayerTitle.class);

@@ -73,6 +73,7 @@ public class NetworkManager {
                 Void result = channelFuture.get();
                 sendSuccessAfterConsumer.accept(sender);
             } catch (InterruptedException | ExecutionException e ) {
+                sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");
                 e.printStackTrace();
             }
         });

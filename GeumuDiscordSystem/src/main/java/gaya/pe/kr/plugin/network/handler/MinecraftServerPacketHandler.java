@@ -3,15 +3,22 @@ package gaya.pe.kr.plugin.network.handler;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
-import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsChat;
+import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
+import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.question.data.Question;
+import gaya.pe.kr.util.option.data.abs.AbstractOption;
+import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
+import gaya.pe.kr.util.option.data.options.ConfigOption;
+import gaya.pe.kr.util.option.data.options.gui.*;
+import gaya.pe.kr.util.option.type.OptionType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
+import java.lang.reflect.Method;
 
 /**
  * 서버로 부터 전송된 패킷을 처리 하는 곳
@@ -40,10 +47,12 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
 
             case PLAYER_REQUEST_RESPONSE: {
-                System.out.println("리스폰스 동착");
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
-                abstractPlayerRequestResponse.sendData(player);
+                if ( player != null ) {
+                    abstractPlayerRequestResponse.sendData(player);
+                }
+
                 break;
             }
 
@@ -62,9 +71,72 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                      Question[] questions = (Question[]) tObject;
                  }
 
+                break;
+            }
 
+            case SERVER_OPTION: {
+
+                ServerOption serverOption = (ServerOption) minecraftPacket;
+
+                OptionManager optionManager = OptionManager.getInstance();
+
+                for (AbstractOption abstractOption : serverOption.getAbstractOptionList()) {
+
+                    OptionType optionType = abstractOption.getOptionType();
+
+                    GeumuDiscordSystem.log(String.format("%s Type Received ------------------------------------------", optionType));
+
+                    try {
+
+                        Class<?> clazz = abstractOption.getClass();
+
+                        for (Method declaredMethod : clazz.getDeclaredMethods()) {
+                            System.out.printf("[%s] : %s\n",declaredMethod.getName() ,declaredMethod.invoke(abstractOption));
+                        }
+                    } catch ( Exception e ) {
+                        e.printStackTrace();
+                    }
+
+                    switch ( optionType ) {
+                        case ANSWER_PATTEN: {
+                            optionManager.setAnswerPatternOptions((AnswerPatternOptions) abstractOption);
+                            break;
+                        }
+                        case CONFIG: {
+                            optionManager.setConfigOption((ConfigOption) abstractOption);
+                            break;
+                        }
+                        case ANSWER_RANKING_GUI: {
+                            optionManager.setAnswerRankingOption((AnswerRankingOption) abstractOption);
+                            break;
+                        }
+                        case COMMONLY_USED_BUTTON_GUI:{
+                            optionManager.setCommonlyUsedButtonOption((CommonlyUsedButtonOption) abstractOption);
+                            break;
+                        }
+                        case WAITING_ANSWER_LIST_GUI: {
+                            optionManager.setWaitingAnswerListOption((WaitingAnswerListOption) abstractOption);
+                            break;
+                        }
+                        case PLAYER_ANSWER_LIST_GUI: {
+                            optionManager.setPlayerAnswerListOption((PlayerAnswerListOption) abstractOption);
+                            break;
+                        }
+                        case PLAYER_QUESTION_LIST_GUI: {
+                            optionManager.setPlayerQuestionListOption((PlayerQuestionListOption) abstractOption);
+                            break;
+                        }
+                        case QUESTION_RANKING_GUI: {
+                            optionManager.setQuestionRankingOption((QuestionRankingOption) abstractOption);
+                            break;
+                        }
+                    }
+
+                }
 
                 break;
+
+
             }
 
 
