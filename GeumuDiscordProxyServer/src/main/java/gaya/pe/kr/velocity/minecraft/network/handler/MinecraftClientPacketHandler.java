@@ -7,6 +7,7 @@ import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.option.manager.OptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
@@ -37,6 +38,9 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+
+        OptionManager optionManager = OptionManager.getInstance();
+
         System.out.printf("%s Client Join\n", ctx.channel().toString());
     }
 

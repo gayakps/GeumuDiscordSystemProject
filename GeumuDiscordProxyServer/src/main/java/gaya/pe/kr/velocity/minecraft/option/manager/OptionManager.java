@@ -4,6 +4,7 @@ import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.util.option.data.options.gui.*;
 import gaya.pe.kr.velocity.minecraft.geumudiscordproxyserver;
+import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -14,6 +15,8 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
+@Getter
 public class OptionManager {
 
     private static class SingleTon {
