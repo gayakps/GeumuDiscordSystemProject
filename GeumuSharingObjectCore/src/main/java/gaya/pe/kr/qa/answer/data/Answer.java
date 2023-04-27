@@ -1,6 +1,7 @@
 package gaya.pe.kr.qa.answer.data;
 
 
+import gaya.pe.kr.qa.data.QAUser;
 import lombok.Getter;
 
 @Getter
@@ -11,7 +12,8 @@ public class Answer {
     int questionId;
 
     String contents;
-    String answerPlayerName;
+
+    QAUser answerPlayer;
 
     boolean receivedToQuestionPlayer;
 

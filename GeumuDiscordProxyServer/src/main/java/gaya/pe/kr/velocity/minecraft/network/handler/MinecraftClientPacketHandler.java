@@ -6,7 +6,9 @@ import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestRes
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
 import gaya.pe.kr.qa.data.QARequestResult;
+import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
+import gaya.pe.kr.util.ThreadUtil;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -15,6 +17,7 @@ import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
+import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import io.netty.channel.Channel;
@@ -36,6 +39,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     QuestionManager questionManager = QuestionManager.getInstance();
 
     ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
+    QAUserManager qaUserManager = QAUserManager.getInstance();
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -137,23 +141,28 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
                     if ( patternMatcher.isMatch(contents) ) {
-                        //TODO 필터링에 걸림
+                        //TODO 자동 답변 필터링에 걸림
                         String answer = patternMatcher.getMessage();
 
-                        response.addMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast().replace());
+                        response.addMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
+                                .replace("%playername%", "&cSYSTEM")
+                                .replace("%answer%", answer)
+                        );
 
-
-
-
-
+                        sendPacket(channel, response);
                         return;
                     }
                 }
 
+                // 필터링에도 걸리지 않았고 전체 질문을 진행하고자함
 
+                int lastQuestionNumber = questionManager.getQuestionNumber();
+                Question question = new Question(lastQuestionNumber, contents, qaUserManager.getUser(playerProceedingQuestionRequest.getPlayerName()) );
 
-
-
+                ThreadUtil.schedule( ()-> {
+                    questionManager.broadCastQuestion(question, qaRequestResult);
+                    sendPacket(channel, response);
+                });
 
                 break;
             }

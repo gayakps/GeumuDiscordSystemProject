@@ -10,6 +10,7 @@ import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionReq
 import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.velocity.database.DBConnection;
+import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 
@@ -66,6 +67,11 @@ public class QuestionManager {
         throw new NonExistQuestionException(String.format("[%d] Discord Message Id 의 질문은 존재하지 않습니다", messageId));
     }
 
+    /**
+     *
+     * @param playerTransientProceedingQuestionRequest
+     * @return Discord 혹은 In-Game 에서도 사용할 수 있도록 설정
+     */
     public QARequestResult canQuestion(PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest) {
 
         PlayerTransientProceedingQuestionRequest.RequestType requestType = playerTransientProceedingQuestionRequest.getRequestType();
@@ -121,14 +127,22 @@ public class QuestionManager {
 
         }
 
-
-
-
         return qaRequestResult;
 
     }
 
-    public void broadCastQuestion(TransientPlayerProceedingQuestion playerProceedingQuestion) {
+    public void broadCastQuestion(Question question, QARequestResult qaRequestResult) {
+
+        //TODO 디스코드 전체 질문 전송
+        //TODO
+        DiscordManager discordManager = DiscordManager.getInstance();
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(qaUserManager.getFullName(question.getQaUser()));
+        stringBuilder.append(String.format(" ( 질문번호 | %d )", question.getId()));
+
+        discordManager.sendMessage("" , discordManager.getAuthChannel() );
 
     }
 

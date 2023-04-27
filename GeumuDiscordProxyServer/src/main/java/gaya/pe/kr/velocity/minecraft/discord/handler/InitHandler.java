@@ -1,5 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.discord.handler;
 
+import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -21,6 +22,8 @@ public class InitHandler extends ListenerAdapter {
     public void onGenericEvent(@NotNull GenericEvent event) {
         if ( event instanceof ReadyEvent) {
 
+            DiscordManager discordManager = DiscordManager.getInstance();
+
             JDA jda = event.getJDA();
             for (TextChannel textChannel : jda.getTextChannels()) {
 
@@ -28,10 +31,12 @@ public class InitHandler extends ListenerAdapter {
 
                 if ( textChannelID.equals(authChannelID) ) {
                     jda.addEventListener(new AuthenticationChannelMessageHandler(textChannel));
+                    discordManager.setAuthChannel(textChannel);
                 }
 
                 if ( textChannelID.equals(questionChannelID) ) {
                     jda.addEventListener(new QuestionChannelMessageHandler(textChannel));
+                    discordManager.setQuestionChannel(textChannel);
                 }
 
             }

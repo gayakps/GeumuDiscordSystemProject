@@ -2,6 +2,8 @@ package gaya.pe.kr.velocity.minecraft.qa.manager;
 
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.velocity.database.DBConnection;
+import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashSet;
 
@@ -48,6 +50,27 @@ public class QAUserManager {
         addUser(qaUser);
 
         return qaUser;
+    }
+
+    public String getFullName(QAUser qaUser) {
+
+        DiscordManager discordManager = DiscordManager.getInstance();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if ( qaUser.getGamePlayerName() != null ) {
+            stringBuilder.append(qaUser.getGamePlayerName());
+        }
+
+        if ( qaUser.getDiscordPlayerUserId() != -1 ) {
+            User user = discordManager.getJda().getUserById(qaUser.getDiscordPlayerUserId());
+            if ( user != null ) {
+                String fullName = discordManager.getFullName(user);
+                stringBuilder.append(fullName);
+            }
+        }
+
+        return stringBuilder.toString().trim();
+
     }
 
     public void addUser(QAUser qaUser) {

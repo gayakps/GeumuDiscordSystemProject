@@ -1,11 +1,14 @@
 package gaya.pe.kr.velocity.minecraft.discord.manager;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
+import gaya.pe.kr.util.data.ConsumerTwoObject;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.exception.NonExistPlayerAuthenticationDataException;
 import gaya.pe.kr.velocity.minecraft.discord.handler.InitHandler;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.Synchronized;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -40,7 +43,8 @@ public class DiscordManager {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     JDA jda;
-    TextChannel authChannel;
+    @Setter TextChannel authChannel;
+    @Setter TextChannel questionChannel;
 
     public void init() {
 
@@ -159,8 +163,15 @@ public class DiscordManager {
     public String getFullName(User user) {
         String username = user.getName(); // 사용자 이름을 가져옵니다.
         String discriminator = user.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
-        long userId = user.getIdLong(); // 사용자 고유 ID를 가져옵니다.
         return username + "#" + discriminator;
+    }
+
+
+    public Message sendMessage(String message, TextChannel textChannel) {
+
+        MessageAction messageAction = textChannel.sendMessage(message);
+        return messageAction.complete();
+
     }
 
 }
