@@ -6,11 +6,15 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import gaya.pe.kr.velocity.minecraft.geumudiscordproxyserver;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class VelocityThreadUtil {
 
     static ProxyServer server;
+
+    static Timer timer = new Timer();
 
     public static void init(ProxyServer paramProxyServer) {
         server = paramProxyServer;
@@ -37,6 +41,17 @@ public class VelocityThreadUtil {
         thread.start();
 
         return thread;
+
+    }
+
+    public static void asyncTask(Runnable runnable, int delayMillSec) {
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }, delayMillSec);
 
     }
 

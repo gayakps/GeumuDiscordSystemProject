@@ -98,6 +98,20 @@ public class QAUserManager {
 
     public void addUser(QAUser qaUser) {
 
+        QAUser removeTargetQAUser = null;
+
+        // Discord ID와 Game Player Name이 기존 사용자와 중복되는 경우, 사용자를 제거
+        if (qaUser.getDiscordPlayerUserId() != -1 && existUser(qaUser.getDiscordPlayerUserId())) {
+            removeTargetQAUser = getUser(qaUser.getDiscordPlayerUserId());
+        } else if (qaUser.getGamePlayerName() != null && existUser(qaUser.getGamePlayerName())) {
+            removeTargetQAUser = getUser(qaUser.getGamePlayerName());
+        }
+
+        // 중복 사용자가 존재하면 HashSet에서 제거
+        if (removeTargetQAUser != null) {
+            userHashSet.remove(removeTargetQAUser);
+        }
+
         boolean result = DBConnection.taskTransaction(connection -> {
             //TODO 데이터베이스에 QAUser 를 input 하는 과정을 추가 해야함
         });

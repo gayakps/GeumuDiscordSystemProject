@@ -8,6 +8,7 @@ import gaya.pe.kr.velocity.minecraft.discord.exception.NotExpiredDiscordAuthenti
 import gaya.pe.kr.velocity.minecraft.discord.handler.InitHandler;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
+import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -131,6 +132,23 @@ public class DiscordManager {
 
         MessageAction messageAction = textChannel.sendMessage(message);
         return messageAction.complete();
+
+    }
+
+    public void sendMessageAndRemove(MessageChannel messageChannel, String message, int removeDelayMillSec, boolean sendMessageRemove , Message... removeTargetMessages) {
+
+        MessageAction errorReply = messageChannel.sendMessage(message);
+
+        errorReply.queue( targetMessage -> {
+            VelocityThreadUtil.asyncTask(() -> {
+                for (Message removeTargetMessage : removeTargetMessages) {
+                    removeTargetMessage.delete().complete();
+                }
+                if ( sendMessageRemove ) {
+                    targetMessage.delete().complete();
+                }
+            }, removeDelayMillSec);
+        });
 
     }
 

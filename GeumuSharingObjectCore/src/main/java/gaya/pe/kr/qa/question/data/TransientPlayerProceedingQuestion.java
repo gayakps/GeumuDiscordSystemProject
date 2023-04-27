@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
  */
 
 @Getter
+@Deprecated
 public class TransientPlayerProceedingQuestion {
 
     @Nullable String requestPlayerName;
