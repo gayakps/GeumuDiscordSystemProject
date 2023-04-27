@@ -14,10 +14,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.bukkit.entity.Player;
 
+import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+
+import static gaya.pe.kr.plugin.GeumuDiscordSystem.msg;
 
 public class NetworkManager {
 
@@ -31,6 +34,8 @@ public class NetworkManager {
 
     Channel channel;
 
+    MinecraftServerPacketHandler minecraftServerPacketHandler = new MinecraftServerPacketHandler();
+
     public void init() {
 
         new Thread(() -> {
@@ -40,7 +45,7 @@ public class NetworkManager {
                 bootstrap.group(workerGroup)
                         .channel(NioSocketChannel.class)
                         .option(ChannelOption.SO_KEEPALIVE, true)
-                        .handler(new MinecraftServerInitializer(PacketStartDirection.CLIENT, new MinecraftServerPacketHandler()));
+                        .handler(new MinecraftServerInitializer(PacketStartDirection.CLIENT, minecraftServerPacketHandler));
                 ChannelFuture future = bootstrap.connect("localhost", 8080).sync();
                 channel = future.channel();
                 future.channel().closeFuture().sync();
@@ -54,7 +59,7 @@ public class NetworkManager {
 
     }
 
-    public void sendData(AbstractMinecraftPacket minecraftPacket) {
+    public void sendPacket(AbstractMinecraftPacket minecraftPacket) {
         SchedulerUtil.runWaitTask( ()-> {
             ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
             try {
@@ -65,7 +70,36 @@ public class NetworkManager {
         });
     }
 
-    public void sendData(AbstractMinecraftPacket minecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
+    public void sendDataExpectResponse(AbstractMinecraftPacket requestMinecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
+
+        SchedulerUtil.runWaitTask( ()-> {
+            ChannelFuture channelFuture = channel.writeAndFlush(requestMinecraftPacket);
+            try {
+                Void result = channelFuture.get();
+                sendSuccessAfterConsumer.accept(sender);
+                HashSet<Long> waitingResponseTicketHashSet = minecraftServerPacketHandler.getWaitingResponseTicketHashSet();
+
+                long requestTicketId = requestMinecraftPacket.getPacketID();
+
+                waitingResponseTicketHashSet.add(requestMinecraftPacket.getPacketID());
+
+                SchedulerUtil.runLaterTask( ()-> {
+                    if ( waitingResponseTicketHashSet.contains(requestTicketId) ) {
+                        waitingResponseTicketHashSet.remove(requestTicketId);
+                        msg(sender, "&c서버로 부터 응답이 없습니다 다시 시도해주세요");
+                    }
+                }, 20*5);
+
+
+            } catch (InterruptedException | ExecutionException e ) {
+                sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");
+                e.printStackTrace();
+            }
+        });
+
+    }
+
+    public void sendPacket(AbstractMinecraftPacket minecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
 
         SchedulerUtil.runWaitTask( ()-> {
             ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);

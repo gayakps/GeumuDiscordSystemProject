@@ -24,6 +24,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,9 +40,10 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     DiscordManager discordManager = DiscordManager.getInstance();
     AnswerManager answerManager = AnswerManager.getInstance();
     QuestionManager questionManager = QuestionManager.getInstance();
-
     ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
     QAUserManager qaUserManager = QAUserManager.getInstance();
+
+    public static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -55,6 +59,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
         List<AbstractOption> abstractOptionList = serverOptionManager.getAllOptions();
         sendPacket(ctx.channel(), new ServerOption(abstractOptionList));
         System.out.printf("%s Client Connection & send packet\n", ctx.channel().toString());
+        channelGroup.add(ctx.channel());
     }
 
     @Override
@@ -126,7 +131,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerProceedingQuestionRequest.getPlayerUUID(), playerProceedingQuestionRequest.getPacketID());
 
-
                 if ( qaRequestResult.getType().equals(QARequestResult.Type.FAIL) ) {
                     response.addMessage(message);
                     sendPacket(channel, response);
@@ -185,6 +189,21 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 channelFuture.get();
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    public void sendPacketAllChannel(AbstractMinecraftPacket minecraftPacket) {
+
+        VelocityThreadUtil.asyncTask( ()-> {
+            for (Channel channel : channelGroup) {
+                ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
+                try {
+                    channelFuture.get();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 

@@ -6,6 +6,7 @@ import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashSet;
+import java.util.prefs.PreferencesFactory;
 
 public class QAUserManager {
 
@@ -22,6 +23,27 @@ public class QAUserManager {
     public void init() {
         //TODO DB 에서 QAUser 를 Table 로 부터 가져와야함
     }
+
+    public boolean existUser(String playerName) {
+        for (QAUser qaUser : userHashSet) {
+            if ( qaUser.getGamePlayerName().equals(playerName) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean existUser(long discordId) {
+
+        for (QAUser qaUser : userHashSet) {
+            if (qaUser.getDiscordPlayerUserId() == discordId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
 
     public QAUser getUser(String playerName) {
@@ -40,6 +62,7 @@ public class QAUserManager {
     }
 
     public QAUser getUser(long discordId) {
+
         for (QAUser qaUser : userHashSet) {
             if ( qaUser.getDiscordPlayerUserId() == discordId ) {
                 return qaUser;
@@ -82,6 +105,15 @@ public class QAUserManager {
         if ( result ) {
             userHashSet.add(qaUser);
         }
+
+
+    }
+
+    public void updateQAUser(QAUser qaUser) {
+
+        boolean result = DBConnection.taskTransaction(connection -> {
+            //TODO 데이터베이스에 QAUser 를 input Or Update 하는 과정을 추가 해야함
+        });
 
 
     }

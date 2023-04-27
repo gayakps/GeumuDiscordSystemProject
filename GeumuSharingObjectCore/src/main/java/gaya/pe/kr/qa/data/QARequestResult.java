@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 public class QARequestResult {
 
-
     String message;
     Type type = Type.FAIL;
 
@@ -24,7 +23,9 @@ public class QARequestResult {
         this.type = type;
     }
 
-
+    public void clearMessages() {
+        this.message = null;
+    }
 
     public enum Type {
 

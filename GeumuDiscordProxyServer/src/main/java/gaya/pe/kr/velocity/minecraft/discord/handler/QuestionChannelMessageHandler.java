@@ -6,8 +6,10 @@ import gaya.pe.kr.velocity.minecraft.discord.handler.abs.MessageChannelHandler;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
+import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.checkerframework.checker.units.qual.A;
 
 public class QuestionChannelMessageHandler extends MessageChannelHandler {
@@ -26,17 +28,12 @@ public class QuestionChannelMessageHandler extends MessageChannelHandler {
     @Override
     protected void handleEvent(MessageReceivedEvent event) {
 
-        Message message = event.getMessage();
+        Message receivedMessage = event.getMessage();
+        User user = receivedMessage.getAuthor();
+        long answerUserId = user.getIdLong(); // 사용자 고유 ID를 가져옵니다.
 
-        User answerUser = event.getAuthor();
 
-        String username = answerUser.getName(); // 사용자 이름을 가져옵니다.
-        String discriminator = answerUser.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
-        long answerUserId = answerUser.getIdLong(); // 사용자 고유 ID를 가져옵니다.
-
-        String answerFullName = username + "#" + discriminator; // 전체 사용자 이름을 생성합니다.
-
-        MessageType messageType = message.getType();
+        MessageType messageType = receivedMessage.getType();
 
         if ( messageType.equals(MessageType.INLINE_REPLY ) ) {
 
@@ -80,6 +77,30 @@ public class QuestionChannelMessageHandler extends MessageChannelHandler {
         }
         else {
 
+            String prefix = questionManager.getQuestPrefix();
+            String receivedMessageContent = receivedMessage.getContentRaw();
+
+            if ( !receivedMessageContent.startsWith(prefix)) {
+
+                //    @RequirePlaceHolder(placeholders = {"%playername%", "%prefix%"})
+                MessageAction errorReply = event.getChannel().sendMessage(questionManager.getQuestPrefixHelpMessage()
+                        .replace("%playername%", discordManager.getFullName(user))
+                        .replace("%prefix%", prefix)
+                );
+
+                errorReply.queue( message -> {
+                    VelocityThreadUtil.delayTask(() -> {
+                        receivedMessage.delete().queue();
+                        message.delete().queue();
+                    }, 3000);
+                });
+
+                return;
+            } else {
+
+                //TODO prefix 를 제외하고 모두 질문으로 인식하여 질문 과정을 거치게됨
+
+            }
         }
 
 

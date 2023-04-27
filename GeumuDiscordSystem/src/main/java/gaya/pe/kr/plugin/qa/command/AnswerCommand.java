@@ -2,7 +2,6 @@ package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
-import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

@@ -1,6 +1,7 @@
 package gaya.pe.kr.velocity.minecraft.qa.question.manager;
 
 
+import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
@@ -11,8 +12,10 @@ import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.velocity.database.DBConnection;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,24 +32,23 @@ public class QuestionManager {
         return SingleTon.QUESTION_MANAGER;
     }
 
-    HashMap<Integer, Question> questIdByQuestHashMap = new HashMap<>();
+    HashMap<Long, Question> questIdByQuestHashMap = new HashMap<>();
     HashMap<QAUser, List<Question>> qaUserHasQuestion = new HashMap<>();
     ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
     QAUserManager qaUserManager = QAUserManager.getInstance();
 
-    public boolean existQuest(int questId) {
+
+    public boolean existQuest(long questId) {
         return questIdByQuestHashMap.containsKey(questId);
     }
 
-    public Question getQuestionByQuestId(int questId) {
-
+    public Question getQuestionByQuestId(long questId) {
         return questIdByQuestHashMap.get(questId);
-
     }
 
     public boolean existQuestionByDiscordMessageId(Long messageId) {
 
-        for (Map.Entry<Integer, Question> integerQuestionEntry : questIdByQuestHashMap.entrySet()) {
+        for (Map.Entry<Long, Question> integerQuestionEntry : questIdByQuestHashMap.entrySet()) {
             Question question = integerQuestionEntry.getValue();
 
             if ( messageId == question.getDiscordMessageId() ) {
@@ -57,8 +59,8 @@ public class QuestionManager {
         return false;
     }
     
-    public Question getQuestionByDiscordMessageId(Long messageId) throws NonExistQuestionException {
-        for (Map.Entry<Integer, Question> integerQuestionEntry : questIdByQuestHashMap.entrySet()) {
+    public Question getQuestionByDiscordMessageId(long messageId) throws NonExistQuestionException {
+        for (Map.Entry<Long, Question> integerQuestionEntry : questIdByQuestHashMap.entrySet()) {
             Question question = integerQuestionEntry.getValue();
             if ( messageId == question.getDiscordMessageId() ) {
                 return question;
@@ -133,16 +135,52 @@ public class QuestionManager {
 
     public void broadCastQuestion(Question question, QARequestResult qaRequestResult) {
 
-        //TODO 디스코드 전체 질문 전송
-        //TODO
         DiscordManager discordManager = DiscordManager.getInstance();
+        Message message = discordManager.sendMessage( getQuestionFormat(question) , discordManager.getAuthChannel() );
+
+        QAUser qaUser = question.getQaUser();
+
+        long messageId = message.getIdLong();
+        question.setDiscordMessageId(messageId); // 전체적으로 질문 전송
+
+        boolean databaseResult = DBConnection.taskTransaction( connection -> {
+            //TODO DB에 데이터 삽입
+        });
+
+        if ( databaseResult ) {
+            // 문제 발생했음을 알림
+            //TODO 전체 서버로 전송
+            qaRequestResult.setType(QARequestResult.Type.SUCCESS);
+            qaRequestResult.clearMessages(); // 전체 메세지를 사용하기 떄문에 개인적인 메세지는 보낼 필요가 없음
+            ConfigOption configOption = ServerOptionManager.getInstance().getConfigOption();
+            //    @RequirePlaceHolder(placeholders = {"%playername%", "%question_content%"})
+            BroadCastMessage broadCastMessage = new BroadCastMessage(configOption.getQuestionSuccessBroadcast()
+                    .replace("%playername%", qaUserManager.getFullName(qaUser))
+                    .replace("%question_content%", question.getContents())
+            );
+
+            NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
+
+            questIdByQuestHashMap.put(question.getId(), question);
+            getQAUserQuestions(qaUser).add(question); // 데이터 삽입 최종적인 작업 끝.
+
+        } else {
+            qaRequestResult.setMessage("데이터 베이스에 질문 넣을때 문제 발생함");
+        }
+
+
+
+    }
+
+    public String getQuestionFormat(Question question) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append(qaUserManager.getFullName(question.getQaUser()));
-        stringBuilder.append(String.format(" ( 질문번호 | %d )", question.getId()));
+        stringBuilder.append(String.format(" ( 질문번호 | %d )\n", question.getId()));
+        stringBuilder.append(String.format("Q: %s\n", question.getContents()));
 
-        discordManager.sendMessage("" , discordManager.getAuthChannel() );
+        return stringBuilder.toString().trim();
 
     }
 
@@ -164,6 +202,14 @@ public class QuestionManager {
         qaUserHasQuestion.put(qaUser, questions);
 
         return questions;
+    }
+
+    public String getQuestPrefix() {
+        return serverOptionManager.getConfigOption().getDiscordQuestionPrefix();
+    }
+
+    public String getQuestPrefixHelpMessage() {
+        return serverOptionManager.getConfigOption().getDiscordQuestionChannelPrefixHelpMessage();
     }
 
 }

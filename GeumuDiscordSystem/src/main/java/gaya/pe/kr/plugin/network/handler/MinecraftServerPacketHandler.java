@@ -19,11 +19,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 /**
  * 서버로 부터 전송된 패킷을 처리 하는 곳
  */
 public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<AbstractMinecraftPacket> {
+
+    HashSet<Long> waitingResponseTicketHashSet = new HashSet<>();
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -48,6 +53,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
             case PLAYER_REQUEST_RESPONSE: {
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
+                waitingResponseTicketHashSet.remove(abstractPlayerRequestResponse.getRequestPacketId());
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
                 if ( player != null ) {
                     abstractPlayerRequestResponse.sendData(player);
@@ -59,6 +65,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_REQUEST_RESPONSE_AS_OBJECT: {
 
                 AbstractPlayerRequestResponseAsObject<?> abstractPlayerRequestResponseAsObject = (AbstractPlayerRequestResponseAsObject<?>) minecraftPacket;
+                waitingResponseTicketHashSet.remove(abstractPlayerRequestResponseAsObject.getRequestPacketId());
 
                  Object tObject = abstractPlayerRequestResponseAsObject.getT();
 
@@ -133,10 +140,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                     }
 
                 }
-
                 break;
-
-
             }
 
 
@@ -147,4 +151,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
         }
     }
 
+    public HashSet<Long> getWaitingResponseTicketHashSet() {
+        return waitingResponseTicketHashSet;
+    }
 }

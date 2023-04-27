@@ -15,13 +15,6 @@ public abstract class AbstractMinecraftPacket implements Serializable {
     private final byte packetType;
     private final Long packetID;
 
-    /**
-     protected MinecraftPacket() {
-     this.packetType = PacketType.fromClass(this.getClass()).getId();
-     this.packetID = random.nextLong();
-     }
-     */
-
     protected AbstractMinecraftPacket(PacketType type) {
         this.packetType = type.getId();
         this.packetID = random.nextLong();

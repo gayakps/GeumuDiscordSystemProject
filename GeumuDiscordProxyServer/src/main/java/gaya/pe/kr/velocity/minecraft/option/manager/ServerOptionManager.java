@@ -5,6 +5,8 @@ import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.util.option.data.options.gui.*;
 import gaya.pe.kr.velocity.database.DBConnection;
+import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 
@@ -38,6 +40,9 @@ public class ServerOptionManager {
     AnswerPatternOptions answerPatternOptions;
     ConfigOption configOption;
 
+    DiscordManager discordManager = DiscordManager.getInstance();
+    NetworkManager networkManager = NetworkManager.getInstance();
+
     public void init() {
         loadConfiguration();
     }
@@ -54,6 +59,8 @@ public class ServerOptionManager {
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
             DBConnection.init(configOption);
+            discordManager.init();
+            networkManager.init();
         } catch ( Exception e) {
             e.printStackTrace();
         }

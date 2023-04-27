@@ -6,14 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.Date;
 
 @Getter
 @Setter
 public class Question {
 
-    @NotNull private long id; // 질문 ID
+    private final long id; // 질문 ID
     @NotNull private final QAUser qaUser;
     @NotNull private final String contents; // 질문 내용
     @NotNull private final Date questionDate = new Date();

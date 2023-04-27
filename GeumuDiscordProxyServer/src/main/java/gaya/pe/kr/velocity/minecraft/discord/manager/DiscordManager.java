@@ -1,23 +1,18 @@
 package gaya.pe.kr.velocity.minecraft.discord.manager;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
-import gaya.pe.kr.util.data.ConsumerTwoObject;
+import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
-import gaya.pe.kr.velocity.minecraft.discord.exception.NonExistPlayerAuthenticationDataException;
+import gaya.pe.kr.velocity.minecraft.discord.exception.NotExpiredDiscordAuthenticationException;
 import gaya.pe.kr.velocity.minecraft.discord.handler.InitHandler;
-import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
-import lombok.Getter;
+import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
+import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import lombok.Setter;
-import lombok.Synchronized;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.text.SimpleDateFormat;
@@ -36,21 +31,22 @@ public class DiscordManager {
     }
 
     HashMap<String, DiscordAuthentication> playerNameAsAuthentication = new HashMap<>(); // 디스코드 인증 대기자들
-    HashMap<String, Long> playerNameAsDiscordUserId = new HashMap<>(); // 디스코드 인증 <유저명, 디스코드 ID>
-    Set<String> questionAllowPlayerNameList = new HashSet<>();
-    final String TOKEN = "OTg5MTk2NTE3ODAzOTYyNDI4.GmiO24.NAq6JH6S4ulMgXtjD4YAmPWwAgQiVPLt3QdSMc";
+//    final String TOKEN = "OTg5MTk2NTE3ODAzOTYyNDI4.GmiO24.NAq6JH6S4ulMgXtjD4YAmPWwAgQiVPLt3QdSMc";
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     JDA jda;
     @Setter TextChannel authChannel;
     @Setter TextChannel questionChannel;
-
+    ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
+    QAUserManager qaUserManager = QAUserManager.getInstance();
     public void init() {
 
         try {
-            jda = JDABuilder.createDefault(TOKEN).build();
-            jda.addEventListener(new InitHandler("1090859961845825566", "1094161426005884928"));
+
+            ConfigOption configOption = serverOptionManager.getConfigOption();
+            jda = JDABuilder.createDefault(configOption.getDiscordToken()).build();
+//            jda.addEventListener(new InitHandler("1090859961845825566", "1094161426005884928"));
+            jda.addEventListener(new InitHandler(configOption.getAuthenticationChannelId(), configOption.getQuestionChannelId()));
         } catch ( Exception e ) {
             e.printStackTrace();
         }
@@ -77,20 +73,15 @@ public class DiscordManager {
      * @return 생성에 성공 하거나, 생성에 실패 ( 이미 존재할 때 )
      */
     @Nullable
-    public DiscordAuthentication generateDiscordAuthentication(String requestPlayerName, long discordId) {
+    public DiscordAuthentication generateDiscordAuthentication(String requestPlayerName, long discordId) throws NotExpiredDiscordAuthenticationException {
 
         if (playerNameAsAuthentication.containsKey(requestPlayerName) ) {
-
             DiscordAuthentication discordAuthentication = playerNameAsAuthentication.get(requestPlayerName);
             if ( !discordAuthentication.isExpired() ) {
-                return null;
+                throw new NotExpiredDiscordAuthenticationException("");
             }
-
         }
 
-        if ( questionAllowPlayerNameList.contains(requestPlayerName) ) {
-            return null;
-        }
 
         DiscordAuthentication discordAuthentication = new DiscordAuthentication(requestPlayerName, discordId,120);
         playerNameAsAuthentication.put(requestPlayerName, discordAuthentication);
@@ -100,7 +91,6 @@ public class DiscordManager {
     }
 
     public void removeDiscordAuthentication(String requestPlayerName) {
-        questionAllowPlayerNameList.add(requestPlayerName);
         playerNameAsAuthentication.remove(requestPlayerName);
     }
 
@@ -108,44 +98,14 @@ public class DiscordManager {
 
         long discordId = discordAuthentication.getDiscordId();
         String playerName = discordAuthentication.getPlayerName();
-        playerNameAsDiscordUserId.put(playerName, discordId);
-        //TODO DB 에 삽입하는 과정도 포함 되어야함
-
+        QAUser qaUser = QAUserManager.getInstance().getUser(playerName);
+        qaUser.setDiscordPlayerUserId(discordId);
+        qaUserManager.updateQAUser(qaUser);
     }
 
-    public boolean isAuthenticationPlayer(long discordId) {
-       return playerNameAsDiscordUserId.containsValue(discordId);
-    }
 
     public boolean isAuthenticationPlayer(String playerName) {
-        return playerNameAsDiscordUserId.containsKey(playerName);
-    }
-
-    @Nullable
-    public long getAuthenticationPlayerByDiscordId(String playerName) throws NonExistPlayerAuthenticationDataException {
-
-        if (playerNameAsDiscordUserId.containsKey(playerName) ) {
-            return playerNameAsDiscordUserId.get(playerName);
-        }
-
-        throw new NonExistPlayerAuthenticationDataException(String.format("[%s] 는 인증받지 않은 유저입니다", playerName));
-
-    }
-
-    @Nullable
-    public String getAuthenticatedPlayerByDiscordId(long discordId) throws NonExistPlayerAuthenticationDataException  {
-
-        for (Map.Entry<String, Long> stringLongEntry : playerNameAsDiscordUserId.entrySet()) {
-            String playerName = stringLongEntry.getKey();
-            long value = stringLongEntry.getValue();
-
-            if ( value == discordId ) {
-                return playerName;
-            }
-        }
-
-        throw new NonExistPlayerAuthenticationDataException(String.format("[%d] 는 인증받지 않은 유저입니다", discordId));
-
+        return qaUserManager.getUser(playerName).getDiscordPlayerUserId() != -1;
     }
 
     public SimpleDateFormat getSimpleDateFormat() {

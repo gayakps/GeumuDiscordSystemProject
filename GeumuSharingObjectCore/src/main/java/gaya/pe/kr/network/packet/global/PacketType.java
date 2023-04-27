@@ -1,13 +1,12 @@
 package gaya.pe.kr.network.packet.global;
 
+import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
-import gaya.pe.kr.network.packet.startDirection.server.MinecraftOption;
-import gaya.pe.kr.network.packet.startDirection.server.PlayerMessage;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
@@ -18,8 +17,8 @@ import java.util.HashMap;
 @Getter
 public enum PacketType {
 
-    PLAYER_MESSAGE(0x01, PacketStartDirection.SERVER, PlayerMessage.class),
-    MINECRAFT_OPTION(0x02, PacketStartDirection.SERVER, MinecraftOption.class),
+    BROADCAST_MESSAGE(0x01, PacketStartDirection.SERVER, BroadCastMessage.class),
+    MINECRAFT_OPTION(0x02, PacketStartDirection.SERVER, BroadCastMessage.class),
     MINECRAFT_OPTION_RELOAD_REQUEST(0x03, PacketStartDirection.CLIENT, MinecraftOptionReloadRequest.class),
 
     PLAYER_REQUEST_RESPONSE_AS_OBJECT(0x4, PacketStartDirection.SERVER, AbstractPlayerRequestResponseAsObject.class),

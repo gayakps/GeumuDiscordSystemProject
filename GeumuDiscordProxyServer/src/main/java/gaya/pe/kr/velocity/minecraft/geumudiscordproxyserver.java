@@ -25,10 +25,9 @@ public class geumudiscordproxyserver {
 
     static Plugin plugin;
 
-    DiscordManager discordManager = DiscordManager.getInstance();
     ServerOptionManager optionManager = ServerOptionManager.getInstance();
 
-    NetworkManager networkManager = NetworkManager.getInstance();
+
 
 
     @Inject
@@ -42,9 +41,9 @@ public class geumudiscordproxyserver {
     public void onProxyInitialization(ProxyInitializeEvent event) {
 //        server.getEventManager().register(this, new PluginListener());
         VelocityThreadUtil.init(server);
-        discordManager.init();
+
         optionManager.init();
-        networkManager.init();
+
 
     }
 
