@@ -4,6 +4,7 @@ import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.util.option.data.options.gui.*;
+import gaya.pe.kr.velocity.database.DBConnection;
 import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 
@@ -52,6 +53,7 @@ public class ServerOptionManager {
             waitingAnswerListOption = new WaitingAnswerListOption(load(path+"/GUI/waiting_answer_list.yml"));
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
+            DBConnection.init(configOption);
         } catch ( Exception e) {
             e.printStackTrace();
         }

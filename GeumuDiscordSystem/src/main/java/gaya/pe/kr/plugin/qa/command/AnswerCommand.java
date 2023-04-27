@@ -1,7 +1,7 @@
 package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
-import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
+import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,7 +16,7 @@ public class AnswerCommand implements CommandExecutor {
         if ( commandSender instanceof Player) {
 
             Player player = ((Player) commandSender).getPlayer();
-            PlayerProceedingAnswerRequest playerProceedingQuestionRequest = new PlayerProceedingAnswerRequest(1, args[0], player.getName());
+            PlayerTransientProceedingAnswerRequest playerProceedingQuestionRequest = new PlayerTransientProceedingAnswerRequest(1, args[0], player.getName());
             NetworkManager.getInstance().sendData(playerProceedingQuestionRequest, player, player1 -> player1.sendMessage("데이터를 정상적으로 송신합니다"));
 
         }

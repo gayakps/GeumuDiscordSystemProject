@@ -27,7 +27,7 @@ public class PatternMatcher implements Serializable {
 
     }
 
-    public boolean matches(String input) {
+    public boolean isMatch(String input) {
         Pattern matchPattern = Pattern.compile(match, Pattern.CASE_INSENSITIVE);
         Matcher matchMatcher = matchPattern.matcher(input);
 

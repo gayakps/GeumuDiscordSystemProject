@@ -4,9 +4,13 @@ import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequ
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
-import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
-import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
+import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
+import gaya.pe.kr.qa.data.QARequestResult;
+import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
+import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
+import gaya.pe.kr.util.option.data.options.ConfigOption;
+import gaya.pe.kr.util.option.data.options.PatternMatcher;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
@@ -30,6 +34,8 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     DiscordManager discordManager = DiscordManager.getInstance();
     AnswerManager answerManager = AnswerManager.getInstance();
     QuestionManager questionManager = QuestionManager.getInstance();
+
+    ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -98,16 +104,62 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
 
             }
-            case PLAYER_PROCEEDING_QUESTION_REQUEST: {
+            case PLAYER_TRANSIENT_PROCEEDING_QUESTION_REQUEST: {
                 //TODO 질문에 대한 답변 요청에 대한 내용
+                PlayerTransientProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerTransientProceedingQuestionRequest) minecraftPacket;
 
-                PlayerProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerProceedingQuestionRequest) minecraftPacket;
+                /**
+                 *  Process
+                 * 질문이 인게임으로 들어오게 되면
+                 * 1. 질문 가능 시간과 현재 최근 질문 중 가장 빠른 시간을 화인함
+                 * 2. 필터링 ( 자동답변의 여부에 따라 정해짐 )
+                 * 3. 최종 질문 번호를 추출함 ( DB 로 부터 추출 )
+                 */
+
+                QARequestResult qaRequestResult = questionManager.canQuestion(playerProceedingQuestionRequest);
+                String message = qaRequestResult.getMessage();
+                String contents = playerProceedingQuestionRequest.getContent();
+
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerProceedingQuestionRequest.getPlayerUUID(), playerProceedingQuestionRequest.getPacketID());
+
+
+                if ( qaRequestResult.getType().equals(QARequestResult.Type.FAIL) ) {
+                    response.addMessage(message);
+                    sendPacket(channel, response);
+                    return;
+                }
+
+                // 1차 진행을 했기 때문에 Filtering 을 진행
+
+                AnswerPatternOptions answerPatternOptions = serverOptionManager.getAnswerPatternOptions();
+
+                ConfigOption configOption = serverOptionManager.getConfigOption();
+
+                for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
+                    if ( patternMatcher.isMatch(contents) ) {
+                        //TODO 필터링에 걸림
+                        String answer = patternMatcher.getMessage();
+
+                        response.addMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast().replace());
+
+
+
+
+
+                        return;
+                    }
+                }
+
+
+
+
+
 
                 break;
             }
-            case PLAYER_PROCEEDING_ANSWER_REQUEST: {
+            case PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST: {
                 //TODO 질문 요청
-                PlayerProceedingAnswerRequest playerProceedingAnswerRequest = (PlayerProceedingAnswerRequest) minecraftPacket;
+                PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = (PlayerTransientProceedingAnswerRequest) minecraftPacket;
                 break;
             }
             default:

@@ -3,14 +3,14 @@ package gaya.pe.kr.network.packet.global;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
-import gaya.pe.kr.qa.answer.packet.client.PlayerProceedingAnswerRequest;
-import gaya.pe.kr.qa.question.packet.client.PlayerProceedingQuestionRequest;
+import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
 import gaya.pe.kr.network.packet.startDirection.server.MinecraftOption;
 import gaya.pe.kr.network.packet.startDirection.server.PlayerMessage;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
+import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -26,9 +26,9 @@ public enum PacketType {
     PLAYER_REQUEST_RESPONSE(0x05, PacketStartDirection.SERVER, AbstractPlayerRequestResponse.class),
 
     DISCORD_AUTHENTICATION_REQUEST(0x06, PacketStartDirection.CLIENT, DiscordAuthenticationRequest.class),
-    PLAYER_PROCEEDING_QUESTION_REQUEST(0x07, PacketStartDirection.CLIENT, PlayerProceedingQuestionRequest.class),
+    PLAYER_TRANSIENT_PROCEEDING_QUESTION_REQUEST(0x07, PacketStartDirection.CLIENT, PlayerTransientProceedingQuestionRequest.class),
 
-    PLAYER_PROCEEDING_ANSWER_REQUEST(0x08, PacketStartDirection.CLIENT, PlayerProceedingAnswerRequest.class),
+    PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST(0x08, PacketStartDirection.CLIENT, PlayerTransientProceedingAnswerRequest.class),
 
     PLAYER_ANSWER_LIST_BY_ANSWER_ID_REQUEST(0x09, PacketStartDirection.CLIENT, PlayerAnswerListByAnswerIdRequest.class),
     PLAYER_QUESTION_LIST_BY_QUESTION_ID_REQUEST(0x10, PacketStartDirection.CLIENT, PlayerQuestionListByQuestionIdRequest.class),

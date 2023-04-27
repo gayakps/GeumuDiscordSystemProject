@@ -3,15 +3,24 @@ package gaya.pe.kr.network.packet.startDirection.server.response;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class PlayerRequestResponseAsChat extends AbstractPlayerRequestResponse {
 
-    private final String[] messages;
+    private final List<String> messages = new ArrayList<>();
 
     public PlayerRequestResponseAsChat(UUID requestPlayerUUID, long requestPacketId, String... messages) {
         super(requestPlayerUUID, requestPacketId);
-        this.messages = messages;
+
+        this.messages.addAll(Arrays.asList(messages));
+
+    }
+
+    public void addMessage(String message) {
+        messages.add(message);
     }
 
     @Override
