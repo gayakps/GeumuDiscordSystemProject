@@ -5,11 +5,12 @@ import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMes
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
-import gaya.pe.kr.qa.question.data.TransientPlayerProceedingQuestion;
 import gaya.pe.kr.qa.question.exception.NonExistQuestionException;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.util.TimeUtil;
+import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
+import gaya.pe.kr.util.option.data.options.PatternMatcher;
 import gaya.pe.kr.velocity.database.DBConnection;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
@@ -17,6 +18,7 @@ import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import net.dv8tion.jda.api.entities.Message;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,10 +73,33 @@ public class QuestionManager {
 
     /**
      *
+     */
+    @Nullable
+    public Question getTargetQAUserRecentQuestion(QAUser qaUser) {
+
+        int targetTime = serverOptionManager.getConfigOption().getRecentQuestionAnswerTime();
+
+        for (Question qaUserQuestion : getQAUserQuestions(qaUser)) {
+
+            long diffSec = TimeUtil.getTimeDiffSec(qaUserQuestion.getQuestionDate());
+
+            if ( diffSec < targetTime ) {
+                //만일 Delay 시간이 덜 지났으면?
+                return qaUserQuestion;
+            }
+
+        }
+
+        return null;
+
+    }
+
+    /**
+     *
      * @param playerTransientProceedingQuestionRequest
      * @return Discord 혹은 In-Game 에서도 사용할 수 있도록 설정
      */
-    public QARequestResult canQuestion(PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest) {
+    public QARequestResult processQuestion(PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest) {
 
         PlayerTransientProceedingQuestionRequest.RequestType requestType = playerTransientProceedingQuestionRequest.getRequestType();
 
@@ -125,18 +150,42 @@ public class QuestionManager {
                         .replace("%question_cooldown%", Integer.toString(delay))
                         .replace("%question_remain_cooldown%", Integer.toString(delay-(int)diffSec))
                 );
+                return qaRequestResult;
             }
 
+        }
+
+        // 1차 진행을 했기 때문에 Filtering 을 진행
+
+        AnswerPatternOptions answerPatternOptions = serverOptionManager.getAnswerPatternOptions();
+
+        for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
+            if ( patternMatcher.isMatch(content) ) {
+                //TODO 자동 답변 필터링에 걸림
+                String answer = patternMatcher.getMessage();
+
+                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
+                        .replace("%playername%", configOption.getAnswerPlayerNamePlaceholderAutoAnswer())
+                        .replace("%answer%", answer)
+                );
+                return qaRequestResult;
+            }
+        }
+
+        if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
+            int lastQuestionNumber = getQuestionNumber();
+            Question question = new Question(lastQuestionNumber, content, qaUser );
+            broadCastQuestion(question, qaRequestResult);
         }
 
         return qaRequestResult;
 
     }
 
-    public void broadCastQuestion(Question question, QARequestResult qaRequestResult) {
+    private void broadCastQuestion(Question question, QARequestResult qaRequestResult) {
 
         DiscordManager discordManager = DiscordManager.getInstance();
-        Message message = discordManager.sendMessage( getQuestionFormat(question) , discordManager.getAuthChannel() );
+        Message message = discordManager.sendMessage( getQuestionFormat(question) , discordManager.getAuthChannel() ); // 디스코드 전체 전송
 
         QAUser qaUser = question.getQaUser();
 
@@ -148,7 +197,6 @@ public class QuestionManager {
         });
 
         if ( databaseResult ) {
-            // 문제 발생했음을 알림
             //TODO 전체 서버로 전송
             qaRequestResult.setType(QARequestResult.Type.SUCCESS);
             qaRequestResult.clearMessages(); // 전체 메세지를 사용하기 떄문에 개인적인 메세지는 보낼 필요가 없음
@@ -165,6 +213,7 @@ public class QuestionManager {
             getQAUserQuestions(qaUser).add(question); // 데이터 삽입 최종적인 작업 끝.
 
         } else {
+            // 문제 발생했음을 알림
             qaRequestResult.setMessage("데이터 베이스에 질문 넣을때 문제 발생함");
         }
 
@@ -176,9 +225,9 @@ public class QuestionManager {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(qaUserManager.getFullName(question.getQaUser()));
+        stringBuilder.append(qaUserManager.getFullName(question.getQaUser())+"\n");
         stringBuilder.append(String.format(" ( 질문번호 | %d )\n", question.getId()));
-        stringBuilder.append(String.format("Q: %s\n", question.getContents()));
+        stringBuilder.append(String.format("Q: %s", question.getContents()));
 
         return stringBuilder.toString().trim();
 

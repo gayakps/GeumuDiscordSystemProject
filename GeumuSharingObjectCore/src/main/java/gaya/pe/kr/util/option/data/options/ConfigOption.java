@@ -180,7 +180,7 @@ public class ConfigOption extends AbstractOption {
         return (String) getNestedSectionKey("message").get("question_fail_question_cooldown");
     }
 
-    @RequirePlaceHolder(placeholders = {"%playername%", "%answer%"})
+    @RequirePlaceHolder(placeholders = {"%answer_playername%", "%answer%"})
 
     public String getAnswerSendSuccessIfQuestionerOnlineBroadcast() {
         return (String) getNestedSectionKey("message").get("answer_send_success_if_questioner_online_broadcast");

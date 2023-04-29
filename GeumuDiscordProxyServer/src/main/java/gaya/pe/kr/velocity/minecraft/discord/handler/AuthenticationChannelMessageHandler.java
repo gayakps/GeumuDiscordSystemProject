@@ -56,7 +56,7 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
             ConfigOption configOption = serverOptionManager.getConfigOption();
             String playerName = receivedMessageContent.replace("!인증", "").trim();
-            ;
+
             try {
 
                 VelocityThreadUtil.delayTask(() -> {

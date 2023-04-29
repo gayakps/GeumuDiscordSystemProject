@@ -31,6 +31,7 @@ public class TimeUtil {
      * 만일 음수 값일 경우 parameter 값이 현재 시간보다 뒤에있음
      * ex) -101 @param date 까지 101초 남았다는 뜻
      * 양수 값이면 이미 date 날짜보다 지났다는 뜻
+     *
      */
     public static long getTimeDiffSec(Date date) {
         Date now = new Date();

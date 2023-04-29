@@ -35,7 +35,7 @@ public class InitHandler extends ListenerAdapter {
                 }
 
                 if ( textChannelID.equals(questionChannelID) ) {
-                    jda.addEventListener(new QuestionChannelMessageHandler(textChannel));
+                    jda.addEventListener(new QAChannelMessageHandler(textChannel));
                     discordManager.setQuestionChannel(textChannel);
                 }
 

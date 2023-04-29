@@ -121,57 +121,11 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_TRANSIENT_PROCEEDING_QUESTION_REQUEST: {
                 //TODO 질문에 대한 답변 요청에 대한 내용
                 PlayerTransientProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerTransientProceedingQuestionRequest) minecraftPacket;
-
-                /**
-                 *  Process
-                 * 질문이 인게임으로 들어오게 되면
-                 * 1. 질문 가능 시간과 현재 최근 질문 중 가장 빠른 시간을 화인함
-                 * 2. 필터링 ( 자동답변의 여부에 따라 정해짐 )
-                 * 3. 최종 질문 번호를 추출함 ( DB 로 부터 추출 )
-                 */
-
-                QARequestResult qaRequestResult = questionManager.canQuestion(playerProceedingQuestionRequest);
+                QARequestResult qaRequestResult = questionManager.processQuestion(playerProceedingQuestionRequest);
                 String message = qaRequestResult.getMessage();
-                String contents = playerProceedingQuestionRequest.getContent();
-
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerProceedingQuestionRequest.getPlayerUUID(), playerProceedingQuestionRequest.getPacketID());
-
-                if ( qaRequestResult.getType().equals(QARequestResult.Type.FAIL) ) {
-                    response.addMessage(message);
-                    sendPacket(channel, response);
-                    return;
-                }
-
-                // 1차 진행을 했기 때문에 Filtering 을 진행
-
-                AnswerPatternOptions answerPatternOptions = serverOptionManager.getAnswerPatternOptions();
-
-                ConfigOption configOption = serverOptionManager.getConfigOption();
-
-                for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
-                    if ( patternMatcher.isMatch(contents) ) {
-                        //TODO 자동 답변 필터링에 걸림
-                        String answer = patternMatcher.getMessage();
-
-                        response.addMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
-                                .replace("%playername%", "&cSYSTEM")
-                                .replace("%answer%", answer)
-                        );
-
-                        sendPacket(channel, response);
-                        return;
-                    }
-                }
-
-                // 필터링에도 걸리지 않았고 전체 질문을 진행하고자함
-
-                int lastQuestionNumber = questionManager.getQuestionNumber();
-                Question question = new Question(lastQuestionNumber, contents, qaUserManager.getUser(playerProceedingQuestionRequest.getPlayerName()) );
-
-                ThreadUtil.schedule( ()-> {
-                    questionManager.broadCastQuestion(question, qaRequestResult);
-                    sendPacket(channel, response);
-                });
+                response.addMessage(message);
+                sendPacket(channel, response);
 
                 break;
             }

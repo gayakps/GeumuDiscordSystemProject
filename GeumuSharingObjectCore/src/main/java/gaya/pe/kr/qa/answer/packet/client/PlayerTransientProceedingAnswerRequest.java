@@ -2,6 +2,7 @@ package gaya.pe.kr.qa.answer.packet.client;
 
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
+import gaya.pe.kr.qa.data.QAUser;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
@@ -11,35 +12,15 @@ import javax.annotation.Nullable;
 public class PlayerTransientProceedingAnswerRequest extends AbstractMinecraftPacket {
 
 
-    RequestType requestType;
-    int questionId;
-    String answer;
-    @Nullable String answerPlayerName;
+    long questionId;
+    String answerContent;
 
-    long discordUserId = -1;
+    QAUser qaUser;
 
-    public PlayerTransientProceedingAnswerRequest(int questionId, String answer, String answerPlayerName) {
+    public PlayerTransientProceedingAnswerRequest(long questionId, String answerContent, QAUser qaUser) {
         super(PacketType.PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST);
-        requestType = RequestType.IN_GAME;
         this.questionId = questionId;
-        this.answer = answer;
-        this.answerPlayerName = answerPlayerName;
+        this.answerContent = answerContent;
+        this.qaUser = qaUser;
     }
-
-    public PlayerTransientProceedingAnswerRequest(int questionId, String answer, long discordUserId) {
-        super(PacketType.PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST);
-        requestType = RequestType.DISCORD;
-        this.questionId = questionId;
-        this.answer = answer;
-        this.discordUserId = discordUserId;
-    }
-
-    public enum RequestType {
-
-        DISCORD,
-        IN_GAME;
-
-    }
-
-
 }
