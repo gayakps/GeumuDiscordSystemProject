@@ -52,6 +52,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
 
             case PLAYER_REQUEST_RESPONSE: {
+
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
                 waitingResponseTicketHashSet.remove(abstractPlayerRequestResponse.getRequestPacketId());
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());

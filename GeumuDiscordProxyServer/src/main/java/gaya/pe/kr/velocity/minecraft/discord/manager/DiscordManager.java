@@ -1,11 +1,14 @@
 package gaya.pe.kr.velocity.minecraft.discord.manager;
 
+import com.velocitypowered.api.proxy.Player;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
+import gaya.pe.kr.velocity.minecraft.discord.exception.NonExistPlayerException;
 import gaya.pe.kr.velocity.minecraft.discord.exception.NotExpiredDiscordAuthenticationException;
 import gaya.pe.kr.velocity.minecraft.discord.handler.InitHandler;
+import gaya.pe.kr.velocity.minecraft.geumudiscordproxyserver;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
@@ -68,26 +71,48 @@ public class DiscordManager {
 
     }
 
+    @Nullable
+    public DiscordAuthentication getDiscordAuthentication(String playerName) {
+
+        for (Map.Entry<String, DiscordAuthentication> stringDiscordAuthenticationEntry : playerNameAsAuthentication.entrySet()) {
+            DiscordAuthentication discordAuthentication = stringDiscordAuthenticationEntry.getValue();
+            if ( discordAuthentication.getPlayerName().equals(playerName) ) {
+                return discordAuthentication;
+            }
+        }
+        return null;
+
+    }
+
     /**
      *
      * @param requestPlayerName
      * @return 생성에 성공 하거나, 생성에 실패 ( 이미 존재할 때 )
      */
     @Nullable
-    public DiscordAuthentication generateDiscordAuthentication(String requestPlayerName, long discordId) throws NotExpiredDiscordAuthenticationException {
+    public DiscordAuthentication generateDiscordAuthentication(String requestPlayerName, long discordId) throws NotExpiredDiscordAuthenticationException, NonExistPlayerException {
 
-        if (playerNameAsAuthentication.containsKey(requestPlayerName) ) {
+        if ( playerNameAsAuthentication.containsKey(requestPlayerName) ) {
             DiscordAuthentication discordAuthentication = playerNameAsAuthentication.get(requestPlayerName);
             if ( !discordAuthentication.isExpired() ) {
                 throw new NotExpiredDiscordAuthenticationException("");
             }
         }
 
+        for (Player allPlayer : VelocityThreadUtil.getServer().getAllPlayers()) {
 
-        DiscordAuthentication discordAuthentication = new DiscordAuthentication(requestPlayerName, discordId,120);
-        playerNameAsAuthentication.put(requestPlayerName, discordAuthentication);
+            if ( allPlayer.getGameProfile().getName().equals(requestPlayerName) ) {
+                DiscordAuthentication discordAuthentication = new DiscordAuthentication(requestPlayerName, discordId,120);
+                playerNameAsAuthentication.put(requestPlayerName, discordAuthentication);
 
-        return discordAuthentication;
+                return discordAuthentication;
+            }
+
+        }
+
+
+        throw new NonExistPlayerException("존재하지 않는 플레이어 입니다");
+
 
     }
 
@@ -96,7 +121,6 @@ public class DiscordManager {
     }
 
     public void addDiscordAuthenticationUser(DiscordAuthentication discordAuthentication) {
-
         long discordId = discordAuthentication.getDiscordId();
         String playerName = discordAuthentication.getPlayerName();
         QAUser qaUser = QAUserManager.getInstance().getUser(playerName);

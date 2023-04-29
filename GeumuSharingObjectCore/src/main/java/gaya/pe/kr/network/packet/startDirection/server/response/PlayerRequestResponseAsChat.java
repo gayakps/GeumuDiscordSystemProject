@@ -10,13 +10,16 @@ import java.util.UUID;
 
 public class PlayerRequestResponseAsChat extends AbstractPlayerRequestResponse {
 
-    private final List<String> messages = new ArrayList<>();
+    private List<String> messages = new ArrayList<>();
 
     public PlayerRequestResponseAsChat(UUID requestPlayerUUID, long requestPacketId, String... messages) {
         super(requestPlayerUUID, requestPacketId);
-
         this.messages.addAll(Arrays.asList(messages));
+    }
 
+    public PlayerRequestResponseAsChat(UUID requestPlayerUUID, long requestPacketId, List<String> messages) {
+        super(requestPlayerUUID, requestPacketId);
+        this.messages = messages;
     }
 
     public void addMessage(String message) {

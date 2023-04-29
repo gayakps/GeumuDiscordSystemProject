@@ -27,6 +27,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
 import java.util.UUID;
@@ -73,7 +74,8 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
             case DISCORD_AUTHENTICATION_REQUEST: {
                 DiscordAuthenticationRequest discordAuthenticationRequest = (DiscordAuthenticationRequest) minecraftPacket;
-                System.out.println("수신 완료 " + discordAuthenticationRequest.toString());
+
+                ConfigOption configOption = serverOptionManager.getConfigOption();
 
                 UUID requestPlayerUUID = discordAuthenticationRequest.getPlayerUUID();
                 long packetId = discordAuthenticationRequest.getPacketID();
@@ -85,21 +87,24 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 if ( discordAuthentication != null ) {
 
-
                     if ( discordAuthentication.isExpired() ) {
+                        // 만료되었을때
                         playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
-                                , "이미 만료된 코드입니다 재 신청 해주세요");
+                                , configOption.getAuthenticationCodeExpired());
                         discordManager.removeDiscordAuthentication(requestPlayerName);
+
                     } else {
 
                         if ( discordAuthentication.isEqualCodeAndPlayerName(discordAuthenticationRequest) ) {
+                            // 인증 성공할 경우
                             playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
-                                    , "인증 성공");
+                                    , configOption.getAuthenticationSuccess());
                             discordManager.addDiscordAuthenticationUser(discordAuthentication);
                             discordManager.removeDiscordAuthentication(requestPlayerName);
                         } else {
+                            // 인증 코드가 맞지 않을경우
                             playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
-                                    , "틀린 인증번호 입니다");
+                                    , configOption.getAuthenticationFailAuthenticationCodeDoesNotMatch());
                         }
                     }
 

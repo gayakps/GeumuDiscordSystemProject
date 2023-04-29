@@ -55,6 +55,7 @@ public class VelocityThreadUtil {
 
     }
 
-
-
+    public static ProxyServer getServer() {
+        return server;
+    }
 }
