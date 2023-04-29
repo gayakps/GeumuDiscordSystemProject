@@ -126,7 +126,13 @@ public class AnswerManager {
 
         QAUser questionUser = question.getQaUser();
 
-        QAUser answerUser = playerTransientProceedingAnswerRequest.getQaUser();
+        QAUser answerUser;
+
+        if ( playerTransientProceedingAnswerRequest.getRequestType().equals(PlayerTransientProceedingAnswerRequest.RequestType.DISCORD) ) {
+            answerUser = QAUserManager.getInstance().getUser(playerTransientProceedingAnswerRequest.getDiscordUserId());
+        } else {
+            answerUser = QAUserManager.getInstance().getUser(playerTransientProceedingAnswerRequest.getPlayerName());
+        }
 
         if ( questionUser.equals(answerUser) ) {
             //자신의 질문에 답장할 때

@@ -6,6 +6,7 @@ import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestRes
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
 import gaya.pe.kr.qa.data.QARequestResult;
+import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.util.ThreadUtil;
@@ -132,6 +133,11 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST: {
                 //TODO 질문 요청
                 PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = (PlayerTransientProceedingAnswerRequest) minecraftPacket;
+                QARequestResult qaRequestResult = answerManager.processAnswer(playerTransientProceedingAnswerRequest);
+                String message = qaRequestResult.getMessage();
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerTransientProceedingAnswerRequest.getPlayerUUID(), playerTransientProceedingAnswerRequest.getPacketID());
+                response.addMessage(message);
+                sendPacket(channel, response);
                 break;
             }
             default:

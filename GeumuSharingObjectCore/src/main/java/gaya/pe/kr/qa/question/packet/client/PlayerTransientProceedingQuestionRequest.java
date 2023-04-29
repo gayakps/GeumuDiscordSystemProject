@@ -19,7 +19,6 @@ public class PlayerTransientProceedingQuestionRequest extends AbstractMinecraftP
     @Nullable String playerName;
     @Nullable UUID playerUUID;
     String content;
-
     long discordUserId;
 
     public PlayerTransientProceedingQuestionRequest(@NotNull String playerName, @NotNull UUID playerUUID, String content) {

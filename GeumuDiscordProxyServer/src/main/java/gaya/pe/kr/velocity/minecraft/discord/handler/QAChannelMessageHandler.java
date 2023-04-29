@@ -72,16 +72,16 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
 
                 String receivedMessageContent = receivedMessage.getContentRaw();
 
-                PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(question.getId(), receivedMessageContent, answerUser);
+                PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(question.getId(), receivedMessageContent, answerUser.getDiscordPlayerUserId());
 
                 QARequestResult qaRequestResult = answerManager.processAnswer(playerTransientProceedingAnswerRequest);
 
                 if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
+                    // 디코에서 답장을 성공하면 할게없음
                     VelocityThreadUtil.asyncTask(() -> {
                         receivedMessage.delete().queue();
                         repliedMessage.delete().queue();
                     });
-
                 } else {
                     discordManager.sendMessageAndRemove(event.getChannel(),qaRequestResult.getMessage(), 3000, true, receivedMessage);
                 }
