@@ -41,12 +41,7 @@ public final class GeumuDiscordSystem extends JavaPlugin implements CommandExecu
     @Override
     public boolean onCommand(CommandSender var1, Command var2, String var3, String[] var4) {
 
-        if ( var1 instanceof Player) {
-            Player player = (Player) var1;
-            String code = var4[0];
-            DiscordAuthenticationRequest discordAuthenticationRequest = new DiscordAuthenticationRequest(player.getUniqueId(), player.getName(), Integer.parseInt(code) );
-            NetworkManager.getInstance().sendData(discordAuthenticationRequest, player, (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다")));
-        }
+
 
         return false;
     }

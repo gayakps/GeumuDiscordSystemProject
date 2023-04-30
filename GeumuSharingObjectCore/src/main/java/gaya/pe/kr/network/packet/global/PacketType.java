@@ -9,8 +9,10 @@ import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
+import gaya.pe.kr.qa.answer.packet.client.TargetPlayerAnswerRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -35,7 +37,10 @@ public enum PacketType {
 
     SERVER_OPTION(0x11, PacketStartDirection.SERVER, ServerOption.class),
 
-    PLAYER_RECENT_QUESTION_ANSWER_REQUEST(0x11, PacketStartDirection.CLIENT, PlayerRecentQuestionAnswerRequest.class);
+    PLAYER_RECENT_QUESTION_ANSWER_REQUEST(0x11, PacketStartDirection.CLIENT, PlayerRecentQuestionAnswerRequest.class),
+
+    TARGET_PLAYER_ANSWER_REQUEST(0x12, PacketStartDirection.CLIENT, TargetPlayerAnswerRequest.class),
+    TARGET_PLAYER_QUESTION_REQUEST(0x13, PacketStartDirection.CLIENT, TargetPlayerQuestionRequest.class);
 
 
 //    PLAYER_TITLE(0x02, PacketStartDirection.SERVER, PlayerTitle.class);

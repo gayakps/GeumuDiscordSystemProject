@@ -5,6 +5,8 @@ import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import gaya.pe.kr.plugin.network.handler.MinecraftServerPacketHandler;
 import gaya.pe.kr.plugin.thread.SchedulerUtil;
+import gaya.pe.kr.plugin.util.data.WaitingTicket;
+import gaya.pe.kr.util.data.ConsumerTwoObject;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -14,9 +16,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
@@ -70,26 +69,25 @@ public class NetworkManager {
         });
     }
 
-    public void sendDataExpectResponse(AbstractMinecraftPacket requestMinecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
+    public <T> void sendDataExpectResponse(AbstractMinecraftPacket requestMinecraftPacket, Player sender, Class<T> expectResponseClazz, ConsumerTwoObject<Player, T> consumerTwoObject) {
 
         SchedulerUtil.runWaitTask( ()-> {
             ChannelFuture channelFuture = channel.writeAndFlush(requestMinecraftPacket);
             try {
                 Void result = channelFuture.get();
-                sendSuccessAfterConsumer.accept(sender);
-                HashSet<Long> waitingResponseTicketHashSet = minecraftServerPacketHandler.getWaitingResponseTicketHashSet();
-
                 long requestTicketId = requestMinecraftPacket.getPacketID();
 
-                waitingResponseTicketHashSet.add(requestMinecraftPacket.getPacketID());
+                WaitingTicket<?> waitingTicket = new WaitingTicket<>(sender, sender.getUniqueId(), consumerTwoObject, expectResponseClazz);
+                minecraftServerPacketHandler.addWaitingTicket(requestMinecraftPacket, waitingTicket);
 
                 SchedulerUtil.runLaterTask( ()-> {
-                    if ( waitingResponseTicketHashSet.contains(requestTicketId) ) {
-                        waitingResponseTicketHashSet.remove(requestTicketId);
+                    if ( minecraftServerPacketHandler.isWaitingTicket(requestTicketId) ) {
+                        minecraftServerPacketHandler.removeWaitingTicket(requestTicketId);
                         msg(sender, "&c서버로 부터 응답이 없습니다 다시 시도해주세요");
                     }
                 }, 20*5);
 
+                waitingTicket.executeWaitingTicket();
 
             } catch (InterruptedException | ExecutionException e ) {
                 sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");

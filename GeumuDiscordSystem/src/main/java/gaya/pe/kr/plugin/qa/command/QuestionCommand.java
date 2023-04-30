@@ -3,7 +3,9 @@ package gaya.pe.kr.plugin.qa.command;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.util.UtilMethod;
+import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,15 +34,33 @@ public class QuestionCommand implements CommandExecutor {
             if ( args.length > 0 ) {
 
                 String category = args[0];
+                    NetworkManager networkManager = NetworkManager.getInstance();
 
                 if ( category.equals("목록") ) {
+
+                    TargetPlayerQuestionRequest targetPlayerQuestionRequest = new TargetPlayerQuestionRequest(player.getName(), player.getUniqueId(), args[1]);
+                    networkManager.sendDataExpectResponse(targetPlayerQuestionRequest, player, Question[].class, (player1, questions) -> {
+
+                        if ( questions == null ) {
+                            //존재하지 않는 플레이어 일 때
+                            return;
+                        }
+
+                        if ( questions.length == 0 ) {
+                            // 질문이 없을 떄
+                            return;
+                        }
+
+
+
+                    });
+
                     return false;
                 }
 
                 String questionContents = UtilMethod.getOneLineString(args, 0);
                 PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest = new PlayerTransientProceedingQuestionRequest(player.getName(), player.getUniqueId(), questionContents);
-                NetworkManager.getInstance().sendDataExpectResponse(playerTransientProceedingQuestionRequest, player, player1 -> {
-
+                NetworkManager.getInstance().sendPacket(playerTransientProceedingQuestionRequest, player, player1 -> {
                     player1.sendMessage("데이터를 정상적으로 송신합니다");
                 });
             } else {

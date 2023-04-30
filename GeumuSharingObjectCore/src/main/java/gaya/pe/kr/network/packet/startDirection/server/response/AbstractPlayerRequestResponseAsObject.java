@@ -15,7 +15,6 @@ import java.util.UUID;
 public abstract class AbstractPlayerRequestResponseAsObject<T> extends AbstractMinecraftPacket {
 
     T t;
-
     private final UUID requestPlayerUUID;
     private final long requestPacketId;
 

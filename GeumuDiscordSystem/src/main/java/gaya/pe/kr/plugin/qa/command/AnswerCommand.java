@@ -13,10 +13,9 @@ public class AnswerCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
         if ( commandSender instanceof Player) {
-
             Player player = ((Player) commandSender).getPlayer();
             PlayerTransientProceedingAnswerRequest playerProceedingQuestionRequest = new PlayerTransientProceedingAnswerRequest(1, args[0], player.getName(), player.getUniqueId());
-            NetworkManager.getInstance().sendDataExpectResponse(playerProceedingQuestionRequest, player, player1 -> player1.sendMessage("데이터를 정상적으로 송신합니다"));
+            NetworkManager.getInstance().sendPacket(playerProceedingQuestionRequest, player, player1 -> player1.sendMessage("데이터를 정상적으로 송신합니다"));
 
         }
 

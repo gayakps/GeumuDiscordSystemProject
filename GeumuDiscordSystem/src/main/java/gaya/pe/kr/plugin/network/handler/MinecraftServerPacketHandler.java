@@ -6,7 +6,10 @@ import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRe
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.util.data.WaitingTicket;
+import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
 import gaya.pe.kr.qa.answer.data.Answer;
+import gaya.pe.kr.qa.data.QA;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
@@ -20,15 +23,13 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 /**
  * 서버로 부터 전송된 패킷을 처리 하는 곳
  */
 public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<AbstractMinecraftPacket> {
 
-    HashSet<Long> waitingResponseTicketHashSet = new HashSet<>();
+    HashMap<Long, WaitingTicket<?>> packetWaitingResponseAsObjectHashMap = new HashMap<>();
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -54,7 +55,8 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_REQUEST_RESPONSE: {
 
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
-                waitingResponseTicketHashSet.remove(abstractPlayerRequestResponse.getRequestPacketId());
+                removeWaitingTicket(abstractPlayerRequestResponse.getRequestPacketId());
+
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
                 if ( player != null ) {
                     abstractPlayerRequestResponse.sendData(player);
@@ -66,18 +68,43 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_REQUEST_RESPONSE_AS_OBJECT: {
 
                 AbstractPlayerRequestResponseAsObject<?> abstractPlayerRequestResponseAsObject = (AbstractPlayerRequestResponseAsObject<?>) minecraftPacket;
-                waitingResponseTicketHashSet.remove(abstractPlayerRequestResponseAsObject.getRequestPacketId());
+                long requestPacketId = abstractPlayerRequestResponseAsObject.getRequestPacketId();
 
-                 Object tObject = abstractPlayerRequestResponseAsObject.getT();
 
-                 Class<?> objectClazz = tObject.getClass();
+                Object tObject = abstractPlayerRequestResponseAsObject.getT();
 
-                 if ( objectClazz == Answer[].class ) {
-                     Answer[] answers = (Answer[]) tObject;
-                 }
-                 else if ( objectClazz == Question[].class ) {
-                     Question[] questions = (Question[]) tObject;
-                 }
+                try {
+                    if (isWaitingTicket(requestPacketId)) {
+                        handleWaitingTicket(requestPacketId, tObject);
+                    } else {
+                        //TODO 문제 발생
+                    }
+                } catch (IllegalResponseObjectException e) {
+                    e.printStackTrace();
+                }
+
+
+//                    if ( objectClazz == Answer[].class ) {
+//                        WaitingTicket<Answer[]> waitingTicket = getWaitingTicket(requestPacketId);
+//                        Answer[] answers = (Answer[]) tObject;
+//                        waitingTicket.setResult(answers);
+//                        waitingTicket.executeAndGetResult();
+//                    }
+//                    else if ( objectClazz == Question[].class ) {
+//                        WaitingTicket<Question[]> waitingTicket = getWaitingTicket(requestPacketId);
+//                        Question[] questions = (Question[]) tObject;
+//                        waitingTicket.setResult(questions);
+//                        waitingTicket.executeAndGetResult();
+//                    }
+//                    else if ( objectClazz == QA[].class ) {
+//                        WaitingTicket<QA[]> waitingTicket = getWaitingTicket(requestPacketId);
+//                        QA[] qas = (QA[]) tObject;
+//                        waitingTicket.setResult(qas);
+//                        waitingTicket.executeAndGetResult();
+//                    } else {
+//                        //TODO 문제 발생
+//                    }
+
 
                 break;
             }
@@ -152,7 +179,30 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
         }
     }
 
-    public HashSet<Long> getWaitingResponseTicketHashSet() {
-        return waitingResponseTicketHashSet;
+    public boolean isWaitingTicket(long requestPacketId) {
+        return packetWaitingResponseAsObjectHashMap.containsKey(requestPacketId);
     }
+
+
+    @SuppressWarnings("unchecked")
+    public <T> WaitingTicket<T> getWaitingTicket(long requestPacketId) {
+        return (WaitingTicket<T>) packetWaitingResponseAsObjectHashMap.get(requestPacketId);
+    }
+
+    public void removeWaitingTicket(long requestPacketId) {
+        packetWaitingResponseAsObjectHashMap.remove(requestPacketId);
+    }
+
+    public void addWaitingTicket(AbstractMinecraftPacket abstractMinecraftPacket, WaitingTicket<?> waitingTicket ) {
+        packetWaitingResponseAsObjectHashMap.put(abstractMinecraftPacket.getPacketID(), waitingTicket);
+    }
+
+    private <T> void handleWaitingTicket(long requestPacketId, T tObject) throws IllegalResponseObjectException {
+        WaitingTicket<T> waitingTicket = getWaitingTicket(requestPacketId);
+        waitingTicket.setResult(tObject);
+        removeWaitingTicket(requestPacketId);
+    }
+
+
+
 }

@@ -15,10 +15,8 @@ public class PlayerQuestionListByQuestionIdRequest extends AbstractMinecraftPlay
     }
 
     public PlayerQuestionListByQuestionIdRequest addQuestionId(int answerId) {
-
         questionIdHashSet.add(answerId);
         return this;
-
     }
 
     public void addQuestionId(int... questionIds) {
