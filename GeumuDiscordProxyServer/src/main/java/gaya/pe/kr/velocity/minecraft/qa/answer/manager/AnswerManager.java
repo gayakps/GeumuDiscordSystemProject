@@ -80,11 +80,7 @@ public class AnswerManager {
                 String playerName = allPlayer.getGameProfile().getName();
 
                 if ( playerName.equals(questionUser.getGamePlayerName()) ) {
-                    //접속중이라면
-                    allPlayer.sendMessage(Component.text(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
-                            .replace("%answer_playername%",QAUserManager.getInstance().getFullName(answerUser))
-                            .replace("%answer%",answer.getContents())
-                    ));
+                    //질문자가 온라인일경우
                     questionerOnline = true;
                 }
 
@@ -92,6 +88,15 @@ public class AnswerManager {
 
             if ( questionerOnline ) {
                 qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnline().replace("%answer_count_total%", ""));
+
+                BroadCastMessage broadCastMessage = new BroadCastMessage(
+                        configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
+                        .replace("%answer_playername%",QAUserManager.getInstance().getFullName(answerUser))
+                        .replace("%answer%",answer.getContents())
+                );
+
+                NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
+
             } else {
                 qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOffline().replace("%answer_count_total%", ""));
             }

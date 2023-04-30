@@ -231,7 +231,7 @@ public class ConfigOption extends AbstractOption {
         return (String) getNestedSectionKey("message").get("answer_send_fail_already_answered_recent_question_and_no_remain_old_question");
     }
 
-    @RequirePlaceHolder(placeholders = {"%%remain_question%"})
+    @RequirePlaceHolder(placeholders = {"%remain_question%"})
     public String getAnswerSendFailAlreadyAnsweredRecentQuestionAndRemainOldQuestion() {
         return (String) getNestedSectionKey("message").get("answer_send_fail_already_answered_recent_question_and_remain_old_question");
     }

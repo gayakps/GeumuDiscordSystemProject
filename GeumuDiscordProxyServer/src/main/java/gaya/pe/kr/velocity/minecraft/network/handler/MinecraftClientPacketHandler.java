@@ -1,9 +1,13 @@
 package gaya.pe.kr.velocity.minecraft.network.handler;
 
+import com.velocitypowered.api.proxy.Player;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsChat;
+import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsClickableCommandChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
+import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
@@ -16,6 +20,7 @@ import gaya.pe.kr.util.option.data.options.ConfigOption;
 import gaya.pe.kr.util.option.data.options.PatternMatcher;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
@@ -134,11 +139,72 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 //TODO 질문 요청
                 PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = (PlayerTransientProceedingAnswerRequest) minecraftPacket;
                 QARequestResult qaRequestResult = answerManager.processAnswer(playerTransientProceedingAnswerRequest);
-                String message = qaRequestResult.getMessage();
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerTransientProceedingAnswerRequest.getPlayerUUID(), playerTransientProceedingAnswerRequest.getPacketID());
+                String message = qaRequestResult.getMessage();
                 response.addMessage(message);
                 sendPacket(channel, response);
                 break;
+            }
+            case PLAYER_RECENT_QUESTION_ANSWER_REQUEST: {
+
+                // 최근 답변 진행
+
+                PlayerRecentQuestionAnswerRequest playerRecentQuestionAnswerRequest = (PlayerRecentQuestionAnswerRequest) minecraftPacket;
+
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerRecentQuestionAnswerRequest.getPlayerUUID(), playerRecentQuestionAnswerRequest.getPacketID());
+
+                if ( qaUserManager.existUser(playerRecentQuestionAnswerRequest.getTargetPlayerName())) {
+
+                    ConfigOption configOption = serverOptionManager.getConfigOption();
+                    //TODO 질문자가 존재하기 떄문에 최근 질문 등등을 가져와야함
+
+                    QAUser questioner = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getTargetPlayerName()); // 질문자
+
+                    Question recentQuestion = questionManager.getTargetQAUserRecentQuestion(questioner);
+
+                    if ( recentQuestion != null ) {
+
+                        QAUser answerer = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getPlayerName()); // 답변자
+
+                        if ( !recentQuestion.isAnswer() ) {
+
+                        } else {
+                            //TODO 최근 질문이 이미 답변이 되었다면
+
+                            int questionableAmount = questionManager.getQuestionableAmount(questioner);
+
+                            if ( questionableAmount <= 0 ) {
+                                response.addMessage(configOption.getAnswerSendFailAlreadyAnsweredRecentQuestionAndNoRemainOldQuestion());
+                                //최근질문에 답변이 되어있고 해당 유저에게 남아있는 질문이 없을 경우
+                            } else {
+                                //최근질문에 답변이 되어있고 해당 유저에게 남아있는 질문이 있을 경우
+                                PlayerRequestResponseAsClickableCommandChat playerRequestResponseAsClickableCommandChat = new PlayerRequestResponseAsClickableCommandChat(
+                                        playerRecentQuestionAnswerRequest.getPlayerUUID(),
+                                        playerRecentQuestionAnswerRequest.getPacketID(),
+                                        "/질문 ~~",
+                                        configOption.getAnswerSendFailAlreadyAnsweredRecentQuestionAndRemainOldQuestion().replace("%remain_question%", Integer.toString(questionableAmount)),
+                                        configOption.getAnswerSendFailAlreadyAnsweredRecentQuestionAndRemainOldQuestionHoverMessage()
+                                );
+                                sendPacket(channel, playerRequestResponseAsClickableCommandChat);
+                                return;
+                            }
+
+                        }
+
+                    } else {
+                        //TODO 최근 질문이 존재하지 않을 경우
+                        //answer_send_fail_already_answered_recent_question_and_no_remain_old_question:
+                        response.addMessage(configOption.getAnswerSendFailNotExistRecentQuestionAndNoRemainOldQuestion());
+                    }
+
+                } else {
+                    //TODO 질문자가 존재하지 않음
+                }
+
+                sendPacket(channel, response);
+
+                break;
+
             }
             default:
                 // 알 수 없는 패킷 처리
@@ -155,6 +221,23 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             } catch (ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        });
+
+    }
+
+    public void sendPacket(Channel channel, AbstractMinecraftPacket... minecraftPackets) {
+
+        VelocityThreadUtil.asyncTask( ()-> {
+
+            for (AbstractMinecraftPacket minecraftPacket : minecraftPackets) {
+                ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
+                try {
+                    channelFuture.get();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
         });
 
     }

@@ -47,14 +47,16 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
             receivedMessageContent = "!인증 gaya_kps"; // TODO 제거 해야
         }
 
+        ConfigOption configOption = serverOptionManager.getConfigOption();
+
         if ( !receivedMessageContent.startsWith(prefix)) {
-            discordManager.sendMessageAndRemove(messageChannel, "```해당 채팅방에서의 모든 내용은 '!' 을 붙여주세요```", 3000, true, receivedMessage);
+            discordManager.sendMessageAndRemove(messageChannel, String.format("```%s```", configOption.getDiscordAuthenticationChannelHelpMessage()), 3000, true, receivedMessage);
             return;
         }
 
         if ( receivedMessageContent.contains("!인증")) {
 
-            ConfigOption configOption = serverOptionManager.getConfigOption();
+
             String playerName = receivedMessageContent.replace("!인증", "").trim();
 
             try {

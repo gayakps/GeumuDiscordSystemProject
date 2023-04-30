@@ -94,6 +94,20 @@ public class QuestionManager {
 
     }
 
+    public int getQuestionableAmount(QAUser user) {
+
+        int result = 0;
+
+        for (Question qaUserQuestion : getQAUserQuestions(user)) {
+            if ( !qaUserQuestion.isAnswer() ) {
+                result++;
+            }
+        }
+
+        return result;
+
+    }
+
     /**
      *
      * @param playerTransientProceedingQuestionRequest
