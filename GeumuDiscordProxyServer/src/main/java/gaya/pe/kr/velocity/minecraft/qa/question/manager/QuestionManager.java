@@ -74,8 +74,9 @@ public class QuestionManager {
     /**
      *
      */
-    @Nullable
-    public Question getTargetQAUserRecentQuestion(QAUser qaUser) {
+    public List<Question> getTargetQAUserRecentQuestion(QAUser qaUser) {
+
+        List<Question> result = new ArrayList<>();
 
         int targetTime = serverOptionManager.getConfigOption().getRecentQuestionAnswerTime();
 
@@ -85,12 +86,12 @@ public class QuestionManager {
 
             if ( diffSec < targetTime ) {
                 //만일 Delay 시간이 덜 지났으면?
-                return qaUserQuestion;
+                result.add(qaUserQuestion);
             }
 
         }
 
-        return null;
+        return result;
 
     }
 

@@ -2,6 +2,7 @@ package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.util.UtilMethod;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import org.bukkit.command.Command;
@@ -29,7 +30,15 @@ public class QuestionCommand implements CommandExecutor {
             ConfigOption configOption = optionManager.getConfigOption();
 
             if ( args.length > 0 ) {
-                PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest = new PlayerTransientProceedingQuestionRequest(player.getName(), player.getUniqueId(), args[0]);
+
+                String category = args[0];
+
+                if ( category.equals("목록") ) {
+                    return false;
+                }
+
+                String questionContents = UtilMethod.getOneLineString(args, 0);
+                PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest = new PlayerTransientProceedingQuestionRequest(player.getName(), player.getUniqueId(), questionContents);
                 NetworkManager.getInstance().sendDataExpectResponse(playerTransientProceedingQuestionRequest, player, player1 -> {
 
                     player1.sendMessage("데이터를 정상적으로 송신합니다");

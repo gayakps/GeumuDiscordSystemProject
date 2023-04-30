@@ -160,13 +160,36 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                     QAUser questioner = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getTargetPlayerName()); // 질문자
 
-                    Question recentQuestion = questionManager.getTargetQAUserRecentQuestion(questioner);
+                    List<Question> recentQuestions = questionManager.getTargetQAUserRecentQuestion(questioner);
 
-                    if ( recentQuestion != null ) {
+                    if ( !recentQuestions.isEmpty() ) {
 
                         QAUser answerer = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getPlayerName()); // 답변자
+                        Question recentQuestion = recentQuestions.get(0); // 반드시 0보다 크다
 
                         if ( !recentQuestion.isAnswer() ) {
+
+                            PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(
+                                    recentQuestion.getId(),
+                                    playerRecentQuestionAnswerRequest.getAnswerContent(),
+                                    playerRecentQuestionAnswerRequest.getPlayerName(),
+                                    playerRecentQuestionAnswerRequest.getPlayerUUID()
+                            );
+                            QARequestResult qaRequestResult = answerManager.processAnswer(playerTransientProceedingAnswerRequest);
+
+                            if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
+                                // 답변 성공
+
+                                if ( recentQuestions.size() == 1 ) {
+                                    // 답변을 했는데 이미 최근 질문으
+                                } else {
+
+                                }
+
+                            }
+
+                            response.addMessage(qaRequestResult.getMessage());
+
 
                         } else {
                             //TODO 최근 질문이 이미 답변이 되었다면

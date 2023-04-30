@@ -94,6 +94,7 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
 
             } catch ( NotExpiredDiscordAuthenticationException e ) {
+
                 user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
 
                     long remainCodeExpireTime = TimeUtil.getTimeDiffSec(discordManager.getDiscordAuthentication(playerName).getExpiredDate()); // 만료 시간
