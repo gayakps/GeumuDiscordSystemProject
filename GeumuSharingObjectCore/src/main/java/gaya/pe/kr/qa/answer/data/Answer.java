@@ -18,6 +18,7 @@ public class Answer {
     Date answerDate = new Date();
 
     boolean receivedToQuestionPlayer;
+    boolean receivedReward;
 
     public Answer(long answerId, long questionId, String contents, QAUser answerPlayer) {
         this.answerId = answerId;

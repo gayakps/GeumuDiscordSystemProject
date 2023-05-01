@@ -15,7 +15,7 @@ public class PlayerAnswerListOption extends AbstractOption {
     }
 
 
-    @RequirePlaceHolder( placeholders = {"%question_contents%"} )
+    @RequirePlaceHolder( placeholders = {"%question_content%"} )
     public String getAnsweredQuestionName() {
         return (String) getNestedSectionKey("GUI", "player_answer_list_answered_question").get("name");
     }

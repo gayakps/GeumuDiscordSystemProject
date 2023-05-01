@@ -56,15 +56,14 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
         int startIndex = (page-1) * 36;
         int lastIndex = (page * 36);
-        List<Question> questions = allQuestionAnswers.getQuestions();
 
-        for (Question question : questions) {
+        for (Question question : allQuestionAnswers.getQuestions() ) {
             if ( question.getQaUser().getGamePlayerName().equals(targetPlayerName) ) {
                 targetPlayerQuestions.add(question);
             }
         }
 
-        totalPage = ( questions.size() / 36 ) + 1;
+        totalPage = ( targetPlayerQuestions.size() / 36 ) + 1;
 
         int size = targetPlayerQuestions.size();
 
@@ -73,12 +72,12 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
             return;
         }
 
-        if ( questions.isEmpty() ) {
+        if ( targetPlayerQuestions.isEmpty() ) {
             getPlayer().sendMessage("§c질문한 목록이 없습니다");
             return;
         }
 
-        QAUser targetPlayerQAUser = questions.get(0).getQaUser();
+        QAUser targetPlayerQAUser = targetPlayerQuestions.get(0).getQaUser();
 
         OptionManager optionManager = OptionManager.getInstance();
 
@@ -99,7 +98,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
             return q1.isAnswer() ? -1 : 1;
         };
 
-        questions.sort(answerComparator);
+        targetPlayerQuestions.sort(answerComparator);
 
         Inventory inventory = Bukkit.createInventory(null, 54, configOption.getPlayerQuestionListTitle()
                 .replace("%playername%", targetPlayerName)
@@ -110,7 +109,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
         int inventoryIndex = 0;
         for ( int index = startIndex; index < lastIndex; index++ ) {
             if ( index < size ) {
-                Question question = questions.get(index);
+                Question question = targetPlayerQuestions.get(index);
 
                 SimpleDateFormat simpleDateFormat = TimeUtil.getSimpleDateFormat();
                 ItemStack itemStack;
@@ -141,7 +140,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
                         );
                     }
 
-                    itemStack = ItemCreator.createItemStack(Material.GREEN_WOOL,
+                    itemStack = ItemCreator.createItemStack(Material.RED_WOOL,
                             itemName,
                             lore
                     );
@@ -158,7 +157,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
                         );
                     }
 
-                    itemStack = ItemCreator.createItemStack(Material.RED_WOOL, itemName, lore);
+                    itemStack = ItemCreator.createItemStack(Material.GREEN_WOOL, itemName, lore);
 
                 }
 
@@ -170,7 +169,6 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
         }
 
         setUpDefaultPoketmonInventory(inventory);
-
 
         if (PermissionLevelType.getPermissionLevelType(getPlayer()).equals(PermissionLevelType.STAFF) ) {
             ItemStack index45Item = ItemCreator.createItemStack(Material.GOLDEN_SWORD, playerQuestionListOption.getPlayerQuestionListDailyQuestionRankingName());
@@ -193,11 +191,11 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
             QAManager qaManager = QAManager.getInstance();
 
-            int yesterdayQuestions = qaManager.countQuestionsForUser(targetPlayerQAUser, questions, yesterday, today.minusDays(1));
-            int dailyQuestions = qaManager.countQuestionsForUser(targetPlayerQAUser, questions, today, today);
-            int weeklyQuestions = qaManager.countQuestionsForUser(targetPlayerQAUser, questions, weekStart, today);
-            int monthlyQuestions = qaManager.countQuestionsForUser(targetPlayerQAUser, questions, monthStart, today);
-            int totalQuestions = qaManager.countQuestionsForUser(targetPlayerQAUser, questions, LocalDate.MIN, LocalDate.MAX);
+            int yesterdayQuestions = qaManager.countQuestionsForUser(targetPlayerQuestions, yesterday, today.minusDays(1));
+            int dailyQuestions = qaManager.countQuestionsForUser(targetPlayerQuestions, today, today);
+            int weeklyQuestions = qaManager.countQuestionsForUser(targetPlayerQuestions, weekStart, today);
+            int monthlyQuestions = qaManager.countQuestionsForUser(targetPlayerQuestions, monthStart, today);
+            int totalQuestions = qaManager.countQuestionsForUser(targetPlayerQuestions, LocalDate.MIN, LocalDate.MAX);
 
             System.out.println("어제 질문 수: " + yesterdayQuestions);
             System.out.println("일간 질문 수: " + dailyQuestions);
