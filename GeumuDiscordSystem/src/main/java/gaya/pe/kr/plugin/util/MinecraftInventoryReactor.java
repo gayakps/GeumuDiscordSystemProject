@@ -1,5 +1,8 @@
 package gaya.pe.kr.plugin.util;
 
+import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.util.option.data.options.gui.CommonlyUsedButtonOption;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -7,18 +10,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import javax.swing.text.html.Option;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class MinecraftInventoryReactor implements Listener {
 
     Inventory inventory;
     Player player;
 
-    public MinecraftInventoryReactor(Inventory inventory, Player player) {
-        this.inventory = inventory;
+    public MinecraftInventoryReactor(Player player) {
         this.player = player;
     }
 
     protected abstract void init();
+
+
 
     public void start() {
 
@@ -67,6 +77,40 @@ public abstract class MinecraftInventoryReactor implements Listener {
 
     protected void close() {
         HandlerList.unregisterAll(this);
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+
+    protected void setUpDefaultPoketmonInventory(Inventory inventory) {
+
+        CommonlyUsedButtonOption commonlyUsedButtonOption = OptionManager.getInstance().getCommonlyUsedButtonOption();
+
+        for ( int index = 36; index < 45; index++ ) {
+            inventory.setItem(index, ItemCreator.createItemStack(Material.GRAY_STAINED_GLASS_PANE, ""));
+        }
+
+        inventory.setItem(48, ItemCreator.createItemStack(Material.getMaterial(commonlyUsedButtonOption.getPreviousPageButtonType().toUpperCase(Locale.ROOT)), commonlyUsedButtonOption.getPreviousPageButtonName()));
+        inventory.setItem(50, ItemCreator.createItemStack(Material.getMaterial(commonlyUsedButtonOption.getNextPageButtonType().toUpperCase(Locale.ROOT)), commonlyUsedButtonOption.getNextPageButtonName()));
+
+            // 52 inventory
+            ItemStack index52Item = ItemCreator.createItemStack(
+                    Material.getMaterial(commonlyUsedButtonOption.getAnswerRewardInfoButtonType().toUpperCase(Locale.ROOT))
+                    , commonlyUsedButtonOption.getAnswerRewardInfoButtonName()
+                    , commonlyUsedButtonOption.getAnswerRewardInfoButtonLore()
+            );
+            inventory.setItem(52, index52Item);
+
+        // 52 inventory
+        ItemStack index53Item = ItemCreator.createItemStack(
+                Material.getMaterial(commonlyUsedButtonOption.getQuestionHelpButtonType().toUpperCase(Locale.ROOT))
+                , commonlyUsedButtonOption.getQuestionHelpButtonName()
+                , commonlyUsedButtonOption.getQuestionHelpButtonLore()
+        );
+        inventory.setItem(53, index53Item);
+
     }
 
 }

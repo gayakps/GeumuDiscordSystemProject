@@ -2,7 +2,9 @@ package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.UtilMethod;
+import gaya.pe.kr.qa.data.QA;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
@@ -39,7 +41,7 @@ public class QuestionCommand implements CommandExecutor {
                 if ( category.equals("목록") ) {
 
                     TargetPlayerQuestionRequest targetPlayerQuestionRequest = new TargetPlayerQuestionRequest(player.getName(), player.getUniqueId(), args[1]);
-                    networkManager.sendDataExpectResponse(targetPlayerQuestionRequest, player, Question[].class, (player1, questions) -> {
+                    networkManager.sendDataExpectResponse(targetPlayerQuestionRequest, player, QA[].class, (player1, questions) -> {
 
                         if ( questions == null ) {
                             //존재하지 않는 플레이어 일 때
@@ -97,28 +99,6 @@ public class QuestionCommand implements CommandExecutor {
         return false;
     }
 
-    private enum PermissionLevelType {
 
-        NONE,
-        USER,
-        STAFF,
-        ADMIN;
-
-        public static PermissionLevelType getPermissionLevelType(Player player) {
-
-
-            if ( player.isOp() ) return ADMIN;
-
-            if ( player.hasPermission("answer.admin") ) return ADMIN;
-
-            if ( player.hasPermission("answer.staff") ) return STAFF;
-
-            if ( player.hasPermission("answer.user")) return USER;
-
-            return NONE;
-
-        }
-
-    }
 
 }

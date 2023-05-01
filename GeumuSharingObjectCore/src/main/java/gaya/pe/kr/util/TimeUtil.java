@@ -1,10 +1,12 @@
 package gaya.pe.kr.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class TimeUtil {
 
+    static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static long getTimeDiffTwoDay(Date before, Date after) {
         return ( ( ( ( after.getTime() - before.getTime()) / 1000 ) / 60 ) / 60 ) / 24 ;
     }
@@ -70,5 +72,7 @@ public class TimeUtil {
         return calendar.getTime();
     }
 
-
+    public static SimpleDateFormat getSimpleDateFormat() {
+        return simpleDateFormat;
+    }
 }

@@ -43,6 +43,27 @@ public class ItemCreator {
     }
 
 
+    public static ItemStack createItemStack(Material material, String displayName, String... lores) {
+        ItemStack itemStack = new ItemStack(material, 1);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        displayName = ("§f"+displayName).replace("&","§");
+        itemMeta.setDisplayName(displayName);
+        itemMeta.setUnbreakable(true);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        
+        if ( lores != null ) {
+            List<String> lore = new ArrayList<>();
+            for (String s : lores) {
+                lore.add(s.replace("&", "§"));
+            }
+            itemMeta.setLore(lore);
+        }
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
     public static ItemStack createItemStack(Material material, String displayName, List<String> lore) {
         ItemStack itemStack = new ItemStack(material, 1);
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -53,22 +74,9 @@ public class ItemCreator {
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
         if ( lore != null ) {
-            itemMeta.setLore(lore);
-        }
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
-    }
 
-    public static ItemStack createItemStack(Material material, String displayName, List<String> lore, int durability) {
-        ItemStack itemStack = new ItemStack(material, 1, (short) durability);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        displayName = ("§f"+displayName).replace("&","§");
-        itemMeta.setDisplayName(displayName);
-        itemMeta.setUnbreakable(true);
-        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-        if ( lore != null ) {
+            lore.replaceAll(s -> s.replace("&", "§"));
+
             itemMeta.setLore(lore);
         }
         itemStack.setItemMeta(itemMeta);
