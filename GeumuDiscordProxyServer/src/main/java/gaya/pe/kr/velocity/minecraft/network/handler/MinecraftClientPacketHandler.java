@@ -4,7 +4,9 @@ import com.velocitypowered.api.proxy.Player;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationUserConfirmRequest;
+import gaya.pe.kr.network.packet.startDirection.client.UpdatePlayerList;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
 import gaya.pe.kr.network.packet.startDirection.server.response.*;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
@@ -26,6 +28,7 @@ import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
+import gaya.pe.kr.velocity.minecraft.player.PlayerListHandler;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
@@ -291,16 +294,16 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             case DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST: {
 
                 DiscordAuthenticationUserConfirmRequest discordAuthenticationUserConfirmRequest = (DiscordAuthenticationUserConfirmRequest) minecraftPacket;
-
-                boolean exist = false;
-
-                if ( qaUserManager.existUser(discordAuthenticationUserConfirmRequest.getTargetPlayerName()) ) {
-                    exist = true;
-                }
-
+                boolean exist = qaUserManager.existUser(discordAuthenticationUserConfirmRequest.getTargetPlayerName());
                 RequestResponse response = new RequestResponse(exist, discordAuthenticationUserConfirmRequest);
                 sendPacket(channel, response);
 
+                break;
+            }
+            case UPDATE_PLAYER_LIST_REQUEST: {
+                UpdatePlayerList updatePlayerList = (UpdatePlayerList) minecraftPacket;
+                PlayerListHandler.setChannelAsPlayerList(channel,updatePlayerList.getPlayerList());
+                sendPacketAllChannel(new ScatterServerPlayers(PlayerListHandler.getAllConnectionPlayers())); // 전체 서버로 전송
                 break;
             }
             default:

@@ -1,16 +1,15 @@
 package gaya.pe.kr.plugin.network.handler;
 
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.util.data.WaitingTicket;
 import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
-import gaya.pe.kr.qa.answer.data.Answer;
-import gaya.pe.kr.qa.data.QA;
-import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -106,6 +105,13 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 //                    }
 
 
+                break;
+            }
+
+            case SCATTER_SERVER_PLAYERS: {
+                PlayerManager playerManager = PlayerManager.getInstance();
+                ScatterServerPlayers scatterServerPlayers = (ScatterServerPlayers) minecraftPacket;
+                playerManager.setPlayerList(scatterServerPlayers.getPlayers());
                 break;
             }
 

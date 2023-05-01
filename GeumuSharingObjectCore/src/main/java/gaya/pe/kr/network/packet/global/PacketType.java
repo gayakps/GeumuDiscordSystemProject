@@ -1,7 +1,9 @@
 package gaya.pe.kr.network.packet.global;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationUserConfirmRequest;
+import gaya.pe.kr.network.packet.startDirection.client.UpdatePlayerList;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
@@ -42,7 +44,10 @@ public enum PacketType {
 
     TARGET_PLAYER_ANSWER_REQUEST(0x12, PacketStartDirection.CLIENT, TargetPlayerAnswerRequest.class),
     TARGET_PLAYER_QUESTION_REQUEST(0x13, PacketStartDirection.CLIENT, TargetPlayerQuestionRequest.class),
-    DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST(0x14, PacketStartDirection.CLIENT, DiscordAuthenticationUserConfirmRequest.class);
+    DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST(0x14, PacketStartDirection.CLIENT, DiscordAuthenticationUserConfirmRequest.class),
+
+    SCATTER_SERVER_PLAYERS(0x15, PacketStartDirection.SERVER, ScatterServerPlayers.class),
+    UPDATE_PLAYER_LIST_REQUEST(0x16, PacketStartDirection.CLIENT, UpdatePlayerList.class);
 
 
 //    PLAYER_TITLE(0x02, PacketStartDirection.SERVER, PlayerTitle.class);

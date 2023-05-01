@@ -212,6 +212,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
         }
 
 
+
         setInventory(inventory);
 
         getPlayer().openInventory(inventory);

@@ -2,6 +2,7 @@ package gaya.pe.kr.plugin;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
+import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
 import io.netty.channel.ChannelFuture;
@@ -23,14 +24,15 @@ public final class GeumuDiscordSystem extends JavaPlugin implements CommandExecu
 
     NetworkManager networkManager = NetworkManager.getInstance();
     QAManager qaManager = QAManager.getInstance();
+    PlayerManager playerManager = PlayerManager.getInstance();
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
-
         networkManager.init();
         qaManager.init();
+        playerManager.init();
     }
 
     @Override
