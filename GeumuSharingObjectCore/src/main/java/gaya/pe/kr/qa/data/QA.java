@@ -4,6 +4,7 @@ import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.question.data.Question;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Queue;
@@ -13,7 +14,7 @@ import java.util.Queue;
  */
 
 @Getter
-public class QA {
+public class QA implements Serializable {
 
     HashMap<Question, Answer> questionAnswerHashMap;
     public QA(HashMap<Question, Answer> questionAnswerHashMap) {

@@ -52,7 +52,6 @@ public class QuestionCommand implements CommandExecutor {
                         }
 
 
-
                     });
 
                     return false;

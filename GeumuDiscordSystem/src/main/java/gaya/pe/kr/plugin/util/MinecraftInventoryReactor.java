@@ -28,13 +28,30 @@ public abstract class MinecraftInventoryReactor implements Listener {
 
     @EventHandler
     public void clickInventoryEvent(InventoryClickEvent event) {
+
+        Inventory clickedInventory = event.getClickedInventory();
+
+        if ( clickedInventory == null ) return;
+
+        Inventory nowInventory = event.getInventory();
+
+        Player clickedPlayer = (Player) event.getWhoClicked();
+
+        if ( !clickedPlayer.getUniqueId().equals(player.getUniqueId()) ) return;
+
+        if ( !clickedInventory.equals(nowInventory) ) return;
+
         clickInventory(event);
     }
 
     @EventHandler
     public void closeInventoryEvent(InventoryCloseEvent event) {
+
+        Inventory nowInventory = event.getInventory();
+
+        if ( !nowInventory.equals(this.inventory) ) return;
+
         closeInventory(event);
-        HandlerList.unregisterAll(this);
     }
 
     abstract protected void clickInventory(InventoryClickEvent event);
@@ -47,4 +64,9 @@ public abstract class MinecraftInventoryReactor implements Listener {
     public Player getPlayer() {
         return player;
     }
+
+    protected void close() {
+        HandlerList.unregisterAll(this);
+    }
+
 }

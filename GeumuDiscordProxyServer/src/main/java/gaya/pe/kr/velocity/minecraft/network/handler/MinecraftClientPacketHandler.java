@@ -3,11 +3,9 @@ package gaya.pe.kr.velocity.minecraft.network.handler;
 import com.velocitypowered.api.proxy.Player;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
+import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationUserConfirmRequest;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
-import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
-import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsChat;
-import gaya.pe.kr.network.packet.startDirection.server.response.PlayerRequestResponseAsClickableCommandChat;
-import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
+import gaya.pe.kr.network.packet.startDirection.server.response.*;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
@@ -272,7 +270,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
-
             case TARGET_PLAYER_QUESTION_REQUEST: {
 
                 TargetPlayerQuestionRequest targetPlayerQuestionRequest = (TargetPlayerQuestionRequest) minecraftPacket;
@@ -290,6 +287,21 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 sendPacket(channel, questionListResponse);
 
             // 특정 플레이어 질문 목록 확인
+            }
+            case DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST: {
+
+                DiscordAuthenticationUserConfirmRequest discordAuthenticationUserConfirmRequest = (DiscordAuthenticationUserConfirmRequest) minecraftPacket;
+
+                boolean exist = false;
+
+                if ( qaUserManager.existUser(discordAuthenticationUserConfirmRequest.getTargetPlayerName()) ) {
+                    exist = true;
+                }
+
+                RequestResponse response = new RequestResponse(exist, discordAuthenticationUserConfirmRequest);
+                sendPacket(channel, response);
+
+                break;
             }
             default:
                 // 알 수 없는 패킷 처리
