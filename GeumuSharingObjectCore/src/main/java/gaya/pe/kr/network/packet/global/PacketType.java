@@ -1,16 +1,14 @@
 package gaya.pe.kr.network.packet.global;
 
-import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationUserConfirmRequest;
-import gaya.pe.kr.network.packet.startDirection.client.UpdatePlayerList;
+import gaya.pe.kr.network.packet.startDirection.client.*;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
+import gaya.pe.kr.network.packet.startDirection.server.response.QAUserResponse;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
-import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
-import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.qa.answer.packet.client.TargetPlayerAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
@@ -55,7 +53,11 @@ public enum PacketType {
     EXPECT_QUESTION_ANSWER_RESPONSE(0x17, PacketStartDirection.SERVER, ExpectQuestionAnswerResponse.class),
 
     BUKKIT_ANSWER_MODIFY(0x18, PacketStartDirection.SERVER, BukkitAnswerModify.class),
-    BUKKIT_QUESTION_MODIFY(0x19, PacketStartDirection.SERVER, BukkitQuestionModify.class);
+    BUKKIT_QUESTION_MODIFY(0x19, PacketStartDirection.SERVER, BukkitQuestionModify.class),
+
+    TARGET_QA_USER_DATA_REQUEST(0x20, PacketStartDirection.CLIENT, TargetQAUserDataRequest.class),
+    ALL_QA_USER_DATA_REQUEST(0x21, PacketStartDirection.CLIENT, AllQAUserDataRequest.class);
+
 
 
 //    PLAYER_TITLE(0x02, PacketStartDirection.SERVER, PlayerTitle.class);

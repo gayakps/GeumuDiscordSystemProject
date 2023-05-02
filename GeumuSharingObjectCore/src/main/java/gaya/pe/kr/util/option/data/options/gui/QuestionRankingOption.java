@@ -36,7 +36,7 @@ public class QuestionRankingOption extends AbstractOption {
         return (String) getNestedSectionKey("GUI", "question_ranking_info").get("name");
     }
 
-    @RequirePlaceHolder(placeholders = {"%answer_count_yesterday%", "%answer_count_daily%", "%answer_count_weekly%", "%answer_count_monthly%", "%answer_count_total%"})
+    @RequirePlaceHolder(placeholders = {"%question_count_yesterday%", "%question_count_daily%", "%question_count_weekly%", "%question_count_monthly%", "%question_count_total%"})
     public List<String> getQuestionRankingInfoLore() {
         return getList("GUI.question_ranking_info.lore");
     }

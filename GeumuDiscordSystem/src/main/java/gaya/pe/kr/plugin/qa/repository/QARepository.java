@@ -1,7 +1,7 @@
 package gaya.pe.kr.plugin.qa.repository;
 
 import gaya.pe.kr.qa.answer.data.Answer;
-import gaya.pe.kr.qa.data.QA;
+import gaya.pe.kr.qa.data.QuestionAndAnswerMatch;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
 
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class QARepository {
@@ -43,16 +41,16 @@ public class QARepository {
     }
 
 
-    public List<QA> getQAs() {
+    public List<QuestionAndAnswerMatch> getQAs() {
 
-        List<QA> result = new ArrayList<>();
+        List<QuestionAndAnswerMatch> result = new ArrayList<>();
 
         for (Answer answer : answerIdByAnswerId.values()) {
 
             long questionId = answer.getQuestionId();
 
             if ( questionIdByQuestId.containsKey(questionId) ) {
-                result.add(new QA(questionIdByQuestId.get(questionId), answer));
+                result.add(new QuestionAndAnswerMatch(questionIdByQuestId.get(questionId), answer));
             }
 
         }

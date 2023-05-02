@@ -1,10 +1,8 @@
 package gaya.pe.kr.velocity.minecraft.network.handler;
 
 import com.velocitypowered.api.proxy.Player;
-import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
+import gaya.pe.kr.network.packet.startDirection.client.*;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
-import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationUserConfirmRequest;
-import gaya.pe.kr.network.packet.startDirection.client.UpdatePlayerList;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
 import gaya.pe.kr.network.packet.startDirection.server.response.*;
@@ -42,6 +40,8 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -294,18 +294,44 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             // 특정 플레이어 질문 목록 확인
             }
             case DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST: {
-
                 DiscordAuthenticationUserConfirmRequest discordAuthenticationUserConfirmRequest = (DiscordAuthenticationUserConfirmRequest) minecraftPacket;
                 boolean exist = qaUserManager.existUser(discordAuthenticationUserConfirmRequest.getTargetPlayerName());
                 RequestResponse response = new RequestResponse(exist, discordAuthenticationUserConfirmRequest);
                 sendPacket(channel, response);
-
                 break;
             }
             case UPDATE_PLAYER_LIST_REQUEST: {
                 UpdatePlayerList updatePlayerList = (UpdatePlayerList) minecraftPacket;
                 PlayerListHandler.setChannelAsPlayerList(channel,updatePlayerList.getPlayerList());
                 sendPacketAllChannel(new ScatterServerPlayers(PlayerListHandler.getAllConnectionPlayers())); // 전체 서버로 전송
+                break;
+            }
+            case ALL_QA_USER_DATA_REQUEST: {
+
+                AllQAUserDataRequest allQAUserDataRequest = (AllQAUserDataRequest) minecraftPacket;
+                HashSet<QAUser> qaUsers = qaUserManager.getAllQAUsers();
+                QAUserResponse qaUserResponse = new QAUserResponse( qaUsers.isEmpty() ? null : qaUsers.toArray(new QAUser[0])
+                        , allQAUserDataRequest.getPlayerUUID(), allQAUserDataRequest.getPacketID()
+                );
+                sendPacket(channel, qaUserResponse);
+                break;
+            }
+            case TARGET_QA_USER_DATA_REQUEST: {
+
+                TargetQAUserDataRequest targetQAUserDataRequest = (TargetQAUserDataRequest) minecraftPacket;
+
+                List<QAUser> qaUsers = new ArrayList<>();
+
+                for (String targetQAUser : targetQAUserDataRequest.getTargetQAUsers()) {
+                    QAUser qaUser = qaUserManager.getUser(targetQAUser);
+                    if ( qaUser != null ) {
+                        qaUsers.add(qaUser);
+                    }
+                }
+
+                QAUserResponse qaUserResponse = new QAUserResponse( qaUsers.isEmpty() ? null : qaUsers.toArray(new QAUser[0]) , targetQAUserDataRequest.getPlayerUUID(), targetQAUserDataRequest.getPacketID());
+                sendPacket(channel, qaUserResponse);
+
                 break;
             }
             default:

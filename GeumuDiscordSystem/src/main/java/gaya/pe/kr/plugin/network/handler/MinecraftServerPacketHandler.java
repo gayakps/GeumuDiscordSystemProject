@@ -137,10 +137,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
 
                 }
-
-
-
-
                 break;
             }
 

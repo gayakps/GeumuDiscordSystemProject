@@ -5,21 +5,18 @@ import gaya.pe.kr.qa.question.data.Question;
 import lombok.Getter;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Queue;
 
 /**
  *
  */
 
 @Getter
-public class QA implements Serializable {
+public class QuestionAndAnswerMatch implements Serializable {
 
     Question question;
     Answer answer;
 
-    public QA(Question question, Answer answer) {
+    public QuestionAndAnswerMatch(Question question, Answer answer) {
         this.question = question;
         this.answer = answer;
     }

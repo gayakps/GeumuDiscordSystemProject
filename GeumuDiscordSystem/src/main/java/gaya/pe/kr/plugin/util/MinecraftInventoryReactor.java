@@ -4,6 +4,7 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.util.option.data.options.gui.CommonlyUsedButtonOption;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -50,6 +51,9 @@ public abstract class MinecraftInventoryReactor implements Listener {
         if ( !clickedPlayer.getUniqueId().equals(player.getUniqueId()) ) return;
 
         if ( !clickedInventory.equals(nowInventory) ) return;
+
+        event.setCancelled(true);
+        event.setResult(Event.Result.DENY);
 
         clickInventory(event);
     }

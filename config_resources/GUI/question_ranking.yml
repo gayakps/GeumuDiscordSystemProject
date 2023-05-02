@@ -14,10 +14,10 @@ GUI:
   question_ranking_info:
     name: "%playername% %ranking%"
     lore:
-      - '어제 답변수: %answer_count_yesterday%'
-      - '일간 답변수: %answer_count_daily%'
-      - '주간 답변수: %answer_count_weekly%'
-      - '월간 답변수: %answer_count_monthly%'
-      - '전체 기간 답변수: %answer_count_total%'
+      - '어제 질문수: %question_count_yesterday%'
+      - '일간 질문수: %question_count_daily%'
+      - '주간 질문수: %question_count_weekly%'
+      - '월간 질문수: %question_count_monthly%'
+      - '전체 기간 질문수: %question_count_total%'
       - ' '
       - "[!] 클릭 시 해당 유저의 답변 목록을 확인합니다."

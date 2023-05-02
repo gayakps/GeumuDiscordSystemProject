@@ -144,6 +144,42 @@ public class ItemCreator {
         return skull;
     }
 
+    public static ItemStack getPlayerHead(String playerName, String itemName, List<String> lore) {
+
+        OfflinePlayer targetPlayer = null;
+        for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
+            if ( offlinePlayer.getName().equals(playerName) ) {
+                targetPlayer = offlinePlayer;
+            }
+        }
+
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+
+        SkullMeta meta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.PLAYER_HEAD);
+
+        if ( meta != null ) {
+
+            if ( targetPlayer != null ) {
+                meta.setOwningPlayer(targetPlayer);
+            }
+
+            meta.setDisplayName(itemName.replace("&", "§"));
+
+            List<String> loreList = new ArrayList<>();
+            for (String s : lore) {
+                loreList.add(s.replace("&", "§"));
+            }
+
+            meta.setLore(loreList);
+            skull.setItemMeta(meta);
+        }
+
+
+
+        return skull;
+    }
+
+
     public static ItemStack addLore(ItemStack targetItem, List<String> lore) {
         ItemMeta itemMeta = targetItem.getItemMeta();
         List<String> loreList = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();

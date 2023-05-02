@@ -1,15 +1,15 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
+import gaya.pe.kr.network.packet.startDirection.client.AllQAUserDataRequest;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
+import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
-import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.reactor.ranking.DailyQuestionRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
-import gaya.pe.kr.qa.data.AllQuestionAnswers;
-import gaya.pe.kr.qa.data.QA;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.TimeUtil;
@@ -19,7 +19,6 @@ import gaya.pe.kr.util.option.data.options.gui.PlayerAnswerListOption;
 import gaya.pe.kr.util.option.data.options.gui.PlayerQuestionListOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -39,6 +38,8 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
     List<Question> targetPlayerQuestions;
     QARepository qaRepository;
 
+    HashMap<Integer, Question> answerAbleQuestions = new LinkedHashMap<>();
+
     int page = 1;
     int totalPage = 1;
 
@@ -51,7 +52,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
     @Override
     protected void init() {
-
+        open();
     }
 
     public void open() {
@@ -81,11 +82,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
         ConfigOption configOption = optionManager.getConfigOption();
 
-        //    @RequirePlaceHolder(placeholders = {"%playername%", "%current_page%", "%total_page%"})
-
-        PlayerAnswerListOption playerAnswerListOption = optionManager.getPlayerAnswerListOption();
         PlayerQuestionListOption playerQuestionListOption = optionManager.getPlayerQuestionListOption();
-        CommonlyUsedButtonOption commonlyUsedButtonOption = optionManager.getCommonlyUsedButtonOption();
 
         List<Answer> answerList = qaRepository.getAllAnswers();
 
@@ -156,6 +153,8 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
                     }
 
                     itemStack = ItemCreator.createItemStack(Material.GREEN_WOOL, itemName, lore);
+
+                    answerAbleQuestions.put(inventoryIndex, question);
 
                 }
 
@@ -255,7 +254,37 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
     @Override
     protected void clickInventory(InventoryClickEvent event) {
+        int clickedSlot = event.getSlot();
 
+        switch ( clickedSlot ) {
+            case 48: {
+                page--;
+                open();
+                break;
+            }
+            case 50: {
+                page++;
+                open();
+                // 다음페이지
+                break;
+            }
+            case 45: {
+                //TODO 일간 질문수 랭킹
+                getPlayer().closeInventory();
+                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                    DailyQuestionRankingReactor questionRankingReactor = new DailyQuestionRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                    questionRankingReactor.start();
+                });
+                break;
+            }
+            default: {
+                if ( answerAbleQuestions.containsKey(clickedSlot) ) {
+                    Question question = answerAbleQuestions.get(clickedSlot);
+                    // TODO 명령어 입력 /답변 (답변번호) (할말)
+                }
+                break;
+            }
+        }
     }
 
     @Override

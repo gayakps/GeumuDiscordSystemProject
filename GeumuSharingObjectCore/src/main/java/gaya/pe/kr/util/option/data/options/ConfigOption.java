@@ -252,44 +252,33 @@ public class ConfigOption extends AbstractOption {
         return (String) getNestedSectionKey("message").get("answer_send_fail_not_exist_recent_question_and_remain_old_question_hover_message");
     }
 
-    // 여기서부터
-
-    @RequirePlaceHolder(placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
-    public String getQuestionNumberAnswerSendSuccessIfQuestionerOnline() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_send_success_if_questioner_online");
-    }
-
-    @RequirePlaceHolder(placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
-    public String getQuestionNumberAnswerSendSuccessIfQuestionerOffline() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_send_success_if_questioner_offline");
-    }
-
-    @RequirePlaceHolder(placeholders = {"%question_number%"})
-    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online");
-    }
-
-    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_title");
-    }
-
-    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_subtitle");
-    }
-
-    @RequirePlaceHolder(placeholders = {"%arrived_answer_count%"})
-    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_offline_and_join_after");
-    }
-
-    @RequirePlaceHolder(placeholders = {"%arrived_answer_count%"})
-    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterTitle() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_offline_and_join_after_title");
-    }
-
-    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterSubtitle() {
-        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_offline_and_join_after_subtitle");
-    }
+//
+//    @RequirePlaceHolder(placeholders = {"%question_number%"})
+//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline() {
+//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online");
+//    }
+//
+//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle() {
+//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_title");
+//    }
+//
+//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle() {
+//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_subtitle");
+//    }
+//
+//    @RequirePlaceHolder(placeholders = {"%arrived_answer_count%"})
+//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter() {
+//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_offline_and_join_after");
+//    }
+//
+//    @RequirePlaceHolder(placeholders = {"%arrived_answer_count%"})
+//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterTitle() {
+//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_offline_and_join_after_title");
+//    }
+//
+//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterSubtitle() {
+//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_offline_and_join_after_subtitle");
+//    }
 
     public String getQuestionNumberAnswerSendFailCanNotSelfAnswer() {
         return (String) getNestedSectionKey("message").get("question_number_answer_send_fail_can_not_self_answer");

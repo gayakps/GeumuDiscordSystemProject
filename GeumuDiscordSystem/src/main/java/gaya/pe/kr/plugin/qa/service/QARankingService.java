@@ -13,8 +13,10 @@ import java.util.*;
 public class QARankingService {
 
 
-    public static <T> List<QARankingResult<T>> calculateRankings(List<QAUser> qaUsers, List<T> items, LocalDate today) {
+    public static <T> List<QARankingResult<T>> calculateRankings(List<QAUser> qaUsers, List<T> items) {
         Map<QAUser, QARankingResult<T>> resultMap = new HashMap<>();
+
+        LocalDate today = LocalDate.now();
 
         for (QAUser qaUser : qaUsers) {
             resultMap.put(qaUser, new QARankingResult<>(qaUser, 0, 0, 0, 0, 0));

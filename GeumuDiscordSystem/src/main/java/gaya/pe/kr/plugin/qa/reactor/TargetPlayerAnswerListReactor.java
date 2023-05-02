@@ -1,22 +1,22 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
+import gaya.pe.kr.network.packet.startDirection.client.AllQAUserDataRequest;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
+import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.reactor.ranking.DailyQuestionRankingReactor;
+import gaya.pe.kr.plugin.qa.reactor.ranking.WeeklyAnswerRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
-import gaya.pe.kr.plugin.qa.service.AnswerRankingService;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
-import gaya.pe.kr.qa.data.AllQuestionAnswers;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
-import gaya.pe.kr.util.option.data.options.gui.CommonlyUsedButtonOption;
 import gaya.pe.kr.util.option.data.options.gui.PlayerAnswerListOption;
-import gaya.pe.kr.util.option.data.options.gui.PlayerQuestionListOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,14 +28,13 @@ import org.bukkit.inventory.ItemStack;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.countAnswersForUser;
 import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.getAnswerCountMap;
-import static gaya.pe.kr.plugin.qa.service.QuestionRankingService.getQuestionCountMap;
 
 public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
@@ -55,7 +54,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
     @Override
     protected void init() {
-
+        open();
     }
 
     public void open() {
@@ -248,13 +247,36 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
 
         setInventory(inventory);
-
         getPlayer().openInventory(inventory);
 
     }
 
     @Override
     protected void clickInventory(InventoryClickEvent event) {
+        int clickedSlot = event.getSlot();
+
+        switch ( clickedSlot ) {
+            case 48: {
+                page--;
+                open();
+                break;
+            }
+            case 50: {
+                page++;
+                open();
+                // 다음페이지
+                break;
+            }
+            case 45: {
+                //TODO 주간 질문수 랭킹
+                getPlayer().closeInventory();
+                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                    WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                    weeklyAnswerRankingReactor.open();
+                });
+                break;
+            }
+        }
 
     }
 

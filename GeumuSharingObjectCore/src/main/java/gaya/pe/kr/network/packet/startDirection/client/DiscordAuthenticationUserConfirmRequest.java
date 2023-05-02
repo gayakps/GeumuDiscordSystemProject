@@ -7,6 +7,9 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
+/**
+ * 타겟 플레이어가 인증유저인지 아닌지 확인
+ */
 @Getter
 public class DiscordAuthenticationUserConfirmRequest extends AbstractMinecraftPlayerRequestPacket {
 

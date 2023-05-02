@@ -6,6 +6,7 @@ import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.prefs.PreferencesFactory;
 
 public class QAUserManager {
@@ -44,7 +45,9 @@ public class QAUserManager {
         return false;
     }
 
-
+    public HashSet<QAUser> getAllQAUsers() {
+        return new HashSet<>(userHashSet);
+    }
 
     public QAUser getUser(String playerName) {
 

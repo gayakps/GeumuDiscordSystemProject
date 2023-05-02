@@ -1,11 +1,15 @@
 package gaya.pe.kr.plugin.qa.command;
 
+import gaya.pe.kr.network.packet.startDirection.client.TargetQAUserDataRequest;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.reactor.TargetPlayerQuestionListReactor;
+import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.UtilMethod;
-import gaya.pe.kr.qa.data.QA;
-import gaya.pe.kr.qa.question.data.Question;
+import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.data.QuestionAndAnswerMatch;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -16,6 +20,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class QuestionCommand implements CommandExecutor {
+
+    NetworkManager networkManager = NetworkManager.getInstance();
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
@@ -33,26 +39,23 @@ public class QuestionCommand implements CommandExecutor {
 
             ConfigOption configOption = optionManager.getConfigOption();
 
+            QARepository qaRepository = QAManager.getInstance().getQaRepository();
+
             if ( args.length > 0 ) {
 
                 String category = args[0];
-                    NetworkManager networkManager = NetworkManager.getInstance();
 
                 if ( category.equals("목록") ) {
 
-                    TargetPlayerQuestionRequest targetPlayerQuestionRequest = new TargetPlayerQuestionRequest(player.getName(), player.getUniqueId(), args[1]);
-                    networkManager.sendDataExpectResponse(targetPlayerQuestionRequest, player, QA[].class, (player1, questions) -> {
-
-                        if ( questions == null ) {
-                            //존재하지 않는 플레이어 일 때
+                    TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[]{args[1]}, player);
+                    networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
+                        if ( qaUsers == null ) {
+                            player.sendMessage(configOption.getInvalidPlayerName().replace("&", "§"));
                             return;
                         }
-
-                        if ( questions.length == 0 ) {
-                            // 질문이 없을 떄
-                            return;
-                        }
-
+                        QAUser qaUser = qaUsers[0];
+                        TargetPlayerQuestionListReactor targetPlayerQuestionListReactor = new TargetPlayerQuestionListReactor(player, qaUser, qaRepository);
+                        targetPlayerQuestionListReactor.start();
 
                     });
 
@@ -60,10 +63,12 @@ public class QuestionCommand implements CommandExecutor {
                 }
 
                 String questionContents = UtilMethod.getOneLineString(args, 0);
+                if ( questionContents.length() == 0 ) return false;
                 PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest = new PlayerTransientProceedingQuestionRequest(player.getName(), player.getUniqueId(), questionContents);
-                NetworkManager.getInstance().sendPacket(playerTransientProceedingQuestionRequest, player, player1 -> {
+                networkManager.sendPacket(playerTransientProceedingQuestionRequest, player, player1 -> {
                     player1.sendMessage("데이터를 정상적으로 송신합니다");
                 });
+
             } else {
 
                 switch ( permissionLevelType ) {
