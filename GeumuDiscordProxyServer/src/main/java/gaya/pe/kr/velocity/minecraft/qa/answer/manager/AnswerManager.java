@@ -4,6 +4,7 @@ import com.velocitypowered.api.proxy.Player;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
+import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
@@ -15,9 +16,12 @@ import gaya.pe.kr.velocity.database.DBConnection;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
+import gaya.pe.kr.velocity.minecraft.player.PlayerListHandler;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import net.dv8tion.jda.api.entities.Message;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class AnswerManager {
 
@@ -76,18 +81,24 @@ public class AnswerManager {
 
             boolean questionerOnline = false;
 
-            for (Player allPlayer : VelocityThreadUtil.getServer().getAllPlayers()) {
-                String playerName = allPlayer.getGameProfile().getName();
+            String questionerGamePlayerName = questionUser.getGamePlayerName();
 
-                if ( playerName.equals(questionUser.getGamePlayerName()) ) {
-                    //질문자가 온라인일경우
-                    questionerOnline = true;
+            if ( questionerGamePlayerName != null ) {
+                for (Player allPlayer : VelocityThreadUtil.getServer().getAllPlayers()) {
+                    String playerName = allPlayer.getGameProfile().getName();
+
+                    if ( playerName.equals(questionerGamePlayerName) ) {
+                        //질문자가 온라인일경우
+                        questionerOnline = true;
+                    }
+
                 }
-
             }
 
+
+
             if ( questionerOnline ) {
-                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnline().replace("%answer_count_total%", ""));
+                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnline().replace("%answer_count_total%", "")); // 답변자에게 전달
 
                 BroadCastMessage broadCastMessage = new BroadCastMessage(
                         configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
@@ -97,8 +108,20 @@ public class AnswerManager {
 
                 NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
 
+                Channel channel = PlayerListHandler.getPlayerAsChannel(questionUser.getGamePlayerName());
+
+                VelocityThreadUtil.asyncTask( ()-> {
+                    ChannelFuture channelFuture = channel.writeAndFlush(new ExpectQuestionAnswerResponse(questionUser, answerUser, question, answer));
+                    try {
+                        channelFuture.get();
+                        answer.setReceivedToQuestionPlayer(true); // 정상 전달했을경우
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }});
+
+
             } else {
-                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOffline().replace("%answer_count_total%", ""));
+                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOffline().replace("%answer_count_total%", "")); // 답변자에게 전달
             }
 
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);

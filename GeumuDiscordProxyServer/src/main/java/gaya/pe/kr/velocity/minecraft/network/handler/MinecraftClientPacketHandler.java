@@ -289,6 +289,8 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 QuestionListResponse questionListResponse = new QuestionListResponse(questionArray, targetPlayerQuestionRequest.getPlayerUUID(), targetPlayerQuestionRequest.getPacketID());
                 sendPacket(channel, questionListResponse);
 
+                break;
+
             // 특정 플레이어 질문 목록 확인
             }
             case DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST: {

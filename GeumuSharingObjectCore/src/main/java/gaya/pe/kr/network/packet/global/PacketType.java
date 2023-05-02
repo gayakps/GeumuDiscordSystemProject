@@ -13,6 +13,7 @@ import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequ
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.qa.answer.packet.client.TargetPlayerAnswerRequest;
+import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
@@ -47,7 +48,9 @@ public enum PacketType {
     DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST(0x14, PacketStartDirection.CLIENT, DiscordAuthenticationUserConfirmRequest.class),
 
     SCATTER_SERVER_PLAYERS(0x15, PacketStartDirection.SERVER, ScatterServerPlayers.class),
-    UPDATE_PLAYER_LIST_REQUEST(0x16, PacketStartDirection.CLIENT, UpdatePlayerList.class);
+    UPDATE_PLAYER_LIST_REQUEST(0x16, PacketStartDirection.CLIENT, UpdatePlayerList.class),
+
+    EXPECT_QUESTION_ANSWER_RESPONSE(0x17, PacketStartDirection.SERVER, ExpectQuestionAnswerResponse.class);
 
 
 //    PLAYER_TITLE(0x02, PacketStartDirection.SERVER, PlayerTitle.class);

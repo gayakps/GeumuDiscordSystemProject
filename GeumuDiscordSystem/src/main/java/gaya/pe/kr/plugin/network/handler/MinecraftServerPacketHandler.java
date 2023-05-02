@@ -10,6 +10,10 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.util.data.WaitingTicket;
 import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
+import gaya.pe.kr.qa.answer.data.Answer;
+import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
+import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -60,6 +64,43 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 if ( player != null ) {
                     abstractPlayerRequestResponse.sendData(player);
                 }
+
+                break;
+            }
+
+            case EXPECT_QUESTION_ANSWER_RESPONSE: {
+
+                ExpectQuestionAnswerResponse expectQuestionAnswerResponse = (ExpectQuestionAnswerResponse) minecraftPacket;
+
+                Question question = expectQuestionAnswerResponse.getQuestion();
+                Answer answer = expectQuestionAnswerResponse.getAnswer();
+                QAUser questioner = expectQuestionAnswerResponse.getTargetUser();
+                QAUser answerer = expectQuestionAnswerResponse.getAnswerUser();
+
+                String questionerGamePlayerName = questioner.getGamePlayerName();
+                if ( questionerGamePlayerName != null ) {
+
+                    ConfigOption configOption = OptionManager.getInstance().getConfigOption();
+
+                    Player player = Bukkit.getPlayer(questioner.getGamePlayerName());
+
+                    if ( player != null ) {
+
+                        int answerReceivedTitleFadeInTime = configOption.getAnswerReceiveTitleFadeInTime();
+                        int answerReceivedTitleFadeOutTime = configOption.getAnswerReceiveTitleFadeOutTime();
+                        int answerReceivedTitleFadeStayTime = configOption.getAnswerReceiveTitleStayTime();
+
+                        // 답변이 도착했습니다!, 채팅창을 봐주세요
+                        player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOnlineTitle(), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
+
+
+                    }
+
+
+                }
+
+
+
 
                 break;
             }
