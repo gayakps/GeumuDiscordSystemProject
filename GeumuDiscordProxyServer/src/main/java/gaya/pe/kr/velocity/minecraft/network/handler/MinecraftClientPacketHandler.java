@@ -444,6 +444,13 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
+            case ANSWER_MODIFY_REQUEST: {
+                questionManager.modi
+                break;
+            }
+            case QUESTION_MODIFY_REQUEST: {
+                break;
+            }
             default:
                 // 알 수 없는 패킷 처리
                 break;

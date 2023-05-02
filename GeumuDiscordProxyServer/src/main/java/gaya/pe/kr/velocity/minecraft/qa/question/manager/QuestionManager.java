@@ -54,17 +54,19 @@ public class QuestionManager {
 
 
     public Question removeQuestionByQuestId(long questId) {
-
         if (questIdByQuestHashMap.containsKey(questId) ) {
             Question question = questIdByQuestHashMap.get(questId);
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.REMOVE, new Question[]{question}));
             questIdByQuestHashMap.remove(questId);
             return question;
         }
-
         return null;
+    }
+
+    public Question addQuestion(Question question) {
 
     }
+
     public boolean existQuestionByDiscordMessageId(Long messageId) {
 
         for (Map.Entry<Long, Question> integerQuestionEntry : questIdByQuestHashMap.entrySet()) {
@@ -94,20 +96,14 @@ public class QuestionManager {
     @Nullable
     public Question getTargetQAUserRecentQuestion(QAUser qaUser) {
 
-
         int targetTime = serverOptionManager.getConfigOption().getRecentQuestionAnswerTime();
-
         for (Question qaUserQuestion : getQAUserQuestions(qaUser)) {
-
             long diffSec = TimeUtil.getTimeDiffSec(qaUserQuestion.getQuestionDate());
-
             if ( diffSec < targetTime ) {
                 //만일 Delay 시간이 덜 지났으면?
                 return qaUserQuestion;
             }
-
         }
-
         return null;
     }
 
@@ -241,15 +237,36 @@ public class QuestionManager {
             NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
 
             questIdByQuestHashMap.put(question.getId(), question);
-            getQAUserQuestions(qaUser).add(question); // 데이터 삽입 최종적인 작업 끝.
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
+            getQAUserQuestions(qaUser).add(question); // 데이터 삽입 최종적인 작업 끝.
 
         } else {
             // 문제 발생했음을 알림
             qaRequestResult.setMessage("데이터 베이스에 질문 넣을때 문제 발생함");
         }
 
+    }
 
+    public void modifyQuestionData(Question question, QAModifyType qaModifyType) {
+
+        switch ( qaModifyType ) {
+            case ADD:{
+                break;
+            }
+            case REMOVE: {
+                break;
+            }
+            case MODIFY: {
+
+            }
+        }
+
+        if ( qaModifyType.equals(QAModifyType.ADD) ) {
+
+            addQuestion(question)
+        } else {
+            removeQuestionByQuestId(question.getId());
+        }
 
     }
 

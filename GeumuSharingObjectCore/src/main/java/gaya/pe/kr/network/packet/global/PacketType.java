@@ -15,6 +15,7 @@ import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.QuestionModifyRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetPlayerGetQuestionRequest;
 import lombok.Getter;
 
@@ -64,7 +65,10 @@ public enum PacketType {
 
     TARGET_PLAYER_REMOVE_REWARD_REQUEST(0x24, PacketStartDirection.CLIENT, TargetPlayerRemoveRewardRequest.class),
 
-    PLAYER_REWARD_REQUEST(0x25, PacketStartDirection.CLIENT, PlayerRewardRequest.class);
+    PLAYER_REWARD_REQUEST(0x25, PacketStartDirection.CLIENT, PlayerRewardRequest.class),
+
+    ANSWER_MODIFY_REQUEST(0x26, PacketStartDirection.CLIENT, AnswerModifyRequest.class),
+    QUESTION_MODIFY_REQUEST(0x27, PacketStartDirection.CLIENT, QuestionModifyRequest.class);
 
 
 
