@@ -5,6 +5,7 @@ import gaya.pe.kr.network.packet.global.PacketType;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import lombok.Getter;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -22,12 +23,12 @@ public class PlayerTransientProceedingAnswerRequest extends AbstractMinecraftPac
     @Nullable UUID playerUUID;
     long discordUserId = -1;
 
-    public PlayerTransientProceedingAnswerRequest(long questionId, String answerContent, @NotNull String playerName, @NotNull UUID playerUUID) {
+    public PlayerTransientProceedingAnswerRequest(long questionId, String answerContent, @NotNull Player player) {
         super(PacketType.PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST);
         this.questionId = questionId;
         this.answerContent = answerContent;
-        this.playerName = playerName;
-        this.playerUUID = playerUUID;
+        this.playerName = player.getName();
+        this.playerUUID = player.getUniqueId();
         this.requestType = RequestType.IN_GAME;
     }
 

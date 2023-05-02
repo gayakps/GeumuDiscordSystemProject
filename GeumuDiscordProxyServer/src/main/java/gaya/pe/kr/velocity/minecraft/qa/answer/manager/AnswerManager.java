@@ -8,6 +8,7 @@ import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
+import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.exception.NonExistQuestionException;
@@ -73,69 +74,82 @@ public class AnswerManager {
         QAUser questionUser = question.getQaUser();
         QAUser answerUser = answer.getAnswerPlayer();
 
-        boolean databaseResult = DBConnection.taskTransaction( connection -> {
-            //TODO DB에 데이터 삽입
-        });
+        Player questionerPlayer = null;
 
-        if ( databaseResult ) {
+        String questionerGamePlayerName = questionUser.getGamePlayerName();
+
+        if ( questionerGamePlayerName != null ) {
+            for (Player allPlayer : VelocityThreadUtil.getServer().getAllPlayers()) {
+                String playerName = allPlayer.getGameProfile().getName();
+
+                if ( playerName.equals(questionerGamePlayerName) ) {
+                    //질문자가 온라인일경우
+                    questionerPlayer =  allPlayer;
+                    break;
+                }
+
+            }
+        }
+
+        Player finalQuestionerPlayer = questionerPlayer;
+        boolean databaseResult = DBConnection.taskTransaction(connection -> {
+            //TODO DB에 데이터 삽입
 
             ConfigOption configOption = serverOptionManager.getConfigOption();
 
-            boolean questionerOnline = false;
+            AnswerManager answerManager = AnswerManager.getInstance();
 
-            String questionerGamePlayerName = questionUser.getGamePlayerName();
+            int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
 
-            if ( questionerGamePlayerName != null ) {
-                for (Player allPlayer : VelocityThreadUtil.getServer().getAllPlayers()) {
-                    String playerName = allPlayer.getGameProfile().getName();
+            if (finalQuestionerPlayer != null) {
 
-                    if ( playerName.equals(questionerGamePlayerName) ) {
-                        //질문자가 온라인일경우
-                        questionerOnline = true;
-                    }
-
-                }
-            }
-
-
-
-            if ( questionerOnline ) {
-                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnline().replace("%answer_count_total%", "")); // 답변자에게 전달
+                qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOnline()
+                        .replace("%playername%", QAUserManager.getInstance().getFullName(answerUser))
+                        .replace("%answer_count_total%", Long.toString(question.getId()))
+                        .replace("%answer_count_total%", Integer.toString(answerCountTotal))
+                ); // 답변자에게 전달
 
                 BroadCastMessage broadCastMessage = new BroadCastMessage(
                         configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
-                        .replace("%answer_playername%",QAUserManager.getInstance().getFullName(answerUser))
-                        .replace("%answer%",answer.getContents())
+                                .replace("%answer_playername%", QAUserManager.getInstance().getFullName(answerUser))
+                                .replace("%answer%", answer.getContents())
                 );
 
                 NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
 
                 Channel channel = PlayerListHandler.getPlayerAsChannel(questionUser.getGamePlayerName());
 
-                VelocityThreadUtil.asyncTask( ()-> {
+                VelocityThreadUtil.asyncTask(() -> {
                     ChannelFuture channelFuture = channel.writeAndFlush(new ExpectQuestionAnswerResponse(questionUser, answerUser, question, answer));
                     try {
                         channelFuture.get();
                         answer.setReceivedToQuestionPlayer(true); // 정상 전달했을경우
                     } catch (ExecutionException | InterruptedException e) {
                         throw new RuntimeException(e);
-                    }});
+                    }
+                });
 
 
             } else {
-                qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOffline().replace("%answer_count_total%", "")); // 답변자에게 전달
+                //    @RequirePlaceHolder( placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
+
+                qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOffline()
+                        .replace("%playername%", QAUserManager.getInstance().getFullName(answerUser))
+                        .replace("%answer_count_total%", Long.toString(question.getId()))
+                        .replace("%answer_count_total%", Integer.toString(answerCountTotal))
+                ); // 답변자에게 전달
+            }
+
+            if ( answer.isReceivedToQuestionPlayer() ) {
+
             }
 
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
             getQAUserAnswers(answerUser).add(answer);
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
+            NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
 
-        } else {
-            // 문제 발생했음을 알림
-        }
-
-
-
+        });
 
     }
 

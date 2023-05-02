@@ -37,7 +37,6 @@ public class QAManager {
     public void init() {
         registerCommand("질문", new QuestionCommand());
         registerCommand("답변", new AnswerCommand());
-        registerCommand("인증", new AuthenticationCommand());
     }
 
 

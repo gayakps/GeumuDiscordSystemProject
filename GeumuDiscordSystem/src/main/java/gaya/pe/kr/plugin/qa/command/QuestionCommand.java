@@ -47,8 +47,9 @@ public class QuestionCommand implements CommandExecutor {
 
                 if ( category.equals("목록") ) {
 
-                    TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[]{args[1]}, player);
+                    TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[]{args[1]}, player, false);
                     networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
+
                         if ( qaUsers == null ) {
                             player.sendMessage(configOption.getInvalidPlayerName().replace("&", "§"));
                             return;
@@ -91,8 +92,6 @@ public class QuestionCommand implements CommandExecutor {
                         break;
                     }
                 }
-
-
 
 
             }

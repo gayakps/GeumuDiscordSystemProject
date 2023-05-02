@@ -186,15 +186,16 @@ public class ConfigOption extends AbstractOption {
         return (String) getNestedSectionKey("message").get("answer_send_success_if_questioner_online_broadcast");
     }
 
-    @RequirePlaceHolder(placeholders = {"%playername%", "%answer_count_total%"})
-    public String getAnswerSendSuccessIfQuestionerOnline() {
-        return (String) getNestedSectionKey("message").get("answer_send_success_if_questioner_online");
-    }
-
-    @RequirePlaceHolder(placeholders = {"%playername%", "%question_content%"})
-    public String getAnswerSendSuccessIfQuestionerOffline() {
-        return (String) getNestedSectionKey("message").get("answer_send_success_if_questioner_offline");
-    }
+    /**
+     @RequirePlaceHolder(placeholders = {"%playername%","%answer_count_total%"})
+     public String getAnswerSendSuccessIfQuestionerOnline() {
+     return (String) getNestedSectionKey("message").get("answer_send_success_if_questioner_online");
+     }
+     @RequirePlaceHolder(placeholders = {"%playername%", "%question_content%"})
+     public String getAnswerSendSuccessIfQuestionerOffline() {
+     return (String) getNestedSectionKey("message").get("answer_send_success_if_questioner_offline");
+     }
+     */
 
     public String getAnswerReceiveSuccessIfQuestionerOnlineTitle() {
         return (String) getNestedSectionKey("message").get("answer_receive_success_if_questioner_online_title");
@@ -240,6 +241,20 @@ public class ConfigOption extends AbstractOption {
         return (String) getNestedSectionKey("message").get("answer_send_fail_already_answered_recent_question_and_remain_old_question_hover_message");
     }
 
+    //  question_number_answer_send_success_if_questioner_offline:
+    //  '&f[&e답변&f] %playername%(오프라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변 수 : %answer_count_total%';
+
+    @RequirePlaceHolder( placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
+    public String getQuestionNumberAnswerSendSuccessIfQuestionerOffline() {
+        return (String) getNestedSectionKey("message").get("question_number_answer_send_success_if_questioner_offline");
+    }
+
+    @RequirePlaceHolder( placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
+    public String getQuestionNumberAnswerSendSuccessIfQuestionerOnline() {
+        return (String) getNestedSectionKey("message").get("question_number_answer_send_success_if_questioner_online");
+    }
+
+
     public String getAnswerSendFailNotExistRecentQuestionAndNoRemainOldQuestion() {
         return (String) getNestedSectionKey("message").get("answer_send_fail_not_exist_recent_question_and_no_remain_old_question");
     }
@@ -253,18 +268,18 @@ public class ConfigOption extends AbstractOption {
     }
 
 //
-//    @RequirePlaceHolder(placeholders = {"%question_number%"})
-//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline() {
-//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online");
-//    }
-//
-//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle() {
-//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_title");
-//    }
-//
-//    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle() {
-//        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_subtitle");
-//    }
+    @RequirePlaceHolder(placeholders = {"%question_number%"})
+    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline() {
+        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online");
+    }
+
+    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle() {
+        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_title");
+    }
+
+    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle() {
+        return (String) getNestedSectionKey("message").get("question_number_answer_receive_success_if_questioner_online_subtitle");
+    }
 //
 //    @RequirePlaceHolder(placeholders = {"%arrived_answer_count%"})
 //    public String getQuestionNumberAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter() {

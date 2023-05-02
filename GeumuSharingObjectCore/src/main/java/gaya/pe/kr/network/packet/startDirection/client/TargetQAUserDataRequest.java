@@ -12,9 +12,11 @@ import org.bukkit.entity.Player;
 public class TargetQAUserDataRequest extends AbstractMinecraftPlayerRequestPacket {
 
     String[] targetQAUsers;
+    boolean createdAndReturn;
 
-    public TargetQAUserDataRequest(String[] targetQAUsers, Player player) {
+    public TargetQAUserDataRequest(String[] targetQAUsers, Player player, boolean createdAndReturn) {
         super(PacketType.TARGET_QA_USER_DATA_REQUEST, player);
         this.targetQAUsers = targetQAUsers;
+        this.createdAndReturn = createdAndReturn;
     }
 }

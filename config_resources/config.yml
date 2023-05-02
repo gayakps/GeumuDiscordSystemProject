@@ -104,13 +104,16 @@ message:
   question_fail_question_cooldown: '&f[&c질문&f] 질문은 %question_cooldown%초에 한번만 할 수 있습니다. 남은 쿨다운: %question_remain_cooldown%'
   # ↑ 디스코드 질문에도 적용됩니다.
   answer_send_success_if_questioner_online_broadcast: '&f[&e답변&f] &f&l%answer_playername%&f: %answer%'
-  answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%님(온라인)에게 답변을 보냈습니다. 전체 답변수: %answer_count_total%'
-  answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%님(오프라인)에게 답변을 보냈습니다. 전체 답변수: %answer_count_total%'
+  #answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%님(온라인)에게 답변을 보냈습니다. 전체 답변수: %answer_count_total%'
+  #answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%님(오프라인)에게 답변을 보냈습니다. 전체 답변수: %answer_count_total%'
+
   answer_receive_success_if_questioner_online_title: '답변이 도착했습니다!'
   answer_receive_success_if_questioner_online_subtitle: '채팅창을 봐주세요!'
+
   answer_receive_success_if_questioner_offline_and_join_after: '&f[&e답변&f] %arrived_answer_count%개의 답변이 도착했습니다! &e/질문 목록'
   answer_receive_success_if_questioner_offline_and_join_after_title: '%arrived_answer_count%개의 답변이 도착했습니다!'
   answer_receive_success_if_questioner_offline_and_join_after_subtitle: '/질문 목록'
+
   answer_send_fail_answer_cooldown: '&f[&c답변&f] 답변은 %answer_cooldown%초에 한번만 할 수 있습니다. 남은 쿨다운: %answer_remain_cooldown%'
   # ↑ 디스코드 답변에도 적용됩니다.
   answer_send_fail_can_not_self_answer: '&f[&c답변&f] 자신이 만든 질문에는 답변할 수 없습니다.'
@@ -122,9 +125,13 @@ message:
   answer_send_fail_not_exist_recent_question_and_remain_old_question: '&f[&c답변&f] 해당 플레이어는 최근에 질문한 질문이 없습니다. 하지만 답변 받지 못한 질문 %remain_question%개가 남아 있습니다. (메시지 클릭 시 해당 유저의 남은 질문들을 확인합니다.)'
   answer_send_fail_not_exist_recent_question_and_remain_old_question_hover_message: '클릭 시 해당 유저의 남은 질문들을 확인합니다.'
   # ↑ 메시지 클릭 시 '/질문 목록 [아이디]' 명령어가 사용됩니다.
-#  question_number_answer_receive_success_if_questioner_online: '&f[&e답변&f] #%question_number% 질문에 대한 답변이 도착했습니다!'
-#  question_number_answer_receive_success_if_questioner_online_title: '답변이 도착했습니다!'
-#  question_number_answer_receive_success_if_questioner_online_subtitle: '/질문 목록'
+
+  question_number_answer_send_success_if_questioner_offline: '&f[&e답변&f] %playername%(오프라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변 수 : %answer_count_total%';
+  question_number_answer_send_success_if_questioner_online: '&f[&e답변&f] %playername%(온라인)님의 #%question_number% 질문에 답변을 달았습니다. 전체 답변 수 : %answer_count_total%';
+
+  question_number_answer_receive_success_if_questioner_online: '&f[&e답변&f] #%question_number% 질문에 대한 답변이 도착했습니다!'
+  question_number_answer_receive_success_if_questioner_online_title: '답변이 도착했습니다!'
+  question_number_answer_receive_success_if_questioner_online_subtitle: '/질문 목록'
 #  question_number_answer_receive_success_if_questioner_offline_and_join_after: '&f[&e답변&f] %arrived_answer_count%개의 답변이 도착했습니다! &e/질문 목록'
 #  question_number_answer_receive_success_if_questioner_offline_and_join_after_title: '%arrived_answer_count%개의 답변이 도착했습니다!'
 #  question_number_answer_receive_success_if_questioner_offline_and_join_after_subtitle: '/질문 목록'

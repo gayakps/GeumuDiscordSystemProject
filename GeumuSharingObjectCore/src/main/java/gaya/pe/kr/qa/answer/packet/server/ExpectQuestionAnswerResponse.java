@@ -8,6 +8,9 @@ import gaya.pe.kr.qa.question.data.Question;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Request 날리고 Response 가 돌아왔을때 ㅇㅇ
+ */
 @Getter
 public class ExpectQuestionAnswerResponse extends AbstractMinecraftPacket {
 

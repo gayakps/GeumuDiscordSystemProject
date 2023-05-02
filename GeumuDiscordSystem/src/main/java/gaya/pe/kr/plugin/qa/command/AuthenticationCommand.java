@@ -18,8 +18,7 @@ public class AuthenticationCommand implements CommandExecutor {
 
             String code = strings[0];
 
-            DiscordAuthenticationRequest discordAuthenticationRequest = new DiscordAuthenticationRequest(player.getUniqueId(), player.getName(), Integer.parseInt(code) );
-            NetworkManager.getInstance().sendData(discordAuthenticationRequest, player, (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다")));
+
 
         }
 

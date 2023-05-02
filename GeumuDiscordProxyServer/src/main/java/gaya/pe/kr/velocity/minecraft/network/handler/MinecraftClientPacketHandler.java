@@ -123,7 +123,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 } else {
                     playerRequestResponseAsChat = new PlayerRequestResponseAsChat(requestPlayerUUID, packetId
-                            , "인증을 요청하시기 바랍니다");
+                            , "인증을 요청하시길 바랍니다");
                 }
 
                 sendPacket(channel, playerRequestResponseAsChat);
@@ -161,8 +161,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerRecentQuestionAnswerRequest.getPlayerUUID(), playerRecentQuestionAnswerRequest.getPacketID());
 
                 if ( qaUserManager.existUser(playerRecentQuestionAnswerRequest.getTargetPlayerName())) {
-
-
                     //TODO 질문자가 존재하기 떄문에 최근 질문 등등을 가져와야함
 
                     QAUser questioner = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getTargetPlayerName()); // 질문자
@@ -323,9 +321,16 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 List<QAUser> qaUsers = new ArrayList<>();
 
                 for (String targetQAUser : targetQAUserDataRequest.getTargetQAUsers()) {
-                    QAUser qaUser = qaUserManager.getUser(targetQAUser);
-                    if ( qaUser != null ) {
-                        qaUsers.add(qaUser);
+
+                    boolean exist = qaUserManager.existUser(targetQAUser);
+
+                    if ( exist ) {
+                        qaUsers.add(qaUserManager.getUser(targetQAUser));
+                    }
+                    else {
+                        if (targetQAUserDataRequest.isCreatedAndReturn()) {
+                            qaUsers.add(qaUserManager.getUser(targetQAUser));
+                        }
                     }
                 }
 

@@ -10,6 +10,7 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.data.WaitingTicket;
 import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
 import gaya.pe.kr.qa.answer.data.Answer;
@@ -27,10 +28,13 @@ import gaya.pe.kr.util.option.type.OptionType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.function.Consumer;
 
 /**
  * 서버로 부터 전송된 패킷을 처리 하는 곳
@@ -132,6 +136,23 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                         // 답변이 도착했습니다!, 채팅창을 봐주세요
                         player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOnlineTitle(), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
 
+                        String[] soundData= configOption.getAnswerReceiveSuccessSound().split(":");
+
+                        player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+
+                        SchedulerUtil.runLaterTask( ()-> {
+
+                            if ( !player.isOnline() ) return;
+
+                            String title = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle();
+                            String subTitle = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle();
+                            String message = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline().replace("%question_number%", Long.toString(question.getId()));
+
+                            player.sendMessage(message.replace("&", "§"));
+                            player.sendTitle(title, subTitle, answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
+
+                        }, answerReceivedTitleFadeInTime+answerReceivedTitleFadeStayTime+answerReceivedTitleFadeOutTime);
+
 
                     }
 
@@ -144,8 +165,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 AbstractPlayerRequestResponseAsObject<?> abstractPlayerRequestResponseAsObject = (AbstractPlayerRequestResponseAsObject<?>) minecraftPacket;
                 long requestPacketId = abstractPlayerRequestResponseAsObject.getRequestPacketId();
-
-
                 Object tObject = abstractPlayerRequestResponseAsObject.getT();
 
                 try {
@@ -153,6 +172,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                         handleWaitingTicket(requestPacketId, tObject);
                     } else {
                         //TODO 문제 발생
+                        throw new IllegalResponseObjectException("");
                     }
                 } catch (IllegalResponseObjectException e) {
                     e.printStackTrace();
