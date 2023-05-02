@@ -134,8 +134,8 @@ public class ConfigOption extends AbstractOption {
         return (String) getNestedSectionKey("message").get("invalid_playername");
     }
 
-    public String getInvalidAnswerNumber() {
-        return (String) getNestedSectionKey("message").get("invalid_answer_number");
+    public String getInvalidQuestionNumber() {
+        return (String) getNestedSectionKey("message").get("invalid_question_number");
     }
 
     public String getInvalidAuthenticationCode() {
@@ -355,10 +355,6 @@ public class ConfigOption extends AbstractOption {
     @RequirePlaceHolder(placeholders = {"%playername%", "%question_number%"})
     public String getRemoveQSuccessHasBeenRemovedPerson() {
         return (String) getNestedSectionKey("message").get("removeq_success_has_been_removed_person");
-    }
-
-    public String getRemoveQFailNotExist() {
-        return (String) getNestedSectionKey("message").get("removeq_fail_not_exist");
     }
 
     @RequirePlaceHolder(placeholders = {"%question_number%"})

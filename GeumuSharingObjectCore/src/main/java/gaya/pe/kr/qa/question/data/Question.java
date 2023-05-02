@@ -19,7 +19,7 @@ public class Question {
     long discordMessageId; // 디스코드 메세지 번호
     boolean answer; // 답장을 했는지 안했는지
 
-    public Question(long id, String contents, QAUser qaUser) {
+    public Question(long id, @NotNull String contents, @NotNull QAUser qaUser) {
         this.id = id;
         this.contents = contents;
         this.qaUser = qaUser;

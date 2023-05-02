@@ -67,7 +67,13 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_REQUEST_RESPONSE: {
 
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
-                removeWaitingTicket(abstractPlayerRequestResponse.getRequestPacketId());
+
+                long requestPacketId = abstractPlayerRequestResponse.getRequestPacketId();
+                if ( isWaitingTicket(requestPacketId ) ) {
+                    WaitingTicket<Boolean> waitingTicket = getWaitingTicket(abstractPlayerRequestResponse.getRequestPacketId());
+                    waitingTicket.setResult(true);
+                    removeWaitingTicket(requestPacketId);
+                }
 
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
                 if ( player != null ) {
@@ -93,7 +99,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
-
             case BUKKIT_QUESTION_MODIFY: {
 
                 QARepository qaRepository = QAManager.getInstance().getQaRepository();
@@ -110,7 +115,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
-
             case EXPECT_QUESTION_ANSWER_RESPONSE: {
 
                 ExpectQuestionAnswerResponse expectQuestionAnswerResponse = (ExpectQuestionAnswerResponse) minecraftPacket;

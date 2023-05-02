@@ -3,20 +3,19 @@ package gaya.pe.kr.network.packet.global;
 import gaya.pe.kr.network.packet.startDirection.client.*;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
-import gaya.pe.kr.network.packet.startDirection.server.response.QAUserResponse;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
-import gaya.pe.kr.qa.answer.packet.client.PlayerAnswerListByAnswerIdRequest;
-import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
-import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
+import gaya.pe.kr.qa.answer.packet.client.*;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
-import gaya.pe.kr.qa.answer.packet.client.TargetPlayerAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
+import gaya.pe.kr.qa.packet.client.PlayerRewardRequest;
+import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
 import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
-import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.TargetPlayerGetQuestionRequest;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -43,8 +42,8 @@ public enum PacketType {
 
     PLAYER_RECENT_QUESTION_ANSWER_REQUEST(0x11, PacketStartDirection.CLIENT, PlayerRecentQuestionAnswerRequest.class),
 
-    TARGET_PLAYER_ANSWER_REQUEST(0x12, PacketStartDirection.CLIENT, TargetPlayerAnswerRequest.class),
-    TARGET_PLAYER_QUESTION_REQUEST(0x13, PacketStartDirection.CLIENT, TargetPlayerQuestionRequest.class),
+    GET_TARGET_PLAYER_ANSWER_REQUEST(0x12, PacketStartDirection.CLIENT, TargetPlayerGetAnswerRequest.class),
+    GET_TARGET_PLAYER_QUESTION_REQUEST(0x13, PacketStartDirection.CLIENT, TargetPlayerGetQuestionRequest.class),
     DISCORD_AUTHENTICATION_USER_CONFIRM_REQUEST(0x14, PacketStartDirection.CLIENT, DiscordAuthenticationUserConfirmRequest.class),
 
     SCATTER_SERVER_PLAYERS(0x15, PacketStartDirection.SERVER, ScatterServerPlayers.class),
@@ -56,7 +55,16 @@ public enum PacketType {
     BUKKIT_QUESTION_MODIFY(0x19, PacketStartDirection.SERVER, BukkitQuestionModify.class),
 
     TARGET_QA_USER_DATA_REQUEST(0x20, PacketStartDirection.CLIENT, TargetQAUserDataRequest.class),
-    ALL_QA_USER_DATA_REQUEST(0x21, PacketStartDirection.CLIENT, AllQAUserDataRequest.class);
+    ALL_QA_USER_DATA_REQUEST(0x21, PacketStartDirection.CLIENT, AllQAUserDataRequest.class),
+
+    TARGET_ANSWER_BY_QUESTION_ID_REMOVE_REQUEST(0x22, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
+    TARGET_QUESTION_REMOVE_REQUEST(0x22, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
+
+    TARGET_PLAYER_CHAT(0x23, PacketStartDirection.SERVER, TargetPlayerChat.class),
+
+    TARGET_PLAYER_REMOVE_REWARD_REQUEST(0x24, PacketStartDirection.CLIENT, TargetPlayerRemoveRewardRequest.class),
+
+    PLAYER_REWARD_REQUEST(0x25, PacketStartDirection.CLIENT, PlayerRewardRequest.class);
 
 
 

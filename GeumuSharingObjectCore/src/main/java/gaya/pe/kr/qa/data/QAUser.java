@@ -15,6 +15,9 @@ public class QAUser implements Serializable {
 
     @Nullable String gamePlayerName;
     long discordPlayerUserId = -1;
+
+    int rewardAmount;
+
     public QAUser(@NotNull String gamePlayerName) {
         this.gamePlayerName = gamePlayerName;
     }
@@ -22,6 +25,20 @@ public class QAUser implements Serializable {
     public QAUser(long discordPlayerUserId) {
         this.discordPlayerUserId = discordPlayerUserId;
     }
+
+    public void addRewardAmount() {
+        rewardAmount++;
+    }
+
+    public int clearRewardAmount() {
+
+        int temp = rewardAmount;
+
+        rewardAmount = 0;
+        return temp;
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

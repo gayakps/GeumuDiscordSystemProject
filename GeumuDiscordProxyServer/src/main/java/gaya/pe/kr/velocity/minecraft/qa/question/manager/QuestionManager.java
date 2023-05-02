@@ -52,6 +52,19 @@ public class QuestionManager {
         return questIdByQuestHashMap.get(questId);
     }
 
+
+    public Question removeQuestionByQuestId(long questId) {
+
+        if (questIdByQuestHashMap.containsKey(questId) ) {
+            Question question = questIdByQuestHashMap.get(questId);
+            NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.REMOVE, new Question[]{question}));
+            questIdByQuestHashMap.remove(questId);
+            return question;
+        }
+
+        return null;
+
+    }
     public boolean existQuestionByDiscordMessageId(Long messageId) {
 
         for (Map.Entry<Long, Question> integerQuestionEntry : questIdByQuestHashMap.entrySet()) {

@@ -23,6 +23,15 @@ public class PlayerTransientProceedingAnswerRequest extends AbstractMinecraftPac
     @Nullable UUID playerUUID;
     long discordUserId = -1;
 
+    public PlayerTransientProceedingAnswerRequest(long questionId, String answerContent, @NotNull String playerName, @NotNull UUID playerUUID) {
+        super(PacketType.PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST);
+        this.questionId = questionId;
+        this.answerContent = answerContent;
+        this.playerName = playerName;
+        this.playerUUID = playerUUID;
+        this.requestType = RequestType.IN_GAME;
+    }
+
     public PlayerTransientProceedingAnswerRequest(long questionId, String answerContent, @NotNull Player player) {
         super(PacketType.PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST);
         this.questionId = questionId;

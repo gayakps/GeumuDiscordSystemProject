@@ -23,6 +23,9 @@ public class PlayerRequestResponseAsChat extends AbstractPlayerRequestResponse {
     }
 
     public void addMessage(String message) {
+
+        if ( message == null || message.length() == 0 ) return;
+
         messages.add(message);
     }
 

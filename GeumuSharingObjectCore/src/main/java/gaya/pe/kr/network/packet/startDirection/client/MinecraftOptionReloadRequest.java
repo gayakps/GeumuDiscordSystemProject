@@ -8,8 +8,7 @@ import org.bukkit.entity.Player;
 @Getter
 public class MinecraftOptionReloadRequest extends AbstractMinecraftPlayerRequestPacket {
 
-
-    protected MinecraftOptionReloadRequest(Player player) {
+    public MinecraftOptionReloadRequest(Player player) {
         super(PacketType.MINECRAFT_OPTION_RELOAD_REQUEST, player);
     }
 

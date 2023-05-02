@@ -1,30 +1,31 @@
 package gaya.pe.kr.velocity.minecraft.network.handler;
 
-import com.velocitypowered.api.proxy.Player;
 import gaya.pe.kr.network.packet.startDirection.client.*;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.*;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
-import gaya.pe.kr.qa.answer.packet.client.TargetPlayerAnswerRequest;
+import gaya.pe.kr.qa.answer.packet.client.TargetAnswerByQuestionIdRemoveRequest;
+import gaya.pe.kr.qa.answer.packet.client.TargetPlayerGetAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.server.AnswerListResponse;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.client.PlayerRewardRequest;
+import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
+import gaya.pe.kr.qa.packet.server.QAListResponse;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
-import gaya.pe.kr.qa.question.packet.client.TargetPlayerQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.TargetPlayerGetQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.TargetQuestionRemoveRequest;
 import gaya.pe.kr.qa.question.packet.server.QuestionListResponse;
-import gaya.pe.kr.util.ThreadUtil;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
-import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
-import gaya.pe.kr.util.option.data.options.PatternMatcher;
 import gaya.pe.kr.velocity.minecraft.discord.data.DiscordAuthentication;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
-import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
 import gaya.pe.kr.velocity.minecraft.player.PlayerListHandler;
 import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
@@ -38,7 +39,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -132,14 +132,12 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
             }
             case PLAYER_TRANSIENT_PROCEEDING_QUESTION_REQUEST: {
-                //TODO 질문에 대한 답변 요청에 대한 내용
                 PlayerTransientProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerTransientProceedingQuestionRequest) minecraftPacket;
                 QARequestResult qaRequestResult = questionManager.processQuestion(playerProceedingQuestionRequest);
                 String message = qaRequestResult.getMessage();
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerProceedingQuestionRequest.getPlayerUUID(), playerProceedingQuestionRequest.getPacketID());
                 response.addMessage(message);
                 sendPacket(channel, response);
-
                 break;
             }
             case PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST: {
@@ -155,7 +153,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_RECENT_QUESTION_ANSWER_REQUEST: {
 
                 // 최근 답변 진행
-
                 PlayerRecentQuestionAnswerRequest playerRecentQuestionAnswerRequest = (PlayerRecentQuestionAnswerRequest) minecraftPacket;
                 ConfigOption configOption = serverOptionManager.getConfigOption();
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerRecentQuestionAnswerRequest.getPlayerUUID(), playerRecentQuestionAnswerRequest.getPacketID());
@@ -183,11 +180,9 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                             if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
                                 // 답변 성공
-
                             }
 
                             response.addMessage(qaRequestResult.getMessage());
-
 
                         } else {
                             //TODO 최근 질문이 이미 답변이 되었다면
@@ -253,10 +248,10 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
 
             }
-            case TARGET_PLAYER_ANSWER_REQUEST: {
+            case GET_TARGET_PLAYER_ANSWER_REQUEST: {
                 // 특정 플레이어 질문 목록 확인
-                TargetPlayerAnswerRequest targetPlayerAnswerRequest = (TargetPlayerAnswerRequest) minecraftPacket;
-                String targetPlayerName = targetPlayerAnswerRequest.getTargetPlayerName();
+                TargetPlayerGetAnswerRequest targetPlayerGetAnswerRequest = (TargetPlayerGetAnswerRequest) minecraftPacket;
+                String targetPlayerName = targetPlayerGetAnswerRequest.getTargetPlayerName();
 
                 Answer[] answers = null;
 
@@ -266,15 +261,15 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                     answers = answerList.toArray(new Answer[0]);
                 }
 
-                AnswerListResponse answerListResponse = new AnswerListResponse(answers, targetPlayerAnswerRequest.getPlayerUUID(), targetPlayerAnswerRequest.getPacketID());
+                AnswerListResponse answerListResponse = new AnswerListResponse(answers, targetPlayerGetAnswerRequest.getPlayerUUID(), targetPlayerGetAnswerRequest.getPacketID());
                 sendPacket(channel, answerListResponse);
 
                 break;
             }
-            case TARGET_PLAYER_QUESTION_REQUEST: {
+            case GET_TARGET_PLAYER_QUESTION_REQUEST: {
 
-                TargetPlayerQuestionRequest targetPlayerQuestionRequest = (TargetPlayerQuestionRequest) minecraftPacket;
-                String targetPlayerName = targetPlayerQuestionRequest.getTargetPlayerName();
+                TargetPlayerGetQuestionRequest targetPlayerGetQuestionRequest = (TargetPlayerGetQuestionRequest) minecraftPacket;
+                String targetPlayerName = targetPlayerGetQuestionRequest.getTargetPlayerName();
 
                 Question[] questionArray = null;
 
@@ -284,7 +279,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                     questionArray = questions.toArray(new Question[0]);
                 }
 
-                QuestionListResponse questionListResponse = new QuestionListResponse(questionArray, targetPlayerQuestionRequest.getPlayerUUID(), targetPlayerQuestionRequest.getPacketID());
+                QuestionListResponse questionListResponse = new QuestionListResponse(questionArray, targetPlayerGetQuestionRequest.getPlayerUUID(), targetPlayerGetQuestionRequest.getPacketID());
                 sendPacket(channel, questionListResponse);
 
                 break;
@@ -305,7 +300,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
             }
             case ALL_QA_USER_DATA_REQUEST: {
-
                 AllQAUserDataRequest allQAUserDataRequest = (AllQAUserDataRequest) minecraftPacket;
                 HashSet<QAUser> qaUsers = qaUserManager.getAllQAUsers();
                 QAUserResponse qaUserResponse = new QAUserResponse( qaUsers.isEmpty() ? null : qaUsers.toArray(new QAUser[0])
@@ -315,7 +309,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
             }
             case TARGET_QA_USER_DATA_REQUEST: {
-
                 TargetQAUserDataRequest targetQAUserDataRequest = (TargetQAUserDataRequest) minecraftPacket;
 
                 List<QAUser> qaUsers = new ArrayList<>();
@@ -336,6 +329,118 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 QAUserResponse qaUserResponse = new QAUserResponse( qaUsers.isEmpty() ? null : qaUsers.toArray(new QAUser[0]) , targetQAUserDataRequest.getPlayerUUID(), targetQAUserDataRequest.getPacketID());
                 sendPacket(channel, qaUserResponse);
+
+                break;
+            }
+            case TARGET_ANSWER_BY_QUESTION_ID_REMOVE_REQUEST: {
+
+                TargetAnswerByQuestionIdRemoveRequest targetAnswerByQuestionIdRemoveRequest = (TargetAnswerByQuestionIdRemoveRequest) minecraftPacket;
+
+                long questId = targetAnswerByQuestionIdRemoveRequest.getQuestId();
+
+                ConfigOption configOption = serverOptionManager.getConfigOption();
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(targetAnswerByQuestionIdRemoveRequest.getPlayerUUID(), targetAnswerByQuestionIdRemoveRequest.getPacketID());
+
+                if ( answerManager.existAnswerByQuestId(questId) ) {
+                    Answer removeAnswer = answerManager.removeByQuestId(questId);
+
+                    response.addMessage(configOption.getRemoveASuccessRemovePerson().replace("%question_number%", Long.toString(questId)));
+                    QAUser removeAnswerQAUser = removeAnswer.getAnswerPlayer();
+                    if ( removeAnswerQAUser.getGamePlayerName() != null ) {
+                        Channel targetPlayerChannel = PlayerListHandler.getPlayerAsChannel(removeAnswerQAUser.getGamePlayerName());
+                        TargetPlayerChat targetPlayerChat = new TargetPlayerChat( removeAnswerQAUser.getGamePlayerName(),
+                                configOption.getRemoveASuccessHasBeenRemovedPerson()
+                                        .replace("%playername%", targetAnswerByQuestionIdRemoveRequest.getPlayerName())
+                                        .replace("%question_number%", Long.toString(questId))
+                        );
+                        sendPacket(targetPlayerChannel, targetPlayerChat); // 특정 플레이어에게 데이터 전송
+
+                    }
+                } else {
+                    response.addMessage(configOption.getRemoveAFailNotExist());
+                }
+
+                sendPacket(channel, response);
+
+
+                break;
+            }
+            case TARGET_QUESTION_REMOVE_REQUEST: {
+                TargetQuestionRemoveRequest targetQuestionRemoveRequest = (TargetQuestionRemoveRequest) minecraftPacket;
+
+                long questId = targetQuestionRemoveRequest.getQuestId();
+
+                ConfigOption configOption = serverOptionManager.getConfigOption();
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(targetQuestionRemoveRequest.getPlayerUUID(), targetQuestionRemoveRequest.getPacketID());
+
+                if ( questionManager.existQuest(questId) ) {
+                    Question removeQuestion = questionManager.removeQuestionByQuestId(questId);
+
+                    response.addMessage(configOption.getRemoveQSuccessRemovePerson().replace("%question_number%", Long.toString(questId)));
+
+                    QAUser removeQuestionQAUser = removeQuestion.getQaUser();
+
+                    if ( removeQuestionQAUser.getGamePlayerName() != null ) {
+                        Channel targetPlayerChannel = PlayerListHandler.getPlayerAsChannel(removeQuestion.getQaUser().getGamePlayerName());
+                        TargetPlayerChat targetPlayerChat = new TargetPlayerChat( removeQuestionQAUser.getGamePlayerName(),
+                                configOption.getRemoveQSuccessHasBeenRemovedPerson()
+                                .replace("%playername%", targetQuestionRemoveRequest.getPlayerName())
+                                .replace("%question_number%", Long.toString(questId))
+                        );
+                        sendPacket(targetPlayerChannel, targetPlayerChat); // 특정 플레이어에게 데이터 전송
+
+                    }
+                } else {
+                    response.addMessage(configOption.getInvalidQuestionNumber());
+                }
+
+                sendPacket(channel, response);
+
+                break;
+            }
+            case TARGET_PLAYER_REMOVE_REWARD_REQUEST: {
+
+                TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = (TargetPlayerRemoveRewardRequest) minecraftPacket;
+                ConfigOption configOption = serverOptionManager.getConfigOption();
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(targetPlayerRemoveRewardRequest.getPlayerUUID(), targetPlayerRemoveRewardRequest.getPacketID());
+
+                String targetPlayerName = targetPlayerRemoveRewardRequest.getTargetPlayerName();
+
+                if ( qaUserManager.existUser(targetPlayerName) ) {
+                    QAUser qaUser = qaUserManager.getUser(targetPlayerName);
+                    qaUser.clearRewardAmount();
+                    qaUserManager.updateQAUser(qaUser);
+                    response.addMessage(configOption.getRemoveRewardSuccess().replace("%playername%", targetPlayerName));
+                } else {
+                    response.addMessage(configOption.getInvalidPlayerName());
+                }
+
+                sendPacket(channel, response);
+
+                break;
+            }
+            case MINECRAFT_OPTION_RELOAD_REQUEST: {
+                MinecraftOptionReloadRequest minecraftOptionReloadRequest = (MinecraftOptionReloadRequest) minecraftPacket;
+                PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(minecraftOptionReloadRequest.getPlayerUUID(), minecraftOptionReloadRequest.getPacketID());
+                ConfigOption configOption = serverOptionManager.getConfigOption();
+                VelocityThreadUtil.asyncTask( ()-> {
+                    serverOptionManager.loadConfiguration();
+                    response.addMessage(configOption.getReloadSuccess());
+                    sendPacket(channel, response);
+                    List<AbstractOption> abstractOptionList = serverOptionManager.getAllOptions();
+                    sendPacketAllChannel(new ServerOption(abstractOptionList));
+                });
+                break;
+            }
+            case PLAYER_REWARD_REQUEST: {
+
+                PlayerRewardRequest playerRewardRequest = (PlayerRewardRequest) minecraftPacket;
+                String playerName = playerRewardRequest.getPlayerName();
+                QAUserResponse qaUserResponse ;
+                QAUser qaUser = qaUserManager.getUser(playerName);
+                qaUserResponse = new QAUserResponse(new QAUser[]{qaUser}, playerRewardRequest.getPlayerUUID(), playerRewardRequest.getPacketID());
+                sendPacket(channel, qaUserResponse);
+                qaUser.clearRewardAmount();
 
                 break;
             }

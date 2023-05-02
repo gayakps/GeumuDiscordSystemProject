@@ -98,12 +98,27 @@ public class NetworkManager {
 
     }
 
-    public void sendPacket(AbstractMinecraftPacket minecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
+    public void sendPacket(AbstractMinecraftPacket requestMinecraftPacket, Player sender, Consumer<Player> sendSuccessAfterConsumer) {
 
         SchedulerUtil.runWaitTask( ()-> {
-            ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
+            ChannelFuture channelFuture = channel.writeAndFlush(requestMinecraftPacket);
             try {
                 Void result = channelFuture.get();
+
+                WaitingTicket<Boolean> waitingTicket = new WaitingTicket<>(sender, sender.getUniqueId(), (player, aBoolean) -> {
+                    sendSuccessAfterConsumer.accept(player);
+                } , Boolean.class);
+                minecraftServerPacketHandler.addWaitingTicket(requestMinecraftPacket, waitingTicket);
+
+                long requestTicketId = requestMinecraftPacket.getPacketID();
+
+                SchedulerUtil.runLaterTask( ()-> {
+                    if ( minecraftServerPacketHandler.isWaitingTicket(requestTicketId) ) {
+                        minecraftServerPacketHandler.removeWaitingTicket(requestTicketId);
+                        msg(sender, "&c서버로 부터 응답이 없습니다 다시 시도해주세요");
+                    }
+                }, 20*5);
+
                 sendSuccessAfterConsumer.accept(sender);
             } catch (InterruptedException | ExecutionException e ) {
                 sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");

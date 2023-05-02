@@ -163,7 +163,7 @@ public class AnswerManager {
 
         if ( !questionManager.existQuest(questId) ) {
             // 존재하지 않는 퀘스트 ID 입니다
-            qaRequestResult.setMessage(configOption.getRemoveQFailNotExist());
+            qaRequestResult.setMessage(configOption.getInvalidQuestionNumber());
             return qaRequestResult;
         }
 
@@ -225,14 +225,38 @@ public class AnswerManager {
 
     @Nullable
     public Answer getAnswerByQuestId(long questId) {
-
         for (Answer value : answerIdByAnswerHashMap.values()) {
             if ( questId == value.getQuestionId() ) {
                 return value;
             }
         }
-
         return null;
+    }
+
+    @Nullable
+    public Answer removeByQuestId(long questId) {
+        Answer removeTarget = null;
+        for (Answer value : answerIdByAnswerHashMap.values()) {
+            if ( questId == value.getQuestionId() ) {
+                removeTarget = value;
+            }
+        }
+
+        if ( removeTarget != null ) {
+            answerIdByAnswerHashMap.remove(removeTarget.getAnswerId());
+            NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.REMOVE, new Answer[]{removeTarget}));
+            return removeTarget;
+        }
+        return null;
+    }
+
+    public boolean existAnswerByQuestId(long questId) {
+        for (Answer value : answerIdByAnswerHashMap.values()) {
+            if ( questId == value.getQuestionId() ) {
+                return true;
+            }
+        }
+        return false;
 
     }
 

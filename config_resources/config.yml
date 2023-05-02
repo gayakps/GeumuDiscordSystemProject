@@ -54,7 +54,7 @@ title:
 
 message:
   invalid_playername: '&f[&c!&f] 존재하지 않는 플레이어 이름입니다!'
-  invalid_answer_number: '&f[&c답변&f] 존재하지 않거나 잘못된 질문 번호입니다!'
+  invalid_question_number: '&f[&c답변&f] 존재하지 않거나 잘못된 질문 번호입니다!'
   invalid_authentication_code: '&f[&c답변&f] 잘못된 인증 코드입니다! 숫자 8자리를 입력해주세요.'
   question_help_success:
     user:
@@ -154,7 +154,7 @@ message:
   discord_question_channel_prefix_help_message: '%playername%님! 문장 맨 앞에 %prefix%를 입력하면 질문이 가능합니다. 예시) !포켓몬 어디서 잡나요'
   removeq_success_remove_person: '&f[&c답변&f] #%question_number% 질문을 삭제하였습니다.'
   removeq_success_has_been_removed_person: '&f[&c답변&f] 관리자 %playername%님이 #%question_number% 질문을 삭제하였습니다.'
-  removeq_fail_not_exist: '&f[&c답변&f] 해당 질문은 존재하지 않거나 이미 삭제된 질문입니다.'
+  #removeq_fail_not_exist: '&f[&c답변&f] 해당 질문은 존재하지 않거나 이미 삭제된 질문입니다.'
   removea_success_remove_person: '&f[&c답변&f] #%question_number% 질문을 삭제하였습니다.'
   removea_success_has_been_removed_person: '&f[&c답변&f] 관리자 %playername%님이 #%question_number% 질문의 답변을 삭제하였습니다.'
   removea_fail_not_exist: '&f[&c답변&f] 해당 질문의 답변은 존재하지 않거나 이미 삭제된 답변입니다.'

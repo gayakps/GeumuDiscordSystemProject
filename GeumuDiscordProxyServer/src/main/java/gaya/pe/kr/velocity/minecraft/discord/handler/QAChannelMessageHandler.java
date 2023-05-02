@@ -59,7 +59,7 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
             Message repliedMessage = event.getMessage().getReferencedMessage(); // 레퍼런스 메시지
 
             if ( repliedMessage == null ) {
-                discordManager.sendMessageAndRemove(event.getChannel(), configOption.getRemoveQFailNotExist(), 3000, true, receivedMessage);
+                discordManager.sendMessageAndRemove(event.getChannel(), configOption.getInvalidQuestionNumber(), 3000, true, receivedMessage);
                 return;
             }
 
@@ -88,7 +88,7 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
 
             } else {
                 //삭제된 메세지일 경우
-                discordManager.sendMessageAndRemove(event.getChannel(), configOption.getRemoveQFailNotExist(), 3000, true, receivedMessage);
+                discordManager.sendMessageAndRemove(event.getChannel(), configOption.getInvalidQuestionNumber(), 3000, true, receivedMessage);
             }
 
         } else {
