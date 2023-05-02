@@ -73,7 +73,13 @@ public class PlayerAnswerListOption extends AbstractOption {
      *       - '클릭 시 자세한 답변 랭킹 순위를 확인합니다.'
      * @return
      */
-    @RequirePlaceHolder( placeholders = {"%answer_top_player_weekly_1%", "%answer_top_player_weekly_2%", "%answer_top_player_weekly_3%", "%answer_top_player_weekly_4%", "%answer_top_player_weekly_5%"})
+    @RequirePlaceHolder( placeholders = {"" +
+            "%answer_top_player_weekly_1%", "%answer_top_count_weekly_1%"
+            ,"%answer_top_player_weekly_2%", "%answer_top_count_weekly_2%"
+            ,"%answer_top_player_weekly_3%", "%answer_top_count_weekly_3%"
+            ,"%answer_top_player_weekly_4%", "%answer_top_count_weekly_4%"
+            ,"%answer_top_player_weekly_5%", "%answer_top_count_weekly_5%"
+    })
     public List<String> getWeeklyAnswerRankingLore() {
         return getList("GUI.player_answer_list_weekly_answer_ranking.lore");
     }

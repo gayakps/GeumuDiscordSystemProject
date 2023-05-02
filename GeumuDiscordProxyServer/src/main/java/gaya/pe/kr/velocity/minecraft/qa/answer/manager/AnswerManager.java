@@ -7,6 +7,8 @@ import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
+import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.exception.NonExistQuestionException;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
@@ -126,6 +128,7 @@ public class AnswerManager {
 
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
             getQAUserAnswers(answerUser).add(answer);
+            NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
 
         } else {
             // 문제 발생했음을 알림

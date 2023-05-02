@@ -8,11 +8,16 @@ import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.player.manager.PlayerManager;
+import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.util.data.WaitingTicket;
 import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
+import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
+import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
@@ -63,6 +68,40 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
                 if ( player != null ) {
                     abstractPlayerRequestResponse.sendData(player);
+                }
+
+                break;
+            }
+
+            case BUKKIT_ANSWER_MODIFY: {
+
+                QARepository qaRepository = QAManager.getInstance().getQaRepository();
+
+                BukkitAnswerModify bukkitAnswerModify = (BukkitAnswerModify) minecraftPacket;
+
+                for (Answer answer : bukkitAnswerModify.getAnswers()) {
+                    if ( bukkitAnswerModify.getQaModifyType().equals(QAModifyType.ADD) ) {
+                        qaRepository.addAnswer(answer);
+                    } else {
+                        qaRepository.removeAnswer(answer);
+                    }
+                }
+
+                break;
+            }
+
+            case BUKKIT_QUESTION_MODIFY: {
+
+                QARepository qaRepository = QAManager.getInstance().getQaRepository();
+
+                BukkitQuestionModify bukkitQuestionModify = (BukkitQuestionModify) minecraftPacket;
+
+                for (Question question : bukkitQuestionModify.getQuestions()) {
+                    if ( bukkitQuestionModify.getQaModifyType().equals(QAModifyType.ADD) ) {
+                        qaRepository.addQuestion(question);
+                    } else {
+                        qaRepository.removeQuestion(question);
+                    }
                 }
 
                 break;

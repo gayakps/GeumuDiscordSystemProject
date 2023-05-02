@@ -3,6 +3,8 @@ package gaya.pe.kr.plugin.qa.reactor;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.repository.QARepository;
+import gaya.pe.kr.plugin.qa.service.AnswerRankingService;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
@@ -28,27 +30,27 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.countAnswersForUser;
+import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.getAnswerCountMap;
+import static gaya.pe.kr.plugin.qa.service.QuestionRankingService.getQuestionCountMap;
 
 public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
 
     List<Answer> targetPlayerAnswers = new ArrayList<>();
-    AllQuestionAnswers allQuestionAnswers;
-    String targetPlayerName;
+    QARepository qaRepository;
+    QAUser targetPlayerQAUser;
 
     int page = 1;
     int totalPage = 1;
 
-    public TargetPlayerAnswerListReactor(Player player, AllQuestionAnswers allQuestionAnswers, String targetPlayerName) {
+    public TargetPlayerAnswerListReactor(Player player,QAUser targetPlayerQAUser, QARepository qaRepository) {
         super(player);
-
-        for (Answer answer : allQuestionAnswers.getAnswerList()) {
-            if ( answer.getAnswerPlayer().getGamePlayerName().equals(targetPlayerName) ) {
-                this.targetPlayerAnswers.add(answer);
-            }
-        }
-        this.allQuestionAnswers = allQuestionAnswers;
-        this.targetPlayerName = targetPlayerName;
+        this.targetPlayerQAUser = targetPlayerQAUser;
+        targetPlayerAnswers = qaRepository.getQAUserAnswers(targetPlayerQAUser);
     }
 
     @Override
@@ -83,14 +85,10 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
         ConfigOption configOption = optionManager.getConfigOption();
 
-        //    @RequirePlaceHolder(placeholders = {"%playername%", "%current_page%", "%total_page%"})
-
         PlayerAnswerListOption playerAnswerListOption = optionManager.getPlayerAnswerListOption();
-        PlayerQuestionListOption playerQuestionListOption = optionManager.getPlayerQuestionListOption();
-        CommonlyUsedButtonOption commonlyUsedButtonOption = optionManager.getCommonlyUsedButtonOption();
 
         Inventory inventory = Bukkit.createInventory(null, 54, configOption.getPlayerAnswerListTitle()
-                .replace("%playername%", targetPlayerName)
+                .replace("%playername%", targetPlayerQAUser.getGamePlayerName())
                 .replace("%current_page%", Integer.toString(page))
                 .replace("%total_page%", Integer.toString(totalPage))
         );
@@ -108,7 +106,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
                 Question targetQuestion = null;
 
-                for (Question question : allQuestionAnswers.getQuestions()) {
+                for (Question question : qaRepository.getAllQuestions()) {
                     if ( targetAnswer.getQuestionId() == question.getId() ) {
                         targetQuestion = question;
                         break;
@@ -148,9 +146,45 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
         setUpDefaultPoketmonInventory(inventory);
 
         if (PermissionLevelType.getPermissionLevelType(getPlayer()).equals(PermissionLevelType.STAFF) ) {
-            ItemStack index45Item = ItemCreator.createItemStack(Material.GOLDEN_SWORD, playerQuestionListOption.getPlayerQuestionListDailyQuestionRankingName());
-            //TODO DB에 접속해서 데이터를 받아와야함
+
+            List<String> lore = new ArrayList<>();
+
+            //주간 답변수 랭킹
+
+            LocalDate today = LocalDate.now();
+
+            LocalDate weekStart = today.minusDays(6);
+            Map<QAUser, Integer> answerCountMap = getAnswerCountMap(qaRepository.getAllAnswers(), weekStart, today);
+
+            List<Map.Entry<QAUser, Integer>> sortedEntries = answerCountMap.entrySet().stream()
+                    .sorted(Map.Entry.<QAUser, Integer>comparingByValue().reversed())
+                    .limit(5)
+                    .collect(Collectors.toList());
+
+            System.out.println("일간 질문 수 랭킹:");
+
+            for (int i = 0; i < sortedEntries.size(); i++) {
+                // 1등 부터 5등까지
+                Map.Entry<QAUser, Integer> entry = sortedEntries.get(i);
+                //            "%question_top_player_daily_1%", "%question_top_count_daily_1%"
+                //            ,"%question_top_player_daily_2%", "%question_top_count_daily_2%"
+                //            ,"%question_top_player_daily_3%", "%question_top_count_daily_3%"
+                //            ,"%question_top_player_daily_4%", "%question_top_count_daily_4%"
+                //            ,"%question_top_player_daily_5%", "%question_top_count_daily_5%"
+
+                String rank = Integer.toString(i+1);
+
+                lore.add(playerAnswerListOption.getWeeklyAnswerRankingLore().get(i)
+                        .replace("%answer_top_player_weekly_"+rank+"%", entry.getKey().getGamePlayerName())
+                        .replace("%answer_top_count_weekly_"+rank+"%", Integer.toString(entry.getValue()))
+                );
+
+
+                System.out.printf("%d. %s - %d 답변\n", i + 1, entry.getKey().getGamePlayerName(), entry.getValue());
+            }
+
             // Material pixelmon:arc_chalice
+            ItemStack index45Item = ItemCreator.createItemStack(Material.GOLDEN_SWORD, playerAnswerListOption.getWeeklyAnswerRankingName(), lore);
             inventory.setItem(45, index45Item);
         }
 
@@ -163,7 +197,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
             int receivedRewardCount = 0;
 
-            for (Answer answer : allQuestionAnswers.getAnswerList()) {
+            for (Answer answer : targetPlayerAnswers ) {
                 if ( answer.getAnswerPlayer().getGamePlayerName().equals(getPlayer().getName()) ) {
                     if ( !answer.isReceivedReward() ) {
                         receivedRewardCount++;
@@ -178,11 +212,11 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
             QAManager qaManager = QAManager.getInstance();
 
-            int yesterdayQuestions = qaManager.countAnswersForUser(targetPlayerAnswers, yesterday, today.minusDays(1));
-            int dailyQuestions = qaManager.countAnswersForUser(targetPlayerAnswers, today, today);
-            int weeklyQuestions = qaManager.countAnswersForUser(targetPlayerAnswers, weekStart, today);
-            int monthlyQuestions = qaManager.countAnswersForUser(targetPlayerAnswers, monthStart, today);
-            int totalQuestions = qaManager.countAnswersForUser(targetPlayerAnswers, LocalDate.MIN, LocalDate.MAX);
+            int yesterdayQuestions = countAnswersForUser(targetPlayerAnswers, yesterday, today.minusDays(1));
+            int dailyQuestions = countAnswersForUser(targetPlayerAnswers, today, today);
+            int weeklyQuestions =countAnswersForUser(targetPlayerAnswers, weekStart, today);
+            int monthlyQuestions = countAnswersForUser(targetPlayerAnswers, monthStart, today);
+            int totalQuestions =countAnswersForUser(targetPlayerAnswers, LocalDate.MIN, LocalDate.MAX);
 
             System.out.println("어제 답변 수: " + yesterdayQuestions);
             System.out.println("일간 답변 수: " + dailyQuestions);
@@ -205,7 +239,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
 
             ItemStack index49Item = ItemCreator.createItemStack(Material.PAPER, playerAnswerListOption.getPlayerAnswerInfoName()
-                            .replace("%playername%", targetPlayerName)
+                            .replace("%playername%", targetPlayerQAUser.getGamePlayerName())
                     , index49ItemLore);
 
             inventory.setItem(49, index49Item);

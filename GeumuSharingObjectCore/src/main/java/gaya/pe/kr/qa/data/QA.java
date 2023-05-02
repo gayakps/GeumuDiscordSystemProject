@@ -16,9 +16,11 @@ import java.util.Queue;
 @Getter
 public class QA implements Serializable {
 
-    HashMap<Question, Answer> questionAnswerHashMap;
-    public QA(HashMap<Question, Answer> questionAnswerHashMap) {
-        this.questionAnswerHashMap = questionAnswerHashMap;
-    }
+    Question question;
+    Answer answer;
 
+    public QA(Question question, Answer answer) {
+        this.question = question;
+        this.answer = answer;
+    }
 }

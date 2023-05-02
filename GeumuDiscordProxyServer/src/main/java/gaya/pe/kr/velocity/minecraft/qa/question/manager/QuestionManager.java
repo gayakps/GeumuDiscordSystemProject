@@ -2,8 +2,12 @@ package gaya.pe.kr.velocity.minecraft.qa.question.manager;
 
 
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
+import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
+import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
+import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.exception.NonExistQuestionException;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
@@ -225,6 +229,7 @@ public class QuestionManager {
 
             questIdByQuestHashMap.put(question.getId(), question);
             getQAUserQuestions(qaUser).add(question); // 데이터 삽입 최종적인 작업 끝.
+            NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
 
         } else {
             // 문제 발생했음을 알림

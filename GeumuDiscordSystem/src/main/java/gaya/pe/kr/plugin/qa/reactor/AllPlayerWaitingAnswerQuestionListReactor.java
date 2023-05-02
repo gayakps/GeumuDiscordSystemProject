@@ -3,6 +3,7 @@ package gaya.pe.kr.plugin.qa.reactor;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
@@ -27,19 +28,26 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.countAnswersForUser;
+import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.getAnswerCountMap;
 
 public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventoryReactor {
 
 
-    AllQuestionAnswers allQuestionAnswers;
-    List<Question> allQuestions;
+    List<Question> notAnsweredQuestions;
+    QARepository qaRepository;
     int page = 1;
     int totalPage = 1;
 
-    QAUser playerQAUser;
-    public AllPlayerWaitingAnswerQuestionListReactor(Player player, AllQuestionAnswers paramAllQuestionAnswers) {
+    QAUser requestPlayerQAUser;
+    public AllPlayerWaitingAnswerQuestionListReactor(Player player, QAUser requestPlayerQAUser, QARepository qaRepository) {
         super(player);
-        this.allQuestions = paramAllQuestionAnswers.getQuestions();
+        this.notAnsweredQuestions = qaRepository.getNotAnsweredQuestion();
+        this.requestPlayerQAUser = requestPlayerQAUser;
+        this.qaRepository = qaRepository;
     }
 
     @Override
@@ -53,13 +61,6 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
 
         int startIndex = (page - 1) * 36;
         int lastIndex = (page * 36);
-        List<Question> notAnsweredQuestions = new ArrayList<>();
-
-        for (Question question : allQuestions ) {
-            if ( !question.isAnswer() ) {
-                notAnsweredQuestions.add(question);
-            }
-        }
 
         totalPage = (notAnsweredQuestions.size() / 36) + 1;
 
@@ -76,15 +77,10 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
         }
 
         OptionManager optionManager = OptionManager.getInstance();
-
         ConfigOption configOption = optionManager.getConfigOption();
 
-        //    @RequirePlaceHolder(placeholders = {"%playername%", "%current_page%", "%total_page%"})
-
         PlayerAnswerListOption playerAnswerListOption = optionManager.getPlayerAnswerListOption();
-        PlayerQuestionListOption playerQuestionListOption = optionManager.getPlayerQuestionListOption();
         WaitingAnswerListOption waitingAnswerListOption = optionManager.getWaitingAnswerListOption();
-
 
         Inventory inventory = Bukkit.createInventory(null, 54, configOption.getWaitingAnswerListTitle()
                 .replace("%current_page%", Integer.toString(page))
@@ -122,10 +118,46 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
         setUpDefaultPoketmonInventory(inventory);
 
 
-        if (PermissionLevelType.getPermissionLevelType(getPlayer()).equals(PermissionLevelType.STAFF)) {
-            ItemStack index45Item = ItemCreator.createItemStack(Material.GOLDEN_SWORD, playerQuestionListOption.getPlayerQuestionListDailyQuestionRankingName());
-            //TODO DB에 접속해서 데이터를 받아와야함
+        if (PermissionLevelType.getPermissionLevelType(getPlayer()).equals(PermissionLevelType.STAFF) ) {
+
+            List<String> lore = new ArrayList<>();
+
+            //주간 답변수 랭킹
+
+            LocalDate today = LocalDate.now();
+
+            LocalDate weekStart = today.minusDays(6);
+            Map<QAUser, Integer> answerCountMap = getAnswerCountMap(qaRepository.getAllAnswers(), weekStart, today);
+
+            List<Map.Entry<QAUser, Integer>> sortedEntries = answerCountMap.entrySet().stream()
+                    .sorted(Map.Entry.<QAUser, Integer>comparingByValue().reversed())
+                    .limit(5)
+                    .collect(Collectors.toList());
+
+            System.out.println("주간 답변수 수 랭킹:");
+
+            for (int i = 0; i < sortedEntries.size(); i++) {
+                // 1등 부터 5등까지
+                Map.Entry<QAUser, Integer> entry = sortedEntries.get(i);
+                //            "%question_top_player_daily_1%", "%question_top_count_daily_1%"
+                //            ,"%question_top_player_daily_2%", "%question_top_count_daily_2%"
+                //            ,"%question_top_player_daily_3%", "%question_top_count_daily_3%"
+                //            ,"%question_top_player_daily_4%", "%question_top_count_daily_4%"
+                //            ,"%question_top_player_daily_5%", "%question_top_count_daily_5%"
+
+                String rank = Integer.toString(i+1);
+
+                lore.add(playerAnswerListOption.getWeeklyAnswerRankingLore().get(i)
+                        .replace("%answer_top_player_weekly_"+rank+"%", entry.getKey().getGamePlayerName())
+                        .replace("%answer_top_count_weekly_"+rank+"%", Integer.toString(entry.getValue()))
+                );
+
+
+                System.out.printf("%d. %s - %d 답변\n", i + 1, entry.getKey().getGamePlayerName(), entry.getValue());
+            }
+
             // Material pixelmon:arc_chalice
+            ItemStack index45Item = ItemCreator.createItemStack(Material.GOLDEN_SWORD, playerAnswerListOption.getWeeklyAnswerRankingName(), lore);
             inventory.setItem(45, index45Item);
         }
 
@@ -133,33 +165,24 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
         {
             List<String> index49ItemLore = new ArrayList<>();
 
-            List<Answer> answers = new ArrayList<>();
+            List<Answer> answers = qaRepository.getQAUserAnswers(requestPlayerQAUser);
             int receivedRewardCount = 0;
 
-            for (Answer answer : allQuestionAnswers.getAnswerList()) {
-                if ( answer.getAnswerPlayer().getGamePlayerName().equals(getPlayer().getName()) ) {
-                    answers.add(answer);
-                    if ( !answer.isReceivedReward() ) {
-                        receivedRewardCount++;
-                    }
+            for (Answer answer : answers ) {
+                if (!answer.isReceivedReward()) {
+                    receivedRewardCount++;
                 }
             }
-
-            //    @RequirePlaceHolder(placeholders =
-            //    {"%question_count_yesterday%", "%question_count_daily%", "%question_count_weekly%", "%question_count_monthly%", "%question_count_total%"})
-
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
             LocalDate weekStart = today.minusWeeks(1);
             LocalDate monthStart = today.minusMonths(1);
 
-            QAManager qaManager = QAManager.getInstance();
-
-            int yesterdayQuestions = qaManager.countAnswersForUser(answers, yesterday, today.minusDays(1));
-            int dailyQuestions = qaManager.countAnswersForUser(answers, today, today);
-            int weeklyQuestions = qaManager.countAnswersForUser(answers, weekStart, today);
-            int monthlyQuestions = qaManager.countAnswersForUser(answers, monthStart, today);
-            int totalQuestions = qaManager.countAnswersForUser(answers, LocalDate.MIN, LocalDate.MAX);
+            int yesterdayQuestions = countAnswersForUser(answers, yesterday, today.minusDays(1));
+            int dailyQuestions = countAnswersForUser(answers, today, today);
+            int weeklyQuestions = countAnswersForUser(answers, weekStart, today);
+            int monthlyQuestions = countAnswersForUser(answers, monthStart, today);
+            int totalQuestions = countAnswersForUser(answers, LocalDate.MIN, LocalDate.MAX);
 
             System.out.println("어제 답변 수: " + yesterdayQuestions);
             System.out.println("일간 답변 수: " + dailyQuestions);
@@ -167,8 +190,6 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
             System.out.println("월간 답변 수: " + monthlyQuestions);
             System.out.println("전체 답변 질문 수: " + totalQuestions);
 
-            //    @RequirePlaceHolder(placeholders =
-            //    {"%answer_count_yesterday%", "%answer_count_daily%", "%answer_count_weekly%", "%answer_count_monthly%", "%answer_count_total%", "%reward_count%"})
             for (String s : waitingAnswerListOption.getWaitingAnswerListMyAnswerInfoLore() ) {
                 index49ItemLore.add(s
                         .replace("%answer_count_yesterday%", Integer.toString(yesterdayQuestions))
@@ -190,7 +211,6 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
 
 
         setInventory(inventory);
-
         getPlayer().openInventory(inventory);
 
     }

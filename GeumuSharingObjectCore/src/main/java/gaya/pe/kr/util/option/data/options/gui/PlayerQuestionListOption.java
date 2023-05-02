@@ -38,7 +38,13 @@ public class PlayerQuestionListOption extends AbstractOption {
         return (String) getNestedSectionKey("GUI", "player_question_list_daily_question_ranking").get("name");
     }
 
-    @RequirePlaceHolder(placeholders = {"%question_top_player_daily_1%", "%question_top_player_daily_2%", "%question_top_count_daily_3%", "%question_top_player_daily_4%", "%question_top_count_daily_5%"})
+    @RequirePlaceHolder(placeholders = {
+            "%question_top_player_daily_1%", "%question_top_count_daily_1%"
+            ,"%question_top_player_daily_2%", "%question_top_count_daily_2%"
+            ,"%question_top_player_daily_3%", "%question_top_count_daily_3%"
+            ,"%question_top_player_daily_4%", "%question_top_count_daily_4%"
+            ,"%question_top_player_daily_5%", "%question_top_count_daily_5%"
+    })
     public List<String> getPlayerQuestionListDailyQuestionRankingLore() {
         return getList("GUI.player_question_list_daily_question_ranking.lore");
     }
