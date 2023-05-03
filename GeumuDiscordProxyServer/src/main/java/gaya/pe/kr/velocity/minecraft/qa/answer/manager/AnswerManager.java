@@ -54,11 +54,14 @@ public class AnswerManager {
 
     HashMap<Long, Answer> answerIdByAnswerHashMap = new HashMap<>();
     HashMap<QAUser, List<Answer>> qaUserHasAnswer = new HashMap<>();
-    ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
+    ServerOptionManager serverOptionManager;
 
-    QuestionManager questionManager = QuestionManager.getInstance();
+    QuestionManager questionManager;
 
     public void init() {
+
+        serverOptionManager = ServerOptionManager.getInstance();
+        questionManager = QuestionManager.getInstance();
 
         DBConnection.taskTransaction(connection -> {
 
@@ -70,7 +73,7 @@ public class AnswerManager {
                     "    `answers`.`contents`,\n" +
                     "    `answers`.`answer_qauser_uuid`,\n" +
                     "    `answers`.`answer_date`,\n" +
-                    "    `answers`.`receive_to_question_player`\n" +
+                    "    `answers`.`receive_to_question_player`,\n" +
                     "    `answers`.`received_reward`\n" +
                     "FROM `pixelmon_01_answer`.`answers`;\n";
 
@@ -120,6 +123,8 @@ public class AnswerManager {
 
         });
 
+        System.out.println("AnswerManager init");
+
 
     }
 
@@ -155,15 +160,15 @@ public class AnswerManager {
         boolean databaseResult = DBConnection.taskTransaction(connection -> {
 
             String sql = "INSERT INTO `pixelmon_01_answer`.`answers` " +
-                    "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`, `receive_reward`) " +
+                    "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`, `received_reward`) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
                     "`question_id` = ?, " +
                     "`contents` = ?, " +
                     "`answer_qauser_uuid` = ?, " +
                     "`answer_date` = ?, " +
-                    "`receive_to_question_player` = ?" +
-                    "`receive_reward` = ?";
+                    "`receive_to_question_player` = ?," +
+                    "`received_reward` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
             long answerId = answer.getAnswerId();

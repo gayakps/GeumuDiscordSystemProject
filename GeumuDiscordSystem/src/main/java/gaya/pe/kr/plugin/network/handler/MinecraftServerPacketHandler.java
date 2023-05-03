@@ -75,22 +75,47 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
         switch (minecraftPacket.getType()) {
 
-
             case PLAYER_REQUEST_RESPONSE: {
 
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
+
+                System.out.printf("UUID : %s\n", abstractPlayerRequestResponse.getRequestPlayerUUID().toString());
 
                 long requestPacketId = abstractPlayerRequestResponse.getRequestPacketId();
                 if ( isWaitingTicket(requestPacketId ) ) {
                     WaitingTicket<Boolean> waitingTicket = getWaitingTicket(abstractPlayerRequestResponse.getRequestPacketId());
                     waitingTicket.setResult(true);
                     removeWaitingTicket(requestPacketId);
+                    System.out.println("웨이팅 티켓임 처리 완료");
                 }
 
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
                 if ( player != null ) {
+                    System.out.println("플레이어 있노");
                     abstractPlayerRequestResponse.sendData(player);
+                } else {
+                    System.out.println("플레이어없다");
                 }
+
+                break;
+            }
+            case PLAYER_REQUEST_RESPONSE_AS_OBJECT: {
+
+                AbstractPlayerRequestResponseAsObject<?> abstractPlayerRequestResponseAsObject = (AbstractPlayerRequestResponseAsObject<?>) minecraftPacket;
+                long requestPacketId = abstractPlayerRequestResponseAsObject.getRequestPacketId();
+                Object tObject = abstractPlayerRequestResponseAsObject.getT();
+
+                try {
+                    if (isWaitingTicket(requestPacketId)) {
+                        handleWaitingTicket(requestPacketId, tObject);
+                    } else {
+                        //TODO 문제 발생
+                        throw new IllegalResponseObjectException("");
+                    }
+                } catch (IllegalResponseObjectException e) {
+                    e.printStackTrace();
+                }
+
 
                 break;
             }
@@ -176,57 +201,12 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 }
                 break;
             }
-
-            case PLAYER_REQUEST_RESPONSE_AS_OBJECT: {
-
-                AbstractPlayerRequestResponseAsObject<?> abstractPlayerRequestResponseAsObject = (AbstractPlayerRequestResponseAsObject<?>) minecraftPacket;
-                long requestPacketId = abstractPlayerRequestResponseAsObject.getRequestPacketId();
-                Object tObject = abstractPlayerRequestResponseAsObject.getT();
-
-                try {
-                    if (isWaitingTicket(requestPacketId)) {
-                        handleWaitingTicket(requestPacketId, tObject);
-                    } else {
-                        //TODO 문제 발생
-                        throw new IllegalResponseObjectException("");
-                    }
-                } catch (IllegalResponseObjectException e) {
-                    e.printStackTrace();
-                }
-
-
-//                    if ( objectClazz == Answer[].class ) {
-//                        WaitingTicket<Answer[]> waitingTicket = getWaitingTicket(requestPacketId);
-//                        Answer[] answers = (Answer[]) tObject;
-//                        waitingTicket.setResult(answers);
-//                        waitingTicket.executeAndGetResult();
-//                    }
-//                    else if ( objectClazz == Question[].class ) {
-//                        WaitingTicket<Question[]> waitingTicket = getWaitingTicket(requestPacketId);
-//                        Question[] questions = (Question[]) tObject;
-//                        waitingTicket.setResult(questions);
-//                        waitingTicket.executeAndGetResult();
-//                    }
-//                    else if ( objectClazz == QA[].class ) {
-//                        WaitingTicket<QA[]> waitingTicket = getWaitingTicket(requestPacketId);
-//                        QA[] qas = (QA[]) tObject;
-//                        waitingTicket.setResult(qas);
-//                        waitingTicket.executeAndGetResult();
-//                    } else {
-//                        //TODO 문제 발생
-//                    }
-
-
-                break;
-            }
-
             case SCATTER_SERVER_PLAYERS: {
                 PlayerManager playerManager = PlayerManager.getInstance();
                 ScatterServerPlayers scatterServerPlayers = (ScatterServerPlayers) minecraftPacket;
                 playerManager.setPlayerList(scatterServerPlayers.getPlayers());
                 break;
             }
-
             case SERVER_OPTION: {
 
                 ServerOption serverOption = (ServerOption) minecraftPacket;
@@ -288,7 +268,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 }
                 break;
             }
-
             case BROADCAST_MESSAGE:{
 
                 BroadCastMessage broadCastMessage = (BroadCastMessage) minecraftPacket;
@@ -298,7 +277,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
-
             case BROAD_CAST_CLICKABLE_MESSAGE: {
 
                 BroadCastClickableMessage broadCastClickableMessage = (BroadCastClickableMessage) minecraftPacket;
@@ -317,7 +295,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
-
             case START_REWARD_GIVING: {
 
                 NetworkManager networkManager = NetworkManager.getInstance();

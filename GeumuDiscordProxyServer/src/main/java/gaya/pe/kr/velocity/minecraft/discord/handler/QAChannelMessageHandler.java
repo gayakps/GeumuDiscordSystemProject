@@ -21,9 +21,7 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
     QuestionManager questionManager;
     AnswerManager answerManager;
     DiscordManager discordManager;
-
     QAUserManager qaUserManager;
-
     ServerOptionManager serverOptionManager;
 
     public QAChannelMessageHandler(TextChannel textChannel) {
@@ -33,6 +31,7 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
         answerManager = AnswerManager.getInstance();
         discordManager = DiscordManager.getInstance();
         serverOptionManager = ServerOptionManager.getInstance();
+        System.out.println("QAChannelMessageHandler created");
     }
 
     @Override
@@ -43,6 +42,14 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
         long sendUserId = user.getIdLong(); // 사용자 고유 ID를 가져옵니다.
 
         MessageType messageType = receivedMessage.getType();
+
+        System.out.println(messageType + " <<< message Type " + receivedMessage.getContentRaw() + " || " + receivedMessage.getContentDisplay() + " || " + receivedMessage.getContentStripped());
+
+        if (messageType == MessageType.DEFAULT) {
+            System.out.println("Message content: " + receivedMessage.getContentRaw());
+        } else {
+            System.out.println("Unhandled message type: " + messageType);
+        }
 
         ConfigOption configOption = serverOptionManager.getConfigOption();
 
@@ -68,7 +75,7 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
 
                 Question question = questionManager.getQuestionByDiscordMessageId(repliedMessageId);
 
-                String receivedMessageContent = receivedMessage.getContentRaw();
+                String receivedMessageContent = receivedMessage.getContentDisplay();
 
                 PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(question.getId(), receivedMessageContent, answerUser.getDiscordPlayerUserId());
 
@@ -93,7 +100,9 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
             //질문의 경우 접두사 검사
 
             String prefix = questionManager.getQuestPrefix();
-            String receivedMessageContent = receivedMessage.getContentRaw();
+            String receivedMessageContent = receivedMessage.getContentDisplay();
+
+            System.out.println(receivedMessageContent + " <<< " + prefix);
 
             if ( receivedMessageContent.startsWith(prefix)) {
 

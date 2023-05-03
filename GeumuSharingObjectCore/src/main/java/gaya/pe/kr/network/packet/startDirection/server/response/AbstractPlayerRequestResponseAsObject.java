@@ -19,7 +19,7 @@ public abstract class AbstractPlayerRequestResponseAsObject<T> extends AbstractM
     private final long requestPacketId;
 
     public AbstractPlayerRequestResponseAsObject(T t,UUID requestPlayerUUID, long requestPacketId) {
-        super(PacketType.PLAYER_REQUEST_RESPONSE);
+        super(PacketType.PLAYER_REQUEST_RESPONSE_AS_OBJECT);
         this.requestPlayerUUID = requestPlayerUUID;
         this.requestPacketId = requestPacketId;
         this.t = t;

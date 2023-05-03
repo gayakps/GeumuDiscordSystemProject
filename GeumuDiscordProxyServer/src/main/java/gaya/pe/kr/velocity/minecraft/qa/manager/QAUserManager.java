@@ -214,7 +214,7 @@ public class QAUserManager {
                     "VALUES (?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
                     "`player_name` = VALUES(`player_name`), " +
-                    "`discord_user_id` = VALUES(`discord_user_id`), ";
+                    "`discord_user_id` = VALUES(`discord_user_id`)";
 
             String playerName = qaUser.getGamePlayerName();
             long discordUserId = qaUser.getDiscordPlayerUserId();

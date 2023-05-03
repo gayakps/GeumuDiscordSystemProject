@@ -42,11 +42,15 @@ public class QuestionManager {
 
     HashMap<Long, Question> questIdByQuestHashMap = new HashMap<>();
     HashMap<QAUser, List<Question>> qaUserHasQuestion = new HashMap<>();
-    ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
-    QAUserManager qaUserManager = QAUserManager.getInstance();
+    ServerOptionManager serverOptionManager;
+    QAUserManager qaUserManager;
 
 
     public void init() {
+
+        serverOptionManager = ServerOptionManager.getInstance();
+        qaUserManager = QAUserManager.getInstance();
+
         DBConnection.taskTransaction(connection -> {
             QAUserManager qaUserManager = QAUserManager.getInstance();
 
@@ -98,6 +102,8 @@ public class QuestionManager {
             answerManager.init();
 
         });
+
+        System.out.println("QuestionManager init");
     }
 
     public boolean existQuest(long questId) {

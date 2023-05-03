@@ -42,16 +42,20 @@ public class DiscordManager {
     JDA jda;
     @Setter TextChannel authChannel;
     @Setter TextChannel questionChannel;
-    ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
-    QAUserManager qaUserManager = QAUserManager.getInstance();
+    ServerOptionManager serverOptionManager;
+    QAUserManager qaUserManager;
     public void init() {
 
         try {
+            serverOptionManager = ServerOptionManager.getInstance();
+            qaUserManager = QAUserManager.getInstance();
+
             ConfigOption configOption = serverOptionManager.getConfigOption();
             jda = JDABuilder.createDefault(configOption.getDiscordToken()).build();
 //            jda.addEventListener(new InitHandler("1090859961845825566", "1094161426005884928"));
             jda.addEventListener(new InitHandler(configOption.getAuthenticationChannelId(), configOption.getQuestionChannelId()));
             NetworkManager.getInstance().init();
+            System.out.println("DiscordManager init");
         } catch ( Exception e ) {
             e.printStackTrace();
         }

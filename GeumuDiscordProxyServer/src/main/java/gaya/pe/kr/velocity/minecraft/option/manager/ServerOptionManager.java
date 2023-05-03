@@ -23,11 +23,11 @@ import java.util.*;
 public class ServerOptionManager {
 
     private static class SingleTon {
-        private static final ServerOptionManager OPTION_MANAGER = new ServerOptionManager();
+        private static final ServerOptionManager SERVER_OPTION_MANAGER = new ServerOptionManager();
     }
 
     public static ServerOptionManager getInstance() {
-        return ServerOptionManager.SingleTon.OPTION_MANAGER;
+        return SingleTon.SERVER_OPTION_MANAGER;
     }
 
     AnswerRankingOption answerRankingOption;
@@ -60,7 +60,6 @@ public class ServerOptionManager {
             waitingAnswerListOption = new WaitingAnswerListOption(load(path+"/GUI/waiting_answer_list.yml"));
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
-            DBConnection.init(configOption);
             Date now = new Date();
             Date startDate = getStartTime(configOption.getRewardGracePeriodTime());
 
@@ -77,6 +76,8 @@ public class ServerOptionManager {
                 }, startDate);
 
             }
+
+            DBConnection.init(configOption);
 
         } catch ( Exception e) {
             e.printStackTrace();

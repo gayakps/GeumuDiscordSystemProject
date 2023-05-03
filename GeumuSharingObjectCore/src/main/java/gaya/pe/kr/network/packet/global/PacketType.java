@@ -22,6 +22,8 @@ import java.util.HashMap;
 public enum PacketType {
 
     BROADCAST_MESSAGE(0x01, PacketStartDirection.SERVER, BroadCastMessage.class),
+
+    SERVER_OPTION(0x2, PacketStartDirection.SERVER, ServerOption.class),
     MINECRAFT_OPTION_RELOAD_REQUEST(0x03, PacketStartDirection.CLIENT, MinecraftOptionReloadRequest.class),
 
     PLAYER_REQUEST_RESPONSE_AS_OBJECT(0x4, PacketStartDirection.SERVER, AbstractPlayerRequestResponseAsObject.class),
@@ -35,7 +37,6 @@ public enum PacketType {
     PLAYER_ANSWER_LIST_BY_ANSWER_ID_REQUEST(0x09, PacketStartDirection.CLIENT, PlayerAnswerListByAnswerIdRequest.class),
     PLAYER_QUESTION_LIST_BY_QUESTION_ID_REQUEST(0x10, PacketStartDirection.CLIENT, PlayerQuestionListByQuestionIdRequest.class),
 
-    SERVER_OPTION(0x11, PacketStartDirection.SERVER, ServerOption.class),
 
     PLAYER_RECENT_QUESTION_ANSWER_REQUEST(0x11, PacketStartDirection.CLIENT, PlayerRecentQuestionAnswerRequest.class),
 
@@ -55,22 +56,22 @@ public enum PacketType {
     ALL_QA_USER_DATA_REQUEST(0x21, PacketStartDirection.CLIENT, AllQAUserDataRequest.class),
 
     TARGET_ANSWER_BY_QUESTION_ID_REMOVE_REQUEST(0x22, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
-    TARGET_QUESTION_REMOVE_REQUEST(0x22, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
+    TARGET_QUESTION_REMOVE_REQUEST(0x23, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
 
-    TARGET_PLAYER_CHAT(0x23, PacketStartDirection.SERVER, TargetPlayerChat.class),
+    TARGET_PLAYER_CHAT(0x24, PacketStartDirection.SERVER, TargetPlayerChat.class),
 
-    TARGET_PLAYER_REMOVE_REWARD_REQUEST(0x24, PacketStartDirection.CLIENT, TargetPlayerRemoveRewardRequest.class),
+    TARGET_PLAYER_REMOVE_REWARD_REQUEST(0x25, PacketStartDirection.CLIENT, TargetPlayerRemoveRewardRequest.class),
 
-    PLAYER_REWARD_REQUEST(0x25, PacketStartDirection.CLIENT, PlayerRewardRequest.class),
+    PLAYER_REWARD_REQUEST(0x26, PacketStartDirection.CLIENT, PlayerRewardRequest.class),
 
-    ANSWER_MODIFY_REQUEST(0x26, PacketStartDirection.CLIENT, AnswerModifyRequest.class),
-    QUESTION_MODIFY_REQUEST(0x27, PacketStartDirection.CLIENT, QuestionModifyRequest.class),
+    ANSWER_MODIFY_REQUEST(0x27, PacketStartDirection.CLIENT, AnswerModifyRequest.class),
+    QUESTION_MODIFY_REQUEST(0x28, PacketStartDirection.CLIENT, QuestionModifyRequest.class),
 
-    START_REWARD_GIVING(0x28, PacketStartDirection.SERVER, StartRewardGiving.class),
+    START_REWARD_GIVING(0x29, PacketStartDirection.SERVER, StartRewardGiving.class),
 
-    UPDATE_QA_USER_REQUEST(0x29, PacketStartDirection.CLIENT, UpdateQAUserRequest.class),
+    UPDATE_QA_USER_REQUEST(0x30, PacketStartDirection.CLIENT, UpdateQAUserRequest.class),
 
-    BROAD_CAST_CLICKABLE_MESSAGE(0x30, PacketStartDirection.SERVER, BroadCastClickableMessage.class);
+    BROAD_CAST_CLICKABLE_MESSAGE(0x31, PacketStartDirection.SERVER, BroadCastClickableMessage.class);
 
 
 

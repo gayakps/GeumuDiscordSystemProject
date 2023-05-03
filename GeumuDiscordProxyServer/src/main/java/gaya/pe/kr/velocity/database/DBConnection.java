@@ -27,16 +27,14 @@ public class DBConnection {
 
         initTableList();
 
-        HikariConfig config = new HikariConfig(); // Hikari Connection Pool 을 이용하기 위해서 사용되는 Configuration 이라 보면됨, 기본 설정
-//        config.setDriverClassName("com.mysql.cj.jdbc.Driver"); // 우리가 어떤 DBMS 를 사용할 것인지 => 저희는 Maria DB 이기때문에 mariadb jdbc driver 를 사용할거에요
-        config.setJdbcUrl(String.format("jdbc:mysql://%s:%s/%s?useUnicode=true&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8", configOption.getDbHost(), configOption.getDbPort(), configOption.getDbDatabase())); // 데이터 서버의 IP , port , DB 명
-        config.setUsername(configOption.getDbUsername()); // config 에 등록된 관리자 계정명
-        config.setPassword(configOption.getDbPassword()); // config 에 등록된 관리자 패스워드
-//        config.addDataSourceProperty("leak-detection-threshold", "true"); // PreparedStatement Caching을 비활성화하고 있기 때문에, 이 옵션을 허용해줘야 아래의 옵션값들이 실제 DB에 영향을 줄 수 있다.
-        config.addDataSourceProperty("cachePrepStmts", "true"); // PreparedStatement Caching을 비활성화하고 있기 때문에, 이 옵션을 허용해줘야 아래의 옵션값들이 실제 DB에 영향을 줄 수 있다.
-        // 여기서 PreparedStatement 는 Connection 을 가져와 db에 수정 삽입 제거 등 data 관리를 하기 위한 객체라고 보면된다.
-        config.addDataSourceProperty("prepStmtCacheSize", "350"); // MySQL 드라이버가 Connection마다 캐싱할 PreparedStatement의 개수를 지정하는 옵션이다. HikariCP에서는 250 ~ 500개 정도를 추천한다
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048"); // default : 256 max : 2048 크게 중요하지 않다. 데이터 캐싱 관련이며 PreparedStatement 와 연관되어있다.
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        config.setJdbcUrl(String.format("jdbc:mysql://%s:%s/%s?useUnicode=true&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8", configOption.getDbHost(), configOption.getDbPort(), configOption.getDbDatabase()));
+        config.setUsername(configOption.getDbUsername());
+        config.setPassword(configOption.getDbPassword());
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "350");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
         config.setMaximumPoolSize(20);
 
@@ -63,7 +61,6 @@ public class DBConnection {
                 preparedStatement = connection.prepareStatement(tableSQL);
                 preparedStatement.executeUpdate();
             }
-
             DiscordManager.getInstance().init();
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -81,7 +78,7 @@ public class DBConnection {
                 "  UNIQUE KEY `discord_user_id_UNIQUE` (`discord_user_id`)\n" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
-        tableCreateList.add("CREATE TABLE `questions` (\n" +
+        tableCreateList.add("CREATE TABLE IF NOT EXISTS `questions` (\n" +
                 "  `id` int NOT NULL,\n" +
                 "  `qauser_uuid` varchar(36) NOT NULL,\n" +
                 "  `contents` varchar(500) NOT NULL,\n" +
@@ -93,7 +90,7 @@ public class DBConnection {
                 "  CONSTRAINT `questions_user_profiles_UUID_fk` FOREIGN KEY (`qauser_uuid`) REFERENCES `user_profiles` (`UUID`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
-        tableCreateList.add("CREATE TABLE `answers` (\n" +
+        tableCreateList.add("CREATE TABLE IF NOT EXISTS `answers` (\n" +
                 "  `id` int NOT NULL,\n" +
                 "  `question_id` int NOT NULL,\n" +
                 "  `contents` varchar(500) NOT NULL,\n" +
@@ -101,7 +98,6 @@ public class DBConnection {
                 "  `answer_date` datetime NOT NULL,\n" +
                 "  `receive_to_question_player` tinyint NOT NULL DEFAULT '0',\n" +
                 "  `received_reward` tinyint NOT NULL DEFAULT '0',\n" +
-
                 "  PRIMARY KEY (`id`,`question_id`),\n" +
                 "  KEY `answers_questions_id_fk` (`question_id`),\n" +
                 "  KEY `answers_user_profiles_UUID_fk` (`answer_qauser_uuid`),\n" +

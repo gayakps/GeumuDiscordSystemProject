@@ -55,14 +55,12 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     QuestionManager questionManager = QuestionManager.getInstance();
     ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
     QAUserManager qaUserManager = QAUserManager.getInstance();
-
     public static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // 예외 처리
         cause.printStackTrace();
-        ctx.close();
     }
 
     @Override
