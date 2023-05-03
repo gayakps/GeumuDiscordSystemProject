@@ -5,6 +5,7 @@ import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.UtilMethod;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
@@ -75,7 +76,10 @@ public class AnswerConversation extends StringPrompt {
             networkManager.sendPacket(playerTransientProceedingAnswerRequest, player1, targetPlayer -> {
                 targetPlayer.sendRawMessage("전달 성공~");
                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
-                player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                SchedulerUtil.runLaterTask(()-> {
+                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                },1);
+
 
             });
 

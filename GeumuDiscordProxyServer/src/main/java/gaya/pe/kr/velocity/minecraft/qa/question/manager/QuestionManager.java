@@ -106,6 +106,10 @@ public class QuestionManager {
         System.out.println("QuestionManager init");
     }
 
+    public List<Question> getAllQuestions() {
+        return new ArrayList<>(questIdByQuestHashMap.values());
+    }
+
     public boolean existQuest(long questId) {
         return questIdByQuestHashMap.containsKey(questId);
     }
@@ -206,12 +210,14 @@ public class QuestionManager {
 
         if ( contentSize > maxLength ) {
             // 너무 길어
+            System.out.println("메세지가 너무 길어");
             qaRequestResult.setMessage(configOption.getQuestionFailQuestionTooLong().replace("%question_max_length%", Integer.toString(maxLength))); // 길이 제한
             return qaRequestResult;
         }
 
         if ( contentSize < minLength ) {
             // 너무 짧아
+            System.out.println("메세지가 너무 짧아");
             qaRequestResult.setMessage(configOption.getQuestionFailQuestionTooShort().replace("%question_min_length%", Integer.toString(minLength))); // 길이 제한
             return qaRequestResult;
         }
@@ -221,14 +227,20 @@ public class QuestionManager {
         if (requestType.equals(PlayerTransientProceedingQuestionRequest.RequestType.DISCORD)) {
             //TODO Discord 일 경우 현재 플레이어 중 디스코드 & 인게임에서 질문 여부를 파악한함
             qaUser = qaUserManager.getUser(playerTransientProceedingQuestionRequest.getDiscordUserId());
+            System.out.println("유저 찾았다 디코로");
         } else {
             qaUser = qaUserManager.getUser(playerTransientProceedingQuestionRequest.getPlayerName());
+            System.out.println("유저 찾았다 이름으로");
         }
 
+        if ( qaUser == null ) {
+            System.out.println("유저가 널인데?");
+        }
 
         int delay = configOption.getQuestionCooldown();
 
         List<Question> questions = getQAUserQuestions(qaUser);
+        System.out.println("모든 질문 찾아볼게");
 
         for (Question question : questions) {
 
@@ -240,6 +252,7 @@ public class QuestionManager {
                         .replace("%question_cooldown%", Integer.toString(delay))
                         .replace("%question_remain_cooldown%", Integer.toString(delay-(int)diffSec))
                 );
+                System.out.println("다시 할 시간이 없어");
                 return qaRequestResult;
             }
 
@@ -249,19 +262,25 @@ public class QuestionManager {
 
         AnswerPatternOptions answerPatternOptions = serverOptionManager.getAnswerPatternOptions();
 
+        System.out.println("모든 패턴 찾아볼게");
+
         for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
+            System.out.println("패턴 : " + patternMatcher.toString());
             if ( patternMatcher.isMatch(content) ) {
                 String answer = patternMatcher.getMessage();
                 qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
                         .replace("%playername%", configOption.getAnswerPlayerNamePlaceholderAutoAnswer())
                         .replace("%answer%", answer)
                 );
+                System.out.println("패턴이 매치가 됐어");
                 return qaRequestResult;
             }
         }
 
+        qaRequestResult.setType(QARequestResult.Type.SUCCESS);
+
         if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
-            int lastQuestionNumber = getQuestionNumber();
+            long lastQuestionNumber = getQuestionNumber();
             Question question = new Question(lastQuestionNumber, content, qaUser );
             broadCastQuestion(question, qaRequestResult);
         }
@@ -277,7 +296,7 @@ public class QuestionManager {
         }
 
         DiscordManager discordManager = DiscordManager.getInstance();
-        Message message = discordManager.sendMessage( getQuestionFormat(question) , discordManager.getAuthChannel() ); // 디스코드 전체 전송
+        Message message = discordManager.sendMessage( "```"+getQuestionFormat(question)+"```" , discordManager.getAuthChannel() ); // 디스코드 전체 전송
 
         QAUser qaUser = question.getQaUser();
 
@@ -420,9 +439,8 @@ public class QuestionManager {
     /**
      * @return DB에 내장되어있는 최종 질문 번호
      */
-    public int getQuestionNumber() {
-        List<Integer> result = DBConnection.getDataFromDataBase("SELECT COUNT(*) AS last_id FROM question", "last_id", Integer.class);
-        return result.isEmpty() ? 1 : result.get(0);
+    public long getQuestionNumber() {
+        return questIdByQuestHashMap.size()+1;
     }
 
     public List<Question> getQAUserQuestions(QAUser qaUser) {

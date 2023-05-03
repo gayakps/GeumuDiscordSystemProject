@@ -170,8 +170,6 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
             List<String> lore = new ArrayList<>();
 
-            //TODO 일간 질문수 랭킹
-
             LocalDate startDate = LocalDate.now();
 
             Map<QAUser, Integer> questionCountMap = getQuestionCountMap(qaRepository.getAllQuestions(), startDate, startDate);

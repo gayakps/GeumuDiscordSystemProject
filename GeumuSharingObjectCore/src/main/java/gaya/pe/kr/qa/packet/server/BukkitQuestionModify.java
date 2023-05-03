@@ -13,7 +13,6 @@ public class BukkitQuestionModify extends AbstractMinecraftPacket {
     QAModifyType qaModifyType;
     Question[] questions;
 
-
     public BukkitQuestionModify(QAModifyType qaModifyType, Question[] questions) {
         super(PacketType.BUKKIT_QUESTION_MODIFY);
         this.qaModifyType = qaModifyType;

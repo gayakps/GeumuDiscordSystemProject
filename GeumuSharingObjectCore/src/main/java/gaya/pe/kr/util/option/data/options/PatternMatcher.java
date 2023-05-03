@@ -23,8 +23,6 @@ public class PatternMatcher implements Serializable {
         this.ignore = ignore;
         this.message = message;
 
-        System.out.println(this.toString() + " 이 제작되었습니다");
-
     }
 
     public boolean isMatch(String input) {

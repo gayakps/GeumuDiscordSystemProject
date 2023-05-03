@@ -24,13 +24,22 @@ public class PlayerRequestResponseAsChat extends AbstractPlayerRequestResponse {
 
     public void addMessage(String message) {
 
+        System.out.println("메시지 추가할게요");
+
         if ( message == null || message.length() == 0 ) return;
 
+
+
         messages.add(message);
+        System.out.println("메세지 추가 " + message + " || " + messages);
     }
 
     @Override
     public void sendData(Player player) {
+
+        if ( messages .isEmpty() ) {
+            player.sendMessage("메세지가 없습니다");
+        }
 
         for (String message : messages) {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));

@@ -128,10 +128,14 @@ public class AnswerManager {
 
     }
 
+    public List<Answer> getAllAnswers() {
+        return new ArrayList<>(answerIdByAnswerHashMap.values());
+    }
+
     private void answer(QARequestResult qaRequestResult, Question question, Answer answer) {
 
         DiscordManager discordManager = DiscordManager.getInstance();
-        Message message = discordManager.sendMessage( String.format("%s\n%s",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getAuthChannel() );
+        Message message = discordManager.sendMessage( String.format("```%s\n%s```",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getAuthChannel() );
 
         question.setAnswer(true);
         question.setDiscordMessageId(message.getIdLong());

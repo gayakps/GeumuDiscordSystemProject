@@ -1,5 +1,6 @@
 name: GeumuDiscordSystem
 version: '${project.version}'
+api-version: 1.16
 main: gaya.pe.kr.plugin.GeumuDiscordSystem
 authors: [GEUMU]
 description: Geumu Discord & Minecraft Question System

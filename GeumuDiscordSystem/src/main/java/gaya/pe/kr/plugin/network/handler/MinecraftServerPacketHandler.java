@@ -6,6 +6,7 @@ import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRe
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
+import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.player.manager.PlayerManager;
@@ -86,15 +87,11 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                     WaitingTicket<Boolean> waitingTicket = getWaitingTicket(abstractPlayerRequestResponse.getRequestPacketId());
                     waitingTicket.setResult(true);
                     removeWaitingTicket(requestPacketId);
-                    System.out.println("웨이팅 티켓임 처리 완료");
                 }
 
                 Player player = Bukkit.getPlayer(abstractPlayerRequestResponse.getRequestPlayerUUID());
                 if ( player != null ) {
-                    System.out.println("플레이어 있노");
                     abstractPlayerRequestResponse.sendData(player);
-                } else {
-                    System.out.println("플레이어없다");
                 }
 
                 break;
@@ -170,29 +167,36 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                     if ( player != null ) {
 
-                        int answerReceivedTitleFadeInTime = configOption.getAnswerReceiveTitleFadeInTime();
-                        int answerReceivedTitleFadeOutTime = configOption.getAnswerReceiveTitleFadeOutTime();
-                        int answerReceivedTitleFadeStayTime = configOption.getAnswerReceiveTitleStayTime();
+                        SchedulerUtil.runLaterTask(()-> {
 
-                        // 답변이 도착했습니다!, 채팅창을 봐주세요
-                        player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOnlineTitle(), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
+                            int answerReceivedTitleFadeInTime = configOption.getAnswerReceiveTitleFadeInTime();
+                            int answerReceivedTitleFadeOutTime = configOption.getAnswerReceiveTitleFadeOutTime();
+                            int answerReceivedTitleFadeStayTime = configOption.getAnswerReceiveTitleStayTime();
 
-                        String[] soundData= configOption.getAnswerReceiveSuccessSound().split(":");
+                            // 답변이 도착했습니다!, 채팅창을 봐주세요
+                            player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOnlineTitle(), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
 
-                        player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                            String[] soundData= configOption.getAnswerReceiveSuccessSound().split(":");
 
-                        SchedulerUtil.runLaterTask( ()-> {
+                            player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
 
-                            if ( !player.isOnline() ) return;
+                            SchedulerUtil.runLaterTask( ()-> {
 
-                            String title = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle();
-                            String subTitle = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle();
-                            String message = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline().replace("%question_number%", Long.toString(question.getId()));
+                                if ( !player.isOnline() ) return;
 
-                            player.sendMessage(message.replace("&", "§"));
-                            player.sendTitle(title, subTitle, answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
+                                String title = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineTitle();
+                                String subTitle = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle();
+                                String message = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline().replace("%question_number%", Long.toString(question.getId()));
 
-                        }, answerReceivedTitleFadeInTime+answerReceivedTitleFadeStayTime+answerReceivedTitleFadeOutTime);
+                                player.sendMessage(message.replace("&", "§"));
+                                player.sendTitle(title, subTitle, answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
+
+                            }, answerReceivedTitleFadeInTime+answerReceivedTitleFadeStayTime+answerReceivedTitleFadeOutTime);
+                        },1);
+
+
+
+
 
 
                     }
@@ -266,6 +270,8 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                     }
 
                 }
+
+                BukkitDiscordManager.getInstance().init();
                 break;
             }
             case BROADCAST_MESSAGE:{

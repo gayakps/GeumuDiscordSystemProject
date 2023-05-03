@@ -6,12 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Getter
 @ToString
-public class Answer {
+public class Answer implements Serializable {
 
+    private static final long serialVersionUID = 2L;
     long answerId;
     long questionId;
     String contents;

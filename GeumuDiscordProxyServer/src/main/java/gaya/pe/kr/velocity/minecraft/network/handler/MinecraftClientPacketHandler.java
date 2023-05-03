@@ -12,6 +12,7 @@ import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.packet.client.*;
 import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
+import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.packet.server.QAUserResponse;
 import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
@@ -66,11 +67,26 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
 
+        Channel channel = ctx.channel();
+
         ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
         List<AbstractOption> abstractOptionList = serverOptionManager.getAllOptions();
-        sendPacket(ctx.channel(), new ServerOption(abstractOptionList));
-        System.out.printf("%s Client Connection & send packet\n", ctx.channel().toString());
-        channelGroup.add(ctx.channel());
+        sendPacket(channel, new ServerOption(abstractOptionList));
+
+        VelocityThreadUtil.delayTask(()-> {
+            BukkitQuestionModify bukkitQuestionModify = new BukkitQuestionModify( QAModifyType.ADD, questionManager.getAllQuestions().toArray(new Question[0]));
+            sendPacket(channel, bukkitQuestionModify);
+        }, 1000);
+
+
+        VelocityThreadUtil.delayTask(()-> {
+            BukkitAnswerModify bukkitAnswerModify = new BukkitAnswerModify(QAModifyType.ADD, answerManager.getAllAnswers().toArray(new Answer[0]));
+            sendPacket(channel, bukkitAnswerModify);
+        }, 1000);
+
+
+        System.out.printf("%s Client Connection & send packet\n", channel.toString());
+        channelGroup.add(channel);
     }
 
     @Override
@@ -132,6 +148,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_TRANSIENT_PROCEEDING_QUESTION_REQUEST: {
                 PlayerTransientProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerTransientProceedingQuestionRequest) minecraftPacket;
                 QARequestResult qaRequestResult = questionManager.processQuestion(playerProceedingQuestionRequest);
+                System.out.println("작업 시작 " + qaRequestResult.getType() + " ||| 결과 메세지 : " + qaRequestResult.getMessage());
                 String message = qaRequestResult.getMessage();
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerProceedingQuestionRequest.getPlayerUUID(), playerProceedingQuestionRequest.getPacketID());
                 response.addMessage(message);

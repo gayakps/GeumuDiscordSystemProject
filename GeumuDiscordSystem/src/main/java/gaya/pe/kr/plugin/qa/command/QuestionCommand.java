@@ -6,6 +6,7 @@ import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.reactor.TargetPlayerQuestionListReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.UtilMethod;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
@@ -52,9 +53,13 @@ public class QuestionCommand implements CommandExecutor {
                             player.sendMessage(configOption.getInvalidPlayerName().replace("&", "§"));
                             return;
                         }
-                        QAUser qaUser = qaUsers[0];
-                        TargetPlayerQuestionListReactor targetPlayerQuestionListReactor = new TargetPlayerQuestionListReactor(player, qaUser, qaRepository);
-                        targetPlayerQuestionListReactor.start();
+
+                        SchedulerUtil.runLaterTask( ()-> {
+                            QAUser qaUser = qaUsers[0];
+                            TargetPlayerQuestionListReactor targetPlayerQuestionListReactor = new TargetPlayerQuestionListReactor(player, qaUser, qaRepository);
+                            targetPlayerQuestionListReactor.start();
+                        }, 1);
+
 
                     });
 

@@ -8,8 +8,10 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.reactor.AllPlayerWaitingAnswerQuestionListReactor;
 import gaya.pe.kr.plugin.qa.reactor.TargetPlayerAnswerListReactor;
+import gaya.pe.kr.plugin.qa.reactor.TargetPlayerQuestionListReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.UtilMethod;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
@@ -58,8 +60,11 @@ public class AnswerCommand implements CommandExecutor {
                                 player.sendMessage(configOption.getInvalidPlayerName().replace("&","§"));
                                 return;
                             }
-                            TargetPlayerAnswerListReactor answerListReactor = new TargetPlayerAnswerListReactor(player, qaUsers[0], qaRepository);
-                            answerListReactor.start();
+
+                            SchedulerUtil.runLaterTask( ()-> {
+                                TargetPlayerAnswerListReactor answerListReactor = new TargetPlayerAnswerListReactor(player, qaUsers[0], qaRepository);
+                                answerListReactor.start();
+                            }, 1);
 
                         });
                         break;
@@ -67,9 +72,11 @@ public class AnswerCommand implements CommandExecutor {
                     case "대기": {
                         TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[] {player.getName()} , player, true);
                         networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
-                            AllPlayerWaitingAnswerQuestionListReactor allPlayerWaitingAnswerQuestionListReactor
-                                    = new AllPlayerWaitingAnswerQuestionListReactor(player, qaUsers[0], qaRepository);
-                            allPlayerWaitingAnswerQuestionListReactor.start();
+                            SchedulerUtil.runLaterTask( ()-> {
+                                AllPlayerWaitingAnswerQuestionListReactor allPlayerWaitingAnswerQuestionListReactor
+                                        = new AllPlayerWaitingAnswerQuestionListReactor(player, qaUsers[0], qaRepository);
+                                allPlayerWaitingAnswerQuestionListReactor.start();
+                            }, 1);
                         });
                         break;
                     }
@@ -144,12 +151,12 @@ public class AnswerCommand implements CommandExecutor {
 
                     default: {
 
-                        boolean questionCategory = true;
+                        boolean number = true;
 
                         try {
                             Integer.parseInt(args[0]);
                         } catch ( NumberFormatException e ) {
-                            questionCategory = false;
+                            number = false;
                         }
 
                         String answerContent = UtilMethod.getOneLineString(args, 1);
@@ -159,17 +166,16 @@ public class AnswerCommand implements CommandExecutor {
                             return false;
                         }
 
-                        if ( questionCategory ) {
+                        if ( number ) {
                             String nickName = args[0];
-
                             PlayerRecentQuestionAnswerRequest playerRecentQuestionAnswerRequest = new PlayerRecentQuestionAnswerRequest(nickName, answerContent, player);
                             networkManager.sendPacket(playerRecentQuestionAnswerRequest, player, player1 -> {
                                 player1.sendMessage("전달 성공~");
                                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
-                                player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
-
+                                SchedulerUtil.runLaterTask(()-> {
+                                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                                },1);
                             });
-
                         } else {
                             long questionId = Long.parseLong(args[0]);
 
@@ -177,8 +183,9 @@ public class AnswerCommand implements CommandExecutor {
                             networkManager.sendPacket(playerTransientProceedingAnswerRequest, player, player1 -> {
                                 player1.sendMessage("전달 성공~");
                                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
-                                player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
-
+                                SchedulerUtil.runLaterTask(()-> {
+                                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                                },1);
                             });
                         }
 

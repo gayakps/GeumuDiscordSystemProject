@@ -4,13 +4,18 @@ package gaya.pe.kr.qa.question.data;
 import gaya.pe.kr.qa.data.QAUser;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Getter
 @Setter
-public class Question {
+@ToString
+public class Question implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final long id; // 질문 ID
     @NotNull private final QAUser qaUser;

@@ -141,7 +141,7 @@ public class QAUserManager {
         DiscordManager discordManager = DiscordManager.getInstance();
         StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.append(qaUser.getGamePlayerName());
+        stringBuilder.append(qaUser.getGamePlayerName());
 
         if ( qaUser.getDiscordPlayerUserId() != -1 ) {
             User user = discordManager.getJda().getUserById(qaUser.getDiscordPlayerUserId());
@@ -151,7 +151,12 @@ public class QAUserManager {
             }
         }
 
-        return stringBuilder.toString().trim();
+        String result = stringBuilder.toString().trim();
+        if ( result.isEmpty() ) {
+            return "UNKNOWN";
+        }
+
+        return result;
 
     }
 

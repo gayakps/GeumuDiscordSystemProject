@@ -23,6 +23,13 @@ public class BukkitDiscordManager {
         try {
             ConfigOption configOption = OptionManager.getInstance().getConfigOption();
             jda = JDABuilder.createDefault(configOption.getDiscordToken()).build();
+
+            if ( jda == null ) {
+                System.out.println("JDA 가 NULL 입니다");
+            } else {
+                System.out.println("JDA 널 압니다");
+            }
+
         } catch ( Exception e ) {
             e.printStackTrace();
         }
@@ -34,7 +41,12 @@ public class BukkitDiscordManager {
     }
 
     public String getFullName(QAUser qaUser) {
-        User user = getJda().getUserById(qaUser.getDiscordPlayerUserId());
+        User user = jda.getUserById(qaUser.getDiscordPlayerUserId());
+
+        if ( user == null ) {
+            return qaUser.getGamePlayerName();
+        }
+
         String username = user.getName(); // 사용자 이름을 가져옵니다.
         String discriminator = user.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
         return username + "#" + discriminator;

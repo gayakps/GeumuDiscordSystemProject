@@ -38,10 +38,14 @@ public class WaitingTicket<T> {
     }
     
     public synchronized void setResult(T response) throws IllegalResponseObjectException {
-        this.responseObject = response;
 
-        if ( !response.getClass().getTypeName().equals(expectResponseClazz.getTypeName()) ) {
-            throw new IllegalResponseObjectException(String.format("기대 값 : %s 현재 값 : %s 이 서로 일치하지 않습니다", this.expectResponseClazz.getSimpleName(), response.getClass().getSimpleName()));
+        if ( response != null ) {
+            this.responseObject = response;
+
+            if ( !response.getClass().getTypeName().equals(expectResponseClazz.getTypeName()) ) {
+                throw new IllegalResponseObjectException(String.format("기대 값 : %s 현재 값 : %s 이 서로 일치하지 않습니다", this.expectResponseClazz.getSimpleName(), response.getClass().getSimpleName()));
+            }
+
         }
 
         notifyAll();

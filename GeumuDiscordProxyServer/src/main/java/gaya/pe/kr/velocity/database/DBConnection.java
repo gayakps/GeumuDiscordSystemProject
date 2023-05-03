@@ -79,11 +79,11 @@ public class DBConnection {
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
         tableCreateList.add("CREATE TABLE IF NOT EXISTS `questions` (\n" +
-                "  `id` int NOT NULL,\n" +
+                "  `id` bigint NOT NULL,\n" +
                 "  `qauser_uuid` varchar(36) NOT NULL,\n" +
                 "  `contents` varchar(500) NOT NULL,\n" +
                 "  `question_date` datetime NOT NULL,\n" +
-                "  `discord_message_number` int NOT NULL,\n" +
+                "  `discord_message_number` bigint NOT NULL,\n" +
                 "  `answer` tinyint DEFAULT '0',\n" +
                 "  PRIMARY KEY (`id`),\n" +
                 "  KEY `questions_user_profiles_UUID_fk` (`qauser_uuid`),\n" +
@@ -91,8 +91,8 @@ public class DBConnection {
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
         tableCreateList.add("CREATE TABLE IF NOT EXISTS `answers` (\n" +
-                "  `id` int NOT NULL,\n" +
-                "  `question_id` int NOT NULL,\n" +
+                "  `id` bigint NOT NULL,\n" +
+                "  `question_id` bigint NOT NULL,\n" +
                 "  `contents` varchar(500) NOT NULL,\n" +
                 "  `answer_qauser_uuid` varchar(36) NOT NULL,\n" +
                 "  `answer_date` datetime NOT NULL,\n" +
@@ -153,6 +153,8 @@ public class DBConnection {
                 T result = (T) resultType.cast(resultSet.getObject(targetCol));
                 results.add(result);
             }
+
+            return results;
 
         } catch ( Exception e ) {
             e.printStackTrace();

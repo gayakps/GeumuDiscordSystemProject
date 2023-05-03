@@ -40,7 +40,6 @@ public class PacketDecoder extends ByteToMessageDecoder {
         // 데이터가 모두 도착하지 않았으면 처리를 중지합니다.
         if (in.readableBytes() < dataLength) {
             in.resetReaderIndex();
-            System.out.println("데이터 모두 도착 X");
             return;
         }
 
@@ -52,9 +51,9 @@ public class PacketDecoder extends ByteToMessageDecoder {
         // 패킷 객체를 생성합니다.
         AbstractMinecraftPacket packet = AbstractMinecraftPacket.fromData(packetId, data);
 
-        if (in.readerIndex() != in.writerIndex()) {
-            throw new DecoderException("Unused bytes exist in the end of packet: " + (in.writerIndex() - in.readerIndex()) + " bytes");
-        }
+//        if (in.readerIndex() != in.writerIndex()) {
+//            throw new DecoderException("Unused bytes exist in the end of packet: " + (in.writerIndex() - in.readerIndex()) + " bytes");
+//        }
 
         // 리스트에 패킷을 추가합니다.
         out.add(packet);

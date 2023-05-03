@@ -24,12 +24,13 @@ public class AnswerPatternOptions extends AbstractOption {
                 String matchPattern = (String) nestedSection.get("match");
                 String ignore = nestedSection.containsKey("ignore") ? (String) nestedSection.get("ignore") : "";
                 String message = (String) nestedSection.get("message");
-                patternMatcherList.add(new PatternMatcher(matchPattern, ignore, message));
+                PatternMatcher patternMatcher = new PatternMatcher(matchPattern, ignore, message);
+                patternMatcherList.add(patternMatcher);
+                System.out.println("PATTERN ADD : " + patternMatcher);
+            } else {
+                System.out.println("더 이상 데이터가 없습니다 : " + path);
+                break;
             }
-        }
-
-        for (PatternMatcher patternMatcher : getPatternMatcherList()) {
-            
         }
 
     }
