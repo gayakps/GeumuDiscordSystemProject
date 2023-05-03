@@ -3,6 +3,8 @@ package gaya.pe.kr.plugin.qa.conversation;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.manager.QAManager;
+import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.util.UtilMethod;
 import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
 import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
@@ -28,6 +30,19 @@ public class AnswerConversation extends StringPrompt {
         this.player = player;
     }
 
+    public AnswerConversation(long questionId, Player player) {
+        QARepository qaRepository = QAManager.getInstance().getQaRepository();
+
+        for (Question allQuestion : qaRepository.getAllQuestions()) {
+            if ( allQuestion.getId() == questionId ) {
+                this.question = allQuestion;
+            }
+        }
+
+
+        this.player = player;
+    }
+
     @NotNull
     @Override
     public String getPromptText(@NotNull ConversationContext conversationContext) {
@@ -46,8 +61,15 @@ public class AnswerConversation extends StringPrompt {
                 return null;
             }
 
-            NetworkManager networkManager = NetworkManager.getInstance();
             ConfigOption configOption = OptionManager.getInstance().getConfigOption();
+
+            if ( question == null ) {
+                player1.sendRawMessage(configOption.getInvalidQuestionNumber());
+                return null;
+            }
+
+            NetworkManager networkManager = NetworkManager.getInstance();
+
 
             PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(question.getId(), input, player);
             networkManager.sendPacket(playerTransientProceedingAnswerRequest, player1, targetPlayer -> {

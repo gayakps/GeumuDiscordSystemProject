@@ -1,6 +1,7 @@
 package gaya.pe.kr.velocity.minecraft.qa.question.manager;
 
 
+import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastClickableMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.data.QARequestResult;
@@ -301,9 +302,11 @@ public class QuestionManager {
             qaRequestResult.clearMessages(); // 전체 메세지를 사용하기 떄문에 개인적인 메세지는 보낼 필요가 없음
             ConfigOption configOption = ServerOptionManager.getInstance().getConfigOption();
             //    @RequirePlaceHolder(placeholders = {"%playername%", "%question_content%"})
-            BroadCastMessage broadCastMessage = new BroadCastMessage(configOption.getQuestionSuccessBroadcast()
+            BroadCastClickableMessage broadCastMessage = new BroadCastClickableMessage(configOption.getQuestionSuccessBroadcast()
                     .replace("%playername%", qaUserManager.getFullName(qaUser))
                     .replace("%question_content%", question.getContents())
+                    , "클릭 시 답변을 진행합니다"
+                    , "/답변 conversation "+question.getId()
             );
 
             NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송

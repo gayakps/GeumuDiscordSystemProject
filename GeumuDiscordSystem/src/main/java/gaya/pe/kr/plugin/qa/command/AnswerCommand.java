@@ -3,6 +3,7 @@ package gaya.pe.kr.plugin.qa.command;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
+import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.reactor.AllPlayerWaitingAnswerQuestionListReactor;
@@ -181,6 +182,22 @@ public class AnswerCommand implements CommandExecutor {
                             });
                         }
 
+                    }
+                    case "conversation": {
+
+                        String answerContent = UtilMethod.getOneLineString(args, 1);
+
+                        if ( answerContent.length() == 0 ) {
+                            player.sendMessage("§c답장을 입력해주세요");
+                            return false;
+                        }
+
+                        long questionId = Long.parseLong(args[1]);
+
+                        AnswerConversation answerConversation = new AnswerConversation(questionId, player);
+                        AnswerConversation.startConversation(answerConversation, player);
+
+                        break;
                     }
                 }
 

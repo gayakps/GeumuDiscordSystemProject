@@ -1,10 +1,7 @@
 package gaya.pe.kr.plugin.network.handler;
 
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.StartRewardGiving;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.*;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
@@ -35,10 +32,16 @@ import gaya.pe.kr.util.option.data.options.gui.*;
 import gaya.pe.kr.util.option.type.OptionType;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
@@ -291,6 +294,25 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 BroadCastMessage broadCastMessage = (BroadCastMessage) minecraftPacket;
                 for (String message : broadCastMessage.getMessages()) {
                     Bukkit.broadcastMessage(message.replace("&", "§"));
+                }
+
+                break;
+            }
+
+            case BROAD_CAST_CLICKABLE_MESSAGE: {
+
+                BroadCastClickableMessage broadCastClickableMessage = (BroadCastClickableMessage) minecraftPacket;
+
+                String hoverMessage = broadCastClickableMessage.getHoverMessage();
+                String message = broadCastClickableMessage.getMessage();
+                String command = broadCastClickableMessage.getCommand();
+
+                TextComponent textComponent = new TextComponent(ChatColor.translateAlternateColorCodes('&', message));
+                textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.translateAlternateColorCodes('&',hoverMessage)) ));
+                textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    onlinePlayer.spigot().sendMessage(textComponent);
                 }
 
                 break;

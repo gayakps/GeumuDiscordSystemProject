@@ -1,10 +1,7 @@
 package gaya.pe.kr.network.packet.global;
 
 import gaya.pe.kr.network.packet.startDirection.client.*;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.StartRewardGiving;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.*;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.*;
@@ -71,7 +68,9 @@ public enum PacketType {
 
     START_REWARD_GIVING(0x28, PacketStartDirection.SERVER, StartRewardGiving.class),
 
-    UPDATE_QA_USER_REQUEST(0x29, PacketStartDirection.CLIENT, UpdateQAUserRequest.class);
+    UPDATE_QA_USER_REQUEST(0x29, PacketStartDirection.CLIENT, UpdateQAUserRequest.class),
+
+    BROAD_CAST_CLICKABLE_MESSAGE(0x30, PacketStartDirection.SERVER, BroadCastClickableMessage.class);
 
 
 
