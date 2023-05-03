@@ -10,6 +10,7 @@ import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.client.AllQAUserDataRequest;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;

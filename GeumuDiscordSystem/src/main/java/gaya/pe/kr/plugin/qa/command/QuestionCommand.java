@@ -8,6 +8,7 @@ import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
 import gaya.pe.kr.plugin.util.UtilMethod;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import org.bukkit.command.Command;

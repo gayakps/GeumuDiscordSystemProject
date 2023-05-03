@@ -15,6 +15,7 @@ import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest
 import gaya.pe.kr.qa.answer.packet.client.TargetAnswerByQuestionIdRemoveRequest;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
+import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetQuestionRemoveRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import org.bukkit.command.Command;

@@ -7,6 +7,7 @@ import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import org.bukkit.Bukkit;

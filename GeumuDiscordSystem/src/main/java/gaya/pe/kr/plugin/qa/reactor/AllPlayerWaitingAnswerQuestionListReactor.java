@@ -10,6 +10,7 @@ import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.client.AllQAUserDataRequest;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -228,7 +229,6 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
                 break;
             }
             case 45: {
-                //TODO 주간 질문수 랭킹
                 getPlayer().closeInventory();
                 NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
                     WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
