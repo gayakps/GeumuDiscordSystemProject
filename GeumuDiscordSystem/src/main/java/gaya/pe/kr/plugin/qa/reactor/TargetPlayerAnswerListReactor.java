@@ -192,7 +192,6 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
             //    @RequirePlaceHolder(placeholders =
             //    {"%question_count_yesterday%", "%question_count_daily%", "%question_count_weekly%", "%question_count_monthly%", "%question_count_total%"})
 
-            int receivedRewardCount = targetPlayerQAUser.getRewardAmount();
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
             LocalDate weekStart = today.minusWeeks(1);
@@ -210,6 +209,8 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
             System.out.println("월간 답변 수: " + monthlyQuestions);
             System.out.println("전체 답변 질문 수: " + totalQuestions);
 
+            long receivedRewardCount = qaRepository.getQAUserAnswers(targetPlayerQAUser).stream().filter(answer -> !answer.isReceiveReward()).count();
+
             //    @RequirePlaceHolder( placeholders = {"%answer_count_yesterday%"
             //    , "%answer_count_daily%", "%answer_count_weekly%", "%answer_count_monthly%", "%answer_count_total%", "%reward_count%"})
             for (String s : playerAnswerListOption.getPlayerAnswerInfoLore()) {
@@ -219,7 +220,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
                         .replace("%answer_count_weekly%", Integer.toString(weeklyQuestions))
                         .replace("%answer_count_monthly%", Integer.toString(monthlyQuestions))
                         .replace("%answer_count_total%", Integer.toString(totalQuestions))
-                        .replace("%reward_count%", Integer.toString(receivedRewardCount))
+                        .replace("%reward_count%", Long.toString(receivedRewardCount))
                 );
             }
 

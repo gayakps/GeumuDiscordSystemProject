@@ -167,7 +167,7 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
             List<String> index49ItemLore = new ArrayList<>();
 
             List<Answer> answers = qaRepository.getQAUserAnswers(requestPlayerQAUser);
-            int receivedRewardCount = requestPlayerQAUser.getRewardAmount();
+            long receivedRewardCount = answers.stream().filter(answer -> !answer.isReceiveReward()).count();
 
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
@@ -193,7 +193,7 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
                         .replace("%answer_count_weekly%", Integer.toString(weeklyQuestions))
                         .replace("%answer_count_monthly%", Integer.toString(monthlyQuestions))
                         .replace("%answer_count_total%", Integer.toString(totalQuestions))
-                        .replace("%reward_count%", Integer.toString(receivedRewardCount))
+                        .replace("%reward_count%", Long.toString(receivedRewardCount))
                 );
             }
 

@@ -2,6 +2,7 @@ package gaya.pe.kr.plugin.qa.reactor;
 
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
+import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.reactor.ranking.DailyQuestionRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
@@ -278,7 +279,8 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
             default: {
                 if ( answerAbleQuestions.containsKey(clickedSlot) ) {
                     Question question = answerAbleQuestions.get(clickedSlot);
-                    // TODO 명령어 입력 /답변 (답변번호) (할말)
+                    AnswerConversation answerConversation = new AnswerConversation(question, getPlayer());
+                    AnswerConversation.startConversation(answerConversation, getPlayer());
                 }
                 break;
             }

@@ -105,7 +105,6 @@ public class DiscordManager {
             if ( allPlayer.getGameProfile().getName().equals(requestPlayerName) ) {
                 DiscordAuthentication discordAuthentication = new DiscordAuthentication(requestPlayerName, discordUser,120);
                 playerNameAsAuthentication.put(requestPlayerName, discordAuthentication);
-
                 return discordAuthentication;
             }
 
@@ -122,8 +121,19 @@ public class DiscordManager {
     public void addDiscordAuthenticationUser(DiscordAuthentication discordAuthentication) {
         long discordId = discordAuthentication.getDiscordUser().getIdLong();
         String playerName = discordAuthentication.getPlayerName();
-        QAUser qaUser = QAUserManager.getInstance().getUser(playerName);
-        qaUser.setDiscordPlayerUserId(discordId);
+
+        QAUser qaUser;
+
+        if (qaUserManager.existUser(playerName)) {
+            qaUser = qaUserManager.getUser(playerName);
+            qaUser.setDiscordPlayerUserId(discordId);
+        } else if (qaUserManager.existUser(discordId)) {
+            qaUser = qaUserManager.getUser(discordId);
+            qaUser.setGamePlayerName(playerName);
+        } else {
+            qaUser = new QAUser(playerName, discordId, UUID.randomUUID());
+        }
+
         qaUserManager.updateQAUser(qaUser, true);
     }
 

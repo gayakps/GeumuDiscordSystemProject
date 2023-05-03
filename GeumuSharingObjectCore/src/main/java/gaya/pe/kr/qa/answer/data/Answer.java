@@ -12,7 +12,6 @@ import java.util.Date;
 @ToString
 public class Answer {
 
-
     long answerId;
     long questionId;
     String contents;

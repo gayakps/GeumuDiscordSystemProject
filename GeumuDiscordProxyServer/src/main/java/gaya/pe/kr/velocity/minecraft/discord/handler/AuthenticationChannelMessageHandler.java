@@ -28,6 +28,13 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
         super(textChannel);
     }
 
+    /**
+     * 디스코드로부터 요청된 인증을 처리하는 과정임
+     * @see gaya.pe.kr.velocity.minecraft.network.handler.MinecraftClientPacketHandler 에서
+     * @see gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest 로 처리함
+     *
+     * @param event
+     */
     @Override
     protected void handleEvent(MessageReceivedEvent event) {
 
@@ -43,10 +50,6 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
         System.out.println(receivedMessageContent + " << 수신" + receivedMessageContent.startsWith(prefix));
 
-        if ( receivedMessageContent.isEmpty() || receivedMessageContent.isBlank() ) {
-            receivedMessageContent = "!인증 gaya_kps"; // TODO 제거 해야
-        }
-
         ConfigOption configOption = serverOptionManager.getConfigOption();
 
         if ( !receivedMessageContent.startsWith(prefix)) {
@@ -56,14 +59,11 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
         if ( receivedMessageContent.contains("!인증")) {
 
-
             String playerName = receivedMessageContent.replace("!인증", "").trim();
 
             try {
 
-                VelocityThreadUtil.delayTask(() -> {
-                    receivedMessage.delete().queue();
-                }, 3000);
+                VelocityThreadUtil.delayTask(() -> receivedMessage.delete().queue(), 3000);
 
                 if ( discordManager.isAuthenticationPlayer(playerName) ) {
                     user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
@@ -83,12 +83,10 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
                 for (String authenticationCodeGenerationSuccess : configOption.getAuthenticationCodeGenerationSuccess()) {
                     user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
-
                         privateChannel.sendMessage(authenticationCodeGenerationSuccess
                                 .replace("%authentication_code%", Long.toString(discordAuthentication.getCode()))
                                 .replace("%authentication_code_expire_time%", discordManager.getSimpleDateFormat().format(discordAuthentication.getExpiredDate()))
                         ).queue();
-
                     });
                 }
 
@@ -114,8 +112,6 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
                 });
 
             }
-
-
 
         }
     }

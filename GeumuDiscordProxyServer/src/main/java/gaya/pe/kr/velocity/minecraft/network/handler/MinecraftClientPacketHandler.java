@@ -85,6 +85,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
         switch (minecraftPacket.getType()) {
 
             case DISCORD_AUTHENTICATION_REQUEST: {
+                // 버킷 서버로 부터 인증 요청이 왔을 경우
                 DiscordAuthenticationRequest discordAuthenticationRequest = (DiscordAuthenticationRequest) minecraftPacket;
 
                 ConfigOption configOption = serverOptionManager.getConfigOption();
@@ -191,7 +192,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                                 PlayerRequestResponseAsClickableCommandChat playerRequestResponseAsClickableCommandChat = new PlayerRequestResponseAsClickableCommandChat(
                                         playerRecentQuestionAnswerRequest.getPlayerUUID(),
                                         playerRecentQuestionAnswerRequest.getPacketID(),
-                                        "/질문 ~~",
+                                        "/질문 목록 "+questioner.getGamePlayerName(),
                                         configOption.getAnswerSendFailAlreadyAnsweredRecentQuestionAndRemainOldQuestion().replace("%remain_question%", Integer.toString(questionableAmount)),
                                         configOption.getAnswerSendFailAlreadyAnsweredRecentQuestionAndRemainOldQuestionHoverMessage()
                                 );
@@ -210,7 +211,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                             PlayerRequestResponseAsClickableCommandChat playerRequestResponseAsClickableCommandChat = new PlayerRequestResponseAsClickableCommandChat(
                                     playerRecentQuestionAnswerRequest.getPlayerUUID(),
                                     playerRecentQuestionAnswerRequest.getPacketID(),
-                                    "/질문 ~~",
+                                    "/질문 목록 "+questioner.getGamePlayerName(),
                                     configOption.getAnswerSendFailNotExistRecentQuestionAndRemainOldQuestion(),
                                     configOption.getAnswerSendFailNotExistRecentQuestionAndRemainOldQuestionHoverMessage()
                             );

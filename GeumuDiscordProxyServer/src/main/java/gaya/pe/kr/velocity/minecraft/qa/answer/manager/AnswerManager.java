@@ -125,9 +125,6 @@ public class AnswerManager {
 
     private void answer(QARequestResult qaRequestResult, Question question, Answer answer) {
 
-        //TODO Question 에 대상 보상도 존재하기 떄문에
-        //TODO 디스코드 및 특정 채널에 메세지를 보내줘야함.
-
         DiscordManager discordManager = DiscordManager.getInstance();
         Message message = discordManager.sendMessage( String.format("%s\n%s",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getAuthChannel() );
 
@@ -175,7 +172,6 @@ public class AnswerManager {
             String answerQAUserUUIDStr = answer.getAnswerPlayer().getUuid().toString();
             Timestamp timestamp = new Timestamp(answer.getAnswerDate().getTime());
             boolean receivedToQuestionPlayer = finalQuestionerPlayer != null;
-
 
             preparedStatement.setLong(1, answerId);
             preparedStatement.setLong(2, questionId);
