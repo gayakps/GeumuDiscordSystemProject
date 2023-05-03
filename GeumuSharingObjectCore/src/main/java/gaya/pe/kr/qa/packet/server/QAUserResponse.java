@@ -1,7 +1,8 @@
-package gaya.pe.kr.network.packet.startDirection.server.response;
+package gaya.pe.kr.qa.packet.server;
 
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
+import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.qa.data.QAUser;
 import lombok.Getter;
 

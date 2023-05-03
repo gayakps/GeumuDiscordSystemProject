@@ -119,8 +119,7 @@ public class QAUserManager {
         }
 
         QAUser qaUser = new QAUser(playerName);
-        updateQAUser(qaUser);
-
+        updateQAUser(qaUser, false);
         return qaUser;
 
     }
@@ -134,7 +133,7 @@ public class QAUserManager {
         }
 
         QAUser qaUser = new QAUser(DiscordManager.getInstance().getJda().getUserById(discordId));
-        updateQAUser(qaUser);
+        updateQAUser(qaUser, false); // 중복되면 위에서 이미 걸림
 
         return qaUser;
     }
@@ -159,53 +158,58 @@ public class QAUserManager {
     }
 
 
-    public void updateQAUser(QAUser qaUser) {
+    public void updateQAUser(QAUser qaUser, boolean duplicatedRemove ) {
 
-        QAUser removeTargetQAUser = null;
+        if ( duplicatedRemove ) {
+            QAUser removeTargetQAUser = null;
 
-        long paramDiscordPlayerUserId = qaUser.getDiscordPlayerUserId();
-        String qaUserGamePlayerName = qaUser.getGamePlayerName();
+            long paramDiscordPlayerUserId = qaUser.getDiscordPlayerUserId();
+            String qaUserGamePlayerName = qaUser.getGamePlayerName();
 
-        // Discord ID와 Game Player Name이 기존 사용자와 중복되는 경우, 사용자를 제거
-        if ( paramDiscordPlayerUserId != -1 && existUser(paramDiscordPlayerUserId)) {
+            // Discord ID와 Game Player Name이 기존 사용자와 중복되는 경우, 사용자를 제거
+            if ( paramDiscordPlayerUserId != -1 && existUser(paramDiscordPlayerUserId)) {
 
-            for (QAUser user : userHashSet) {
-                if ( user.getDiscordPlayerUserId() == paramDiscordPlayerUserId ) {
-                    removeTargetQAUser = user;
-                    break;
+                for (QAUser user : userHashSet) {
+                    if ( user.getDiscordPlayerUserId() == paramDiscordPlayerUserId ) {
+                        removeTargetQAUser = user;
+                        break;
+                    }
+                }
+
+            } else if ( existUser(qaUserGamePlayerName) ) {
+                for (QAUser user : userHashSet) {
+                    if (qaUserGamePlayerName.equals(user.getGamePlayerName())) {
+                        removeTargetQAUser = user;
+                        break;
+                    }
                 }
             }
 
-        } else if ( existUser(qaUserGamePlayerName) ) {
-            for (QAUser user : userHashSet) {
-                if (qaUserGamePlayerName.equals(user.getGamePlayerName())) {
-                    removeTargetQAUser = user;
-                    break;
+            // 중복 사용자가 존재하면 HashSet에서 제거
+            if (removeTargetQAUser != null) {
+
+                boolean result = DBConnection.taskTransaction(connection -> {
+                    String uuid = qaUser.getUuid().toString();
+                    String sql = "DELETE FROM `pixelmon_01_answer`.`user_profiles`\n" +
+                            "WHERE UUID = ?;\n";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, uuid);
+                    preparedStatement.executeUpdate();
+
+                });
+
+                if ( result ) {
+                    userHashSet.remove(removeTargetQAUser);
+                    QuestionManager questionManager = QuestionManager.getInstance();
+                    questionManager.getQAUserQuestions(removeTargetQAUser).clear();
+                    AnswerManager answerManager = AnswerManager.getInstance();
+                    answerManager.getQAUserAnswers(removeTargetQAUser).clear();
                 }
+
             }
         }
 
-        // 중복 사용자가 존재하면 HashSet에서 제거
-        if (removeTargetQAUser != null) {
-
-            boolean result = DBConnection.taskTransaction(connection -> {
-                String uuid = qaUser.getUuid().toString();
-                String sql = "DELETE FROM `pixelmon_01_answer`.`user_profiles`\n" +
-                        "WHERE UUID = ?;\n";
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString(1, uuid);
-                preparedStatement.executeUpdate();
-
-            });
-
-            if ( result ) {
-                userHashSet.remove(removeTargetQAUser);
-            }
-
-        }
-
-        boolean result = DBConnection.taskTransaction(connection -> {
-            //TODO 데이터베이스에 QAUser 를 input Or Update 하는 과정을 추가 해야함
+        DBConnection.taskTransaction(connection -> {
 
             String sql = "INSERT INTO `pixelmon_01_answer`.`user_profiles` " +
                     "(`player_name`, `discord_user_id`, `reward_amount`, `UUID`) " +

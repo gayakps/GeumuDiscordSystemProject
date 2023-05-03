@@ -1,6 +1,5 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
-import gaya.pe.kr.network.packet.startDirection.client.AllQAUserDataRequest;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;

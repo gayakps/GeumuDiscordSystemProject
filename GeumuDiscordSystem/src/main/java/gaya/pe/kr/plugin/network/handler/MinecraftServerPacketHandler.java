@@ -1,11 +1,15 @@
 package gaya.pe.kr.plugin.network.handler;
 
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.StartRewardGiving;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
+import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
@@ -16,6 +20,8 @@ import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.data.QAUser;
+import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
+import gaya.pe.kr.qa.packet.client.UpdateQAUserRequest;
 import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.packet.type.QAModifyType;
@@ -33,8 +39,7 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * 서버로 부터 전송된 패킷을 처리 하는 곳
@@ -277,8 +282,80 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
             }
 
+            case BROADCAST_MESSAGE:{
 
-                
+                BroadCastMessage broadCastMessage = (BroadCastMessage) minecraftPacket;
+                for (String message : broadCastMessage.getMessages()) {
+                    Bukkit.broadcastMessage(message.replace("&", "§"));
+                }
+
+                break;
+            }
+
+            case START_REWARD_GIVING: {
+                StartRewardGiving startRewardGiving = (StartRewardGiving) minecraftPacket;
+
+                NetworkManager networkManager = NetworkManager.getInstance();
+                ConfigOption configOption = OptionManager.getInstance().getConfigOption();
+
+
+
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+
+                    TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(
+                            new String[]{onlinePlayer.getName()}, onlinePlayer, true
+                    );
+
+                    networkManager.sendDataExpectResponse(targetQAUserDataRequest, onlinePlayer, QAUser[].class, (player, qaUsers) -> {
+
+                        QAUser qaUser = qaUsers[0];
+
+                        int rewardAmount = qaUser.getRewardAmount();
+
+                        if ( rewardAmount > 0 ) {
+
+                            qaUser.clearRewardAmount();
+
+                            UpdateQAUserRequest updateQAUserRequest = new UpdateQAUserRequest(new QAUser[]{qaUser});
+
+                            networkManager.sendPacket(updateQAUserRequest, onlinePlayer, player1 -> {
+
+                                for ( int a = 0; a < rewardAmount; a++ ) {
+                                    for (String s : configOption.getRewardCommand()) {
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%playername%", onlinePlayer.getName()));
+                                    }
+                                    player.sendMessage(configOption.getRewardPaymentSuccessBroadcast().replace("&", "§"));
+                                }
+
+                            });
+                        }
+
+
+
+
+                    });
+
+
+
+
+                }
+
+
+                break;
+            }
+            case TARGET_PLAYER_CHAT: {
+
+                TargetPlayerChat targetPlayerChat = (TargetPlayerChat) minecraftPacket;
+                String targetPlayerName = targetPlayerChat.getTargetPlayerName();
+                Player player = Bukkit.getPlayer(targetPlayerName);
+                if ( player != null ) {
+                    for (String message : targetPlayerChat.getMessages()) {
+                        player.sendMessage(message.replace("&", "§"));
+                    }
+                }
+                break;
+            }
+
             default:
                 // 알 수 없는 패킷 처리
                 break;

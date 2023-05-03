@@ -2,7 +2,6 @@ package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
-import gaya.pe.kr.network.packet.startDirection.client.TargetQAUserDataRequest;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;

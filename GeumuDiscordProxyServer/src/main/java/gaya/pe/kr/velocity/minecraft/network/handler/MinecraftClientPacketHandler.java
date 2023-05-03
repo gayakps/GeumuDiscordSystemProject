@@ -2,23 +2,19 @@ package gaya.pe.kr.velocity.minecraft.network.handler;
 
 import gaya.pe.kr.network.packet.startDirection.client.*;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
-import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.*;
 import gaya.pe.kr.qa.answer.data.Answer;
-import gaya.pe.kr.qa.answer.packet.client.PlayerRecentQuestionAnswerRequest;
-import gaya.pe.kr.qa.answer.packet.client.PlayerTransientProceedingAnswerRequest;
-import gaya.pe.kr.qa.answer.packet.client.TargetAnswerByQuestionIdRemoveRequest;
-import gaya.pe.kr.qa.answer.packet.client.TargetPlayerGetAnswerRequest;
+import gaya.pe.kr.qa.answer.packet.client.*;
 import gaya.pe.kr.qa.answer.packet.server.AnswerListResponse;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
-import gaya.pe.kr.qa.packet.client.PlayerRewardRequest;
-import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
-import gaya.pe.kr.qa.packet.server.QAListResponse;
+import gaya.pe.kr.qa.packet.client.*;
+import gaya.pe.kr.qa.packet.server.QAUserResponse;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.QuestionModifyRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetPlayerGetQuestionRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetQuestionRemoveRequest;
 import gaya.pe.kr.qa.question.packet.server.QuestionListResponse;
@@ -39,6 +35,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -141,7 +138,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
             }
             case PLAYER_TRANSIENT_PROCEEDING_ANSWER_REQUEST: {
-                //TODO 질문 요청
                 PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = (PlayerTransientProceedingAnswerRequest) minecraftPacket;
                 QARequestResult qaRequestResult = answerManager.processAnswer(playerTransientProceedingAnswerRequest);
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerTransientProceedingAnswerRequest.getPlayerUUID(), playerTransientProceedingAnswerRequest.getPacketID());
@@ -158,6 +154,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerRecentQuestionAnswerRequest.getPlayerUUID(), playerRecentQuestionAnswerRequest.getPacketID());
 
                 if ( qaUserManager.existUser(playerRecentQuestionAnswerRequest.getTargetPlayerName())) {
+
                     //TODO 질문자가 존재하기 떄문에 최근 질문 등등을 가져와야함
 
                     QAUser questioner = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getTargetPlayerName()); // 질문자
@@ -177,11 +174,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                                     playerRecentQuestionAnswerRequest.getPlayerUUID()
                             );
                             QARequestResult qaRequestResult = answerManager.processAnswer(playerTransientProceedingAnswerRequest);
-
-                            if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
-                                // 답변 성공
-                            }
-
                             response.addMessage(qaRequestResult.getMessage());
 
                         } else {
@@ -411,7 +403,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 if ( qaUserManager.existUser(targetPlayerName) ) {
                     QAUser qaUser = qaUserManager.getUser(targetPlayerName);
                     qaUser.clearRewardAmount();
-                    qaUserManager.updateQAUser(qaUser);
+                    qaUserManager.updateQAUser(qaUser, false);
                     response.addMessage(configOption.getRemoveRewardSuccess().replace("%playername%", targetPlayerName));
                 } else {
                     response.addMessage(configOption.getInvalidPlayerName());
@@ -446,11 +438,18 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 break;
             }
-            case ANSWER_MODIFY_REQUEST: {
+            case QUESTION_MODIFY_REQUEST: {
+                QuestionModifyRequest questionModifyRequest = (QuestionModifyRequest) minecraftPacket;
+                for (Question question : questionModifyRequest.getQuestions()) {
+                    questionManager.modifyQuestionData(question, questionModifyRequest.getQaModifyType());
+                }
                 break;
             }
-            case QUESTION_MODIFY_REQUEST: {
-                break;
+            case UPDATE_QA_USER_REQUEST: {
+                UpdateQAUserRequest updateQAUserRequest = (UpdateQAUserRequest) minecraftPacket;
+                for (QAUser qaUser : updateQAUserRequest.getQaUsers()) {
+                    qaUserManager.updateQAUser(qaUser, false);
+                }
             }
             default:
                 // 알 수 없는 패킷 처리

@@ -3,14 +3,14 @@ package gaya.pe.kr.network.packet.global;
 import gaya.pe.kr.network.packet.startDirection.client.*;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.BroadCastMessage;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.ScatterServerPlayers;
+import gaya.pe.kr.network.packet.startDirection.server.non_response.StartRewardGiving;
 import gaya.pe.kr.network.packet.startDirection.server.non_response.TargetPlayerChat;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponseAsObject;
 import gaya.pe.kr.network.packet.startDirection.server.response.ServerOption;
 import gaya.pe.kr.qa.answer.packet.client.*;
 import gaya.pe.kr.network.packet.startDirection.server.response.AbstractPlayerRequestResponse;
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
-import gaya.pe.kr.qa.packet.client.PlayerRewardRequest;
-import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
+import gaya.pe.kr.qa.packet.client.*;
 import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
@@ -25,7 +25,6 @@ import java.util.HashMap;
 public enum PacketType {
 
     BROADCAST_MESSAGE(0x01, PacketStartDirection.SERVER, BroadCastMessage.class),
-    MINECRAFT_OPTION(0x02, PacketStartDirection.SERVER, BroadCastMessage.class),
     MINECRAFT_OPTION_RELOAD_REQUEST(0x03, PacketStartDirection.CLIENT, MinecraftOptionReloadRequest.class),
 
     PLAYER_REQUEST_RESPONSE_AS_OBJECT(0x4, PacketStartDirection.SERVER, AbstractPlayerRequestResponseAsObject.class),
@@ -68,7 +67,11 @@ public enum PacketType {
     PLAYER_REWARD_REQUEST(0x25, PacketStartDirection.CLIENT, PlayerRewardRequest.class),
 
     ANSWER_MODIFY_REQUEST(0x26, PacketStartDirection.CLIENT, AnswerModifyRequest.class),
-    QUESTION_MODIFY_REQUEST(0x27, PacketStartDirection.CLIENT, QuestionModifyRequest.class);
+    QUESTION_MODIFY_REQUEST(0x27, PacketStartDirection.CLIENT, QuestionModifyRequest.class),
+
+    START_REWARD_GIVING(0x28, PacketStartDirection.SERVER, StartRewardGiving.class),
+
+    UPDATE_QA_USER_REQUEST(0x29, PacketStartDirection.CLIENT, UpdateQAUserRequest.class);
 
 
 

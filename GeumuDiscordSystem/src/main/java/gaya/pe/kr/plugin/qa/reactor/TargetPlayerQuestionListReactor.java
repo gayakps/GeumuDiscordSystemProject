@@ -1,6 +1,5 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
-import gaya.pe.kr.network.packet.startDirection.client.AllQAUserDataRequest;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
@@ -14,8 +13,6 @@ import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
-import gaya.pe.kr.util.option.data.options.gui.CommonlyUsedButtonOption;
-import gaya.pe.kr.util.option.data.options.gui.PlayerAnswerListOption;
 import gaya.pe.kr.util.option.data.options.gui.PlayerQuestionListOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

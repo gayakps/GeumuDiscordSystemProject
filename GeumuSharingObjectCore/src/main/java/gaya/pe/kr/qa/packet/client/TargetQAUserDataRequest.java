@@ -1,9 +1,7 @@
-package gaya.pe.kr.network.packet.startDirection.client;
+package gaya.pe.kr.qa.packet.client;
 
-import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPlayerRequestPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
-import gaya.pe.kr.qa.data.QAUser;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 

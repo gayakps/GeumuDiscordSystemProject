@@ -1,11 +1,8 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
-import gaya.pe.kr.network.packet.startDirection.client.AllQAUserDataRequest;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
-import gaya.pe.kr.plugin.qa.manager.QAManager;
-import gaya.pe.kr.plugin.qa.reactor.ranking.DailyQuestionRankingReactor;
 import gaya.pe.kr.plugin.qa.reactor.ranking.WeeklyAnswerRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;

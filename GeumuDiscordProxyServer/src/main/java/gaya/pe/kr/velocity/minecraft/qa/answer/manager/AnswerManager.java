@@ -174,7 +174,6 @@ public class AnswerManager {
             Timestamp timestamp = new Timestamp(answer.getAnswerDate().getTime());
             boolean receivedToQuestionPlayer = finalQuestionerPlayer != null;
 
-
             preparedStatement.setLong(1, answerId);
             preparedStatement.setLong(2, questionId);
             preparedStatement.setString(3, answerContents);
@@ -233,10 +232,10 @@ public class AnswerManager {
                 ); // 답변자에게 전달
             }
 
-
-
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
             getQAUserAnswers(answerUser).add(answer);
+            answerUser.addRewardAmount(); // 보상 추가
+            QAUserManager.getInstance().updateQAUser(questionUser, false); // 업데이트
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
 
@@ -247,6 +246,7 @@ public class AnswerManager {
         }
 
     }
+
 
     public QARequestResult processAnswer(PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest) {
 

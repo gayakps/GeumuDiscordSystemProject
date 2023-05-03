@@ -328,7 +328,6 @@ public class QuestionManager {
             }
             case REMOVE: {
 
-
                 DBConnection.taskTransaction(connection -> {
 
                     String sql = "DELETE FROM `pixelmon_01_answer`.`questions`\n" +
@@ -343,7 +342,6 @@ public class QuestionManager {
                 break;
             }
             case MODIFY: {
-
 
                 DBConnection.taskTransaction(connection -> {
 
@@ -386,7 +384,6 @@ public class QuestionManager {
 
                 });
 
-                //TODO DB 처리
             }
         }
 

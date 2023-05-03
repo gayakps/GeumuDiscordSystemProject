@@ -124,7 +124,7 @@ public class DiscordManager {
         String playerName = discordAuthentication.getPlayerName();
         QAUser qaUser = QAUserManager.getInstance().getUser(playerName);
         qaUser.setDiscordPlayerUserId(discordId);
-        qaUserManager.updateQAUser(qaUser);
+        qaUserManager.updateQAUser(qaUser, true);
     }
 
 

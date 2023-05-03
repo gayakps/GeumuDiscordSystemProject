@@ -1,15 +1,12 @@
 package gaya.pe.kr.plugin.player.listener;
 
-import gaya.pe.kr.network.packet.startDirection.client.TargetQAUserDataRequest;
 import gaya.pe.kr.network.packet.startDirection.client.UpdatePlayerList;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
-import gaya.pe.kr.plugin.qa.reactor.TargetPlayerAnswerListReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.data.QAUser;
-import gaya.pe.kr.qa.packet.client.PlayerRewardRequest;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
 import org.bukkit.Bukkit;
