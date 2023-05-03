@@ -4,6 +4,9 @@ import gaya.pe.kr.network.connection.initializer.MinecraftServerInitializer;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
 import gaya.pe.kr.velocity.minecraft.network.handler.MinecraftClientPacketHandler;
+import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
+import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
+import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -44,6 +47,10 @@ public class NetworkManager {
                 ChannelFuture future = bootstrap.bind(8080).sync();
 
                 System.out.println("Server started on port " + 8080);
+
+                QAUserManager qaUserManager = QAUserManager.getInstance();
+                qaUserManager.init();
+
                 future.channel().closeFuture().sync();
             } catch (Exception e) {
                 e.printStackTrace();

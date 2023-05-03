@@ -48,8 +48,6 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
 
         if ( messageType.equals(MessageType.INLINE_REPLY ) ) {
 
-            //TODO 디스코드 내에서 답장 기능 = 디스코드 답장을 의미함
-
             if ( !qaUserManager.existUser(sendUserId) ) {
                 discordManager.sendMessageAndRemove(event.getChannel(), "``` 미 인증 유저는 답변할 수 없습니다 ```", 3000, true, receivedMessage);
                 return;

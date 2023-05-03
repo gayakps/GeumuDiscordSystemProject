@@ -59,8 +59,7 @@ public class ServerOptionManager {
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
             DBConnection.init(configOption);
-            discordManager.init();
-            networkManager.init();
+
         } catch ( Exception e) {
             e.printStackTrace();
         }

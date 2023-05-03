@@ -79,13 +79,13 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
                     return;
                 }
 
-                DiscordAuthentication discordAuthentication = discordManager.generateDiscordAuthentication(playerName, userId);
+                DiscordAuthentication discordAuthentication = discordManager.generateDiscordAuthentication(playerName, user);
 
                 for (String authenticationCodeGenerationSuccess : configOption.getAuthenticationCodeGenerationSuccess()) {
                     user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
 
                         privateChannel.sendMessage(authenticationCodeGenerationSuccess
-                                .replace("%authentication_code%", Long.toString(discordAuthentication.getDiscordId()))
+                                .replace("%authentication_code%", Long.toString(discordAuthentication.getCode()))
                                 .replace("%authentication_code_expire_time%", discordManager.getSimpleDateFormat().format(discordAuthentication.getExpiredDate()))
                         ).queue();
 

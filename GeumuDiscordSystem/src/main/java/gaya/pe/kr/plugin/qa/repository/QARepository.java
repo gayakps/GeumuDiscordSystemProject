@@ -121,17 +121,13 @@ public class QARepository {
                 itemUser = ((Answer) value).getAnswerPlayer();
             }
 
-            if ( itemUser == null ) break;
+            if (itemUser == null) break;
 
             boolean add = false;
 
-            if (qaUser.getGamePlayerName() != null) {
-                if (itemUser.getGamePlayerName() != null) {
-                    if (itemUser.getGamePlayerName().equals(qaUser.getGamePlayerName())) {
-                        result.add(value);
-                        add = true;
-                    }
-                }
+            if (itemUser.getGamePlayerName().equals(qaUser.getGamePlayerName())) {
+                result.add(value);
+                add = true;
             }
 
             if (!add) {

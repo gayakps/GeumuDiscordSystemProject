@@ -346,16 +346,17 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                     response.addMessage(configOption.getRemoveASuccessRemovePerson().replace("%question_number%", Long.toString(questId)));
                     QAUser removeAnswerQAUser = removeAnswer.getAnswerPlayer();
-                    if ( removeAnswerQAUser.getGamePlayerName() != null ) {
-                        Channel targetPlayerChannel = PlayerListHandler.getPlayerAsChannel(removeAnswerQAUser.getGamePlayerName());
-                        TargetPlayerChat targetPlayerChat = new TargetPlayerChat( removeAnswerQAUser.getGamePlayerName(),
+                    Channel targetPlayerChannel = PlayerListHandler.getPlayerAsChannel(removeAnswerQAUser.getGamePlayerName());
+
+                    if (targetPlayerChannel != null) {
+                        TargetPlayerChat targetPlayerChat = new TargetPlayerChat(removeAnswerQAUser.getGamePlayerName(),
                                 configOption.getRemoveASuccessHasBeenRemovedPerson()
                                         .replace("%playername%", targetAnswerByQuestionIdRemoveRequest.getPlayerName())
                                         .replace("%question_number%", Long.toString(questId))
                         );
                         sendPacket(targetPlayerChannel, targetPlayerChat); // 특정 플레이어에게 데이터 전송
-
                     }
+
                 } else {
                     response.addMessage(configOption.getRemoveAFailNotExist());
                 }
@@ -380,16 +381,17 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                     QAUser removeQuestionQAUser = removeQuestion.getQaUser();
 
-                    if ( removeQuestionQAUser.getGamePlayerName() != null ) {
-                        Channel targetPlayerChannel = PlayerListHandler.getPlayerAsChannel(removeQuestion.getQaUser().getGamePlayerName());
-                        TargetPlayerChat targetPlayerChat = new TargetPlayerChat( removeQuestionQAUser.getGamePlayerName(),
+                    Channel targetPlayerChannel = PlayerListHandler.getPlayerAsChannel(removeQuestion.getQaUser().getGamePlayerName());
+
+                    if (targetPlayerChannel != null) {
+                        TargetPlayerChat targetPlayerChat = new TargetPlayerChat(removeQuestionQAUser.getGamePlayerName(),
                                 configOption.getRemoveQSuccessHasBeenRemovedPerson()
-                                .replace("%playername%", targetQuestionRemoveRequest.getPlayerName())
-                                .replace("%question_number%", Long.toString(questId))
+                                        .replace("%playername%", targetQuestionRemoveRequest.getPlayerName())
+                                        .replace("%question_number%", Long.toString(questId))
                         );
                         sendPacket(targetPlayerChannel, targetPlayerChat); // 특정 플레이어에게 데이터 전송
-
                     }
+
                 } else {
                     response.addMessage(configOption.getInvalidQuestionNumber());
                 }
@@ -445,7 +447,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 break;
             }
             case ANSWER_MODIFY_REQUEST: {
-                questionManager.modi
                 break;
             }
             case QUESTION_MODIFY_REQUEST: {

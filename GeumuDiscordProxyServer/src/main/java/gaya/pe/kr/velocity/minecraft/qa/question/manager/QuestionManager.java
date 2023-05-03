@@ -19,14 +19,15 @@ import gaya.pe.kr.velocity.database.DBConnection;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.network.manager.NetworkManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
+import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.*;
 
 public class QuestionManager {
 
@@ -43,6 +44,60 @@ public class QuestionManager {
     ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
     QAUserManager qaUserManager = QAUserManager.getInstance();
 
+
+    public void init() {
+        DBConnection.taskTransaction(connection -> {
+            QAUserManager qaUserManager = QAUserManager.getInstance();
+
+            String sql = "SELECT `questions`.`id`,\n" +
+                    "    `questions`.`qauser_uuid`,\n" +
+                    "    `questions`.`contents`,\n" +
+                    "    `questions`.`question_date`,\n" +
+                    "    `questions`.`discord_message_number`,\n" +
+                    "    `questions`.`answer`\n" +
+                    "FROM `pixelmon_01_answer`.`questions`;\n";
+
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while ( resultSet.next() ) {
+
+                long questionId = resultSet.getLong(1);
+                String questionUserUUID = resultSet.getString(2);
+                String contents = resultSet.getString(3);
+                Date questionDate = resultSet.getDate(4);
+                long discordMessageNumber = resultSet.getLong(5);
+                boolean answer = resultSet.getBoolean(6);
+
+                UUID uuid = UUID.fromString(questionUserUUID);
+                if ( qaUserManager.existUser(uuid) ) {
+                    QAUser qaUser = qaUserManager.getQAUserByUUID(uuid);
+                    Question question = new Question(questionId, qaUser, contents, questionDate, discordMessageNumber, answer);
+                    questIdByQuestHashMap.put(questionId, question);
+                    System.out.println(question.toString() + " ADD ----------------");
+                }
+
+            }
+
+            for (QAUser qaUser : qaUserManager.getAllQAUsers()) {
+                List<Question> questions = getQAUserQuestions(qaUser);
+
+                for (Question value : questIdByQuestHashMap.values()) {
+                    if ( value.getQaUser().equals(qaUser) ) {
+                        questions.add(value);
+                        System.out.printf("%s : %d ADD\n%n", qaUser.getGamePlayerName(), value.getId());
+                    }
+                }
+
+            }
+
+            AnswerManager answerManager = AnswerManager.getInstance();
+            answerManager.init();
+
+        });
+    }
 
     public boolean existQuest(long questId) {
         return questIdByQuestHashMap.containsKey(questId);
@@ -64,7 +119,8 @@ public class QuestionManager {
     }
 
     public Question addQuestion(Question question) {
-
+        broadCastQuestion(question, null);
+        return question;
     }
 
     public boolean existQuestionByDiscordMessageId(Long messageId) {
@@ -188,9 +244,7 @@ public class QuestionManager {
 
         for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
             if ( patternMatcher.isMatch(content) ) {
-                //TODO 자동 답변 필터링에 걸림
                 String answer = patternMatcher.getMessage();
-
                 qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
                         .replace("%playername%", configOption.getAnswerPlayerNamePlaceholderAutoAnswer())
                         .replace("%answer%", answer)
@@ -209,7 +263,11 @@ public class QuestionManager {
 
     }
 
-    private void broadCastQuestion(Question question, QARequestResult qaRequestResult) {
+    private void broadCastQuestion(Question question, @Nullable QARequestResult qaRequestResult) {
+
+        if ( qaRequestResult == null ) {
+            qaRequestResult = new QARequestResult();
+        }
 
         DiscordManager discordManager = DiscordManager.getInstance();
         Message message = discordManager.sendMessage( getQuestionFormat(question) , discordManager.getAuthChannel() ); // 디스코드 전체 전송
@@ -220,11 +278,25 @@ public class QuestionManager {
         question.setDiscordMessageId(messageId); // 전체적으로 질문 전송
 
         boolean databaseResult = DBConnection.taskTransaction( connection -> {
-            //TODO DB에 데이터 삽입
+
+            String sql = "INSERT INTO `pixelmon_01_answer`.`questions`" +
+                    "(`id`, `qauser_uuid`, `contents`, `question_date`, `discord_message_number`, `answer`)" +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setLong(1, question.getId());
+            preparedStatement.setString(2, question.getQaUser().getUuid().toString());
+            preparedStatement.setString(3, question.getContents());
+            preparedStatement.setTimestamp(4, new Timestamp(question.getQuestionDate().getTime()));
+            preparedStatement.setLong(5, question.getDiscordMessageId());
+            preparedStatement.setBoolean(6, question.isAnswer());
+
+            preparedStatement.executeUpdate();
+
         });
 
         if ( databaseResult ) {
-            //TODO 전체 서버로 전송
             qaRequestResult.setType(QARequestResult.Type.SUCCESS);
             qaRequestResult.clearMessages(); // 전체 메세지를 사용하기 떄문에 개인적인 메세지는 보낼 필요가 없음
             ConfigOption configOption = ServerOptionManager.getInstance().getConfigOption();
@@ -251,22 +323,79 @@ public class QuestionManager {
 
         switch ( qaModifyType ) {
             case ADD:{
+                addQuestion(question);
                 break;
             }
             case REMOVE: {
+
+
+                DBConnection.taskTransaction(connection -> {
+
+                    String sql = "DELETE FROM `pixelmon_01_answer`.`questions`\n" +
+                            "WHERE id = ?;\n";
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setLong(1, question.getId());
+                    preparedStatement.executeUpdate();
+                    removeQuestionByQuestId(question.getId());
+
+                });
+
                 break;
             }
             case MODIFY: {
 
+
+                DBConnection.taskTransaction(connection -> {
+
+                    String sql = "INSERT INTO `pixelmon_01_answer`.`questions` " +
+                            "(`id`, `qauser_uuid`, `contents`, `question_date`, `discord_message_number`, `answer`) " +
+                            "VALUES (?, ?, ?, ?, ?, ?) " +
+                            "ON DUPLICATE KEY UPDATE " +
+                            "`qauser_uuid` = ?, " +
+                            "`contents` = ?, " +
+                            "`question_date` = ?, " +
+                            "`discord_message_number` = ?, " +
+                            "`answer` = ?;";
+
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+
+                    long questionId = question.getId();
+                    String uuid = question.getQaUser().getUuid().toString();
+                    String contents = question.getContents();
+                    Timestamp timestamp = new Timestamp(question.getQuestionDate().getTime());
+                    long discordMessage = question.getDiscordMessageId();
+                    boolean answer = question.isAnswer();
+
+                        preparedStatement.setLong(1, questionId);
+                    preparedStatement.setString(2, uuid);
+                    preparedStatement.setString(3, contents);
+                    preparedStatement.setTimestamp(4, timestamp);
+                    preparedStatement.setLong(5, discordMessage);
+                    preparedStatement.setBoolean(6, answer);
+
+                    preparedStatement.setString(7, uuid);
+                    preparedStatement.setString(8, contents);
+                    preparedStatement.setTimestamp(9,timestamp);
+                    preparedStatement.setLong(10, discordMessage);
+                    preparedStatement.setBoolean(11, answer);
+
+                    preparedStatement.executeUpdate();
+
+                    updateQuestionData(question);
+
+                });
+
+                //TODO DB 처리
             }
         }
 
-        if ( qaModifyType.equals(QAModifyType.ADD) ) {
+    }
 
-            addQuestion(question)
-        } else {
-            removeQuestionByQuestId(question.getId());
-        }
+    public void updateQuestionData(Question question) {
+
+        NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
+        questIdByQuestHashMap.put(question.getId(), question);
 
     }
 

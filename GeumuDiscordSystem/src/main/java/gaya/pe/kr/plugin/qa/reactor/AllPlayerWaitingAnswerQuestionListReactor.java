@@ -167,13 +167,8 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
             List<String> index49ItemLore = new ArrayList<>();
 
             List<Answer> answers = qaRepository.getQAUserAnswers(requestPlayerQAUser);
-            int receivedRewardCount = 0;
+            int receivedRewardCount = requestPlayerQAUser.getRewardAmount();
 
-            for (Answer answer : answers ) {
-                if (!answer.isReceivedReward()) {
-                    receivedRewardCount++;
-                }
-            }
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
             LocalDate weekStart = today.minusWeeks(1);

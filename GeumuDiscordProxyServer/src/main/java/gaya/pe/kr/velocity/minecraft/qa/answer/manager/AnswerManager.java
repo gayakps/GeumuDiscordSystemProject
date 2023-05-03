@@ -29,13 +29,15 @@ import net.dv8tion.jda.api.entities.Message;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.checkerframework.checker.units.qual.A;
+import org.sqlite.core.DB;
 import org.w3c.dom.Text;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class AnswerManager {
@@ -57,6 +59,65 @@ public class AnswerManager {
     QuestionManager questionManager = QuestionManager.getInstance();
 
     public void init() {
+
+        DBConnection.taskTransaction(connection -> {
+
+            QAUserManager qaUserManager = QAUserManager.getInstance();
+
+
+            String sql = "SELECT `answers`.`id`,\n" +
+                    "    `answers`.`question_id`,\n" +
+                    "    `answers`.`contents`,\n" +
+                    "    `answers`.`answer_qauser_uuid`,\n" +
+                    "    `answers`.`answer_date`,\n" +
+                    "    `answers`.`receive_to_question_player`\n" +
+                    "FROM `pixelmon_01_answer`.`answers`;\n";
+
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while ( resultSet.next() ) {
+
+                long answerId = resultSet.getLong(1);
+                long questionId = resultSet.getLong(2);
+                String contents = resultSet.getString(3);
+                String answerQAUserUUIDStr = resultSet.getString(4);
+                Date answerDate = resultSet.getDate(5);
+                boolean receivedToQuestionPlayer = resultSet.getBoolean(6);
+
+                UUID uuid = UUID.fromString(answerQAUserUUIDStr);
+                if ( qaUserManager.existUser(uuid) ) {
+
+                    QAUser answerUser = qaUserManager.getQAUserByUUID(uuid);
+
+                    if ( questionManager.existQuest(questionId) ) {
+                        Answer answer = new Answer(answerId, questionId, contents, answerUser, answerDate, receivedToQuestionPlayer);
+                        answerIdByAnswerHashMap.put(answerId, answer);
+                        System.out.println(answer.toString() + " ADDD -----------");
+                    }
+
+                }
+
+            }
+
+
+            for (QAUser qaUser : qaUserManager.getAllQAUsers()) {
+                List<Answer> answers = getQAUserAnswers(qaUser);
+
+                for (Answer value : answerIdByAnswerHashMap.values()) {
+                    if ( value.getAnswerPlayer().equals(qaUser) ) {
+                        answers.add(value);
+                        System.out.printf("%s : %d ADD\n%n", qaUser.getGamePlayerName(), value.getAnswerId());
+                    }
+                }
+
+            }
+
+
+        });
+
 
     }
 
@@ -84,7 +145,7 @@ public class AnswerManager {
 
                 if ( playerName.equals(questionerGamePlayerName) ) {
                     //질문자가 온라인일경우
-                    questionerPlayer =  allPlayer;
+                    questionerPlayer = allPlayer;
                     break;
                 }
 
@@ -93,12 +154,44 @@ public class AnswerManager {
 
         Player finalQuestionerPlayer = questionerPlayer;
         boolean databaseResult = DBConnection.taskTransaction(connection -> {
-            //TODO DB에 데이터 삽입
+
+            String sql = "INSERT INTO `pixelmon_01_answer`.`answers` " +
+                    "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?) " +
+                    "ON DUPLICATE KEY UPDATE " +
+                    "`question_id` = ?, " +
+                    "`contents` = ?, " +
+                    "`answer_qauser_uuid` = ?, " +
+                    "`answer_date` = ?, " +
+                    "`receive_to_question_player` = ?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            long answerId = answer.getAnswerId();
+            long questionId = question.getId();
+            String answerContents = answer.getContents();
+            String answerQAUserUUIDStr = answer.getAnswerPlayer().getUuid().toString();
+            Timestamp timestamp = new Timestamp(answer.getAnswerDate().getTime());
+            boolean receivedToQuestionPlayer = finalQuestionerPlayer != null;
+
+
+            preparedStatement.setLong(1, answerId);
+            preparedStatement.setLong(2, questionId);
+            preparedStatement.setString(3, answerContents);
+            preparedStatement.setString(4, answerQAUserUUIDStr);
+            preparedStatement.setTimestamp(5, timestamp);
+            preparedStatement.setBoolean(6, receivedToQuestionPlayer);
+
+            preparedStatement.setLong(7, questionId);
+            preparedStatement.setString(8, answerContents);
+            preparedStatement.setString(9, answerQAUserUUIDStr);
+            preparedStatement.setTimestamp(10, timestamp);
+            preparedStatement.setBoolean(11, receivedToQuestionPlayer);
+
+            preparedStatement.executeUpdate();
 
             ConfigOption configOption = serverOptionManager.getConfigOption();
-
             AnswerManager answerManager = AnswerManager.getInstance();
-
             int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
 
             if (finalQuestionerPlayer != null) {
@@ -140,9 +233,7 @@ public class AnswerManager {
                 ); // 답변자에게 전달
             }
 
-            if ( answer.isReceivedToQuestionPlayer() ) {
 
-            }
 
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
             getQAUserAnswers(answerUser).add(answer);
@@ -150,6 +241,10 @@ public class AnswerManager {
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
 
         });
+
+        if ( !databaseResult ) {
+            message.delete().queue();
+        }
 
     }
 

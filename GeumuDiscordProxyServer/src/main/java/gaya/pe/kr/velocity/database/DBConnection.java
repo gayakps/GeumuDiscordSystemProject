@@ -3,6 +3,9 @@ package gaya.pe.kr.velocity.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
+import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
+import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,6 +64,7 @@ public class DBConnection {
                 preparedStatement.executeUpdate();
             }
 
+            DiscordManager.getInstance().init();
         } catch ( Exception e ) {
             e.printStackTrace();
         }
@@ -69,26 +73,39 @@ public class DBConnection {
 
     private static void initTableList() {
 
+        tableCreateList.add("CREATE TABLE IF NOT EXISTS `user_profiles` (\n" +
+                "  `player_name` varchar(45) NOT NULL,\n" +
+                "  `discord_user_id` int DEFAULT '-1',\n" +
+                "  `reward_amount` int DEFAULT '0',\n" +
+                "  `UUID` varchar(36) NOT NULL,\n" +
+                "  PRIMARY KEY (`UUID`),\n" +
+                "  UNIQUE KEY `discord_user_id_UNIQUE` (`discord_user_id`)\n" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
-        tableCreateList.add("CREATE TABLE IF NOT EXISTS `back_up_data` (\n" +
-                "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                "  `player_name` varchar(80) NOT NULL,\n" +
-                "  `player_uuid` char(36) DEFAULT NULL,\n" +
-                "  `nbt_data` longtext DEFAULT NULL,\n" +
-                "  `game_mode` varchar(20) NOT NULL,\n" +
-                "  `created_time` varchar(90) NOT NULL,\n" +
-                "  `effects` longtext DEFAULT NULL,\n" +
-                "  `balance` double DEFAULT -1, \n" +
-                "  PRIMARY KEY (`id`)\n" +
-                ") ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;\n");
+        tableCreateList.add("CREATE TABLE `questions` (\n" +
+                "  `id` int NOT NULL,\n" +
+                "  `qauser_uuid` varchar(36) NOT NULL,\n" +
+                "  `contents` varchar(500) NOT NULL,\n" +
+                "  `question_date` datetime NOT NULL,\n" +
+                "  `discord_message_number` int NOT NULL,\n" +
+                "  `answer` tinyint DEFAULT '0',\n" +
+                "  PRIMARY KEY (`id`),\n" +
+                "  KEY `questions_user_profiles_UUID_fk` (`qauser_uuid`),\n" +
+                "  CONSTRAINT `questions_user_profiles_UUID_fk` FOREIGN KEY (`qauser_uuid`) REFERENCES `user_profiles` (`UUID`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
-        tableCreateList.add("CREATE TABLE IF NOT EXISTS `player_data` (\n" +
-                "  `player_uuid` char(36) NOT NULL,\n" +
-                "  `nbt_data` longtext NOT NULL,\n" +
-                "  `game_mode` varchar(20) NOT NULL,\n" +
-                "  `effects` longtext DEFAULT NULL,\n" +
-                "  `balance` double DEFAULT -1, \n" +
-                "  PRIMARY KEY (`player_uuid`) USING BTREE\n" +
+        tableCreateList.add("CREATE TABLE `answers` (\n" +
+                "  `id` int NOT NULL,\n" +
+                "  `question_id` int NOT NULL,\n" +
+                "  `contents` varchar(500) NOT NULL,\n" +
+                "  `answer_qauser_uuid` varchar(36) NOT NULL,\n" +
+                "  `answer_date` datetime NOT NULL,\n" +
+                "  `receive_to_question_player` tinyint NOT NULL DEFAULT '0',\n" +
+                "  PRIMARY KEY (`id`,`question_id`),\n" +
+                "  KEY `answers_questions_id_fk` (`question_id`),\n" +
+                "  KEY `answers_user_profiles_UUID_fk` (`answer_qauser_uuid`),\n" +
+                "  CONSTRAINT `answers_questions_id_fk` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n" +
+                "  CONSTRAINT `answers_user_profiles_UUID_fk` FOREIGN KEY (`answer_qauser_uuid`) REFERENCES `user_profiles` (`UUID`) ON DELETE CASCADE ON UPDATE CASCADE\n" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;\n");
 
     }

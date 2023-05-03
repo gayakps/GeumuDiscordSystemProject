@@ -194,22 +194,11 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
             //    @RequirePlaceHolder(placeholders =
             //    {"%question_count_yesterday%", "%question_count_daily%", "%question_count_weekly%", "%question_count_monthly%", "%question_count_total%"})
 
-            int receivedRewardCount = 0;
-
-            for (Answer answer : targetPlayerAnswers ) {
-                if ( answer.getAnswerPlayer().getGamePlayerName().equals(getPlayer().getName()) ) {
-                    if ( !answer.isReceivedReward() ) {
-                        receivedRewardCount++;
-                    }
-                }
-            }
-
+            int receivedRewardCount = targetPlayerQAUser.getRewardAmount();
             LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
             LocalDate weekStart = today.minusWeeks(1);
             LocalDate monthStart = today.minusMonths(1);
-
-            QAManager qaManager = QAManager.getInstance();
 
             int yesterdayQuestions = countAnswersForUser(targetPlayerAnswers, yesterday, today.minusDays(1));
             int dailyQuestions = countAnswersForUser(targetPlayerAnswers, today, today);
