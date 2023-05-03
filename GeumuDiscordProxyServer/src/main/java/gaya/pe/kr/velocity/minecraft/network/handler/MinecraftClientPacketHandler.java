@@ -11,7 +11,9 @@ import gaya.pe.kr.qa.answer.packet.server.AnswerListResponse;
 import gaya.pe.kr.qa.data.QARequestResult;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.packet.client.*;
+import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.QAUserResponse;
+import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
 import gaya.pe.kr.qa.question.packet.client.QuestionModifyRequest;
@@ -397,13 +399,20 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = (TargetPlayerRemoveRewardRequest) minecraftPacket;
                 ConfigOption configOption = serverOptionManager.getConfigOption();
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(targetPlayerRemoveRewardRequest.getPlayerUUID(), targetPlayerRemoveRewardRequest.getPacketID());
-
                 String targetPlayerName = targetPlayerRemoveRewardRequest.getTargetPlayerName();
 
                 if ( qaUserManager.existUser(targetPlayerName) ) {
+
+
                     QAUser qaUser = qaUserManager.getUser(targetPlayerName);
-                    qaUser.clearRewardAmount();
-                    qaUserManager.updateQAUser(qaUser, false);
+                    List<Answer> answerList = answerManager.getQAUserAnswers(qaUser);
+
+                    for (Answer answer : answerList) {
+                        answer.setReceiveReward(true);
+                    }
+
+                    BukkitAnswerModify bukkitAnswerModify = new BukkitAnswerModify(QAModifyType.MODIFY, answerList.toArray(new Answer[0]));
+                    sendPacketAllChannel(bukkitAnswerModify);
                     response.addMessage(configOption.getRemoveRewardSuccess().replace("%playername%", targetPlayerName));
                 } else {
                     response.addMessage(configOption.getInvalidPlayerName());
@@ -426,18 +435,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 });
                 break;
             }
-            case PLAYER_REWARD_REQUEST: {
-
-                PlayerRewardRequest playerRewardRequest = (PlayerRewardRequest) minecraftPacket;
-                String playerName = playerRewardRequest.getPlayerName();
-                QAUserResponse qaUserResponse ;
-                QAUser qaUser = qaUserManager.getUser(playerName);
-                qaUserResponse = new QAUserResponse(new QAUser[]{qaUser}, playerRewardRequest.getPlayerUUID(), playerRewardRequest.getPacketID());
-                sendPacket(channel, qaUserResponse);
-                qaUser.clearRewardAmount();
-
-                break;
-            }
             case QUESTION_MODIFY_REQUEST: {
                 QuestionModifyRequest questionModifyRequest = (QuestionModifyRequest) minecraftPacket;
                 for (Question question : questionModifyRequest.getQuestions()) {
@@ -450,6 +447,15 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 for (QAUser qaUser : updateQAUserRequest.getQaUsers()) {
                     qaUserManager.updateQAUser(qaUser, false);
                 }
+                break;
+            }
+            case ANSWER_MODIFY_REQUEST: {
+                AnswerModifyRequest answerModifyRequest = (AnswerModifyRequest) minecraftPacket;
+                for (Answer answer : answerModifyRequest.getAnswers()) {
+                    answerManager.modifyAnswer(answer);
+                }
+
+                break;
             }
             default:
                 // 알 수 없는 패킷 처리

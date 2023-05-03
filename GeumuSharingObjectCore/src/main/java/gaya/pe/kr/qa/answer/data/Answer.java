@@ -20,6 +20,7 @@ public class Answer {
     Date answerDate = new Date();
 
     @Setter boolean receivedToQuestionPlayer;
+    @Setter boolean receiveReward;
 
     public Answer(long answerId, long questionId, String contents, QAUser answerPlayer) {
         this.answerId = answerId;
@@ -28,12 +29,13 @@ public class Answer {
         this.answerPlayer = answerPlayer;
     }
 
-    public Answer(long answerId, long questionId, String contents, QAUser answerPlayer, Date answerDate, boolean receivedToQuestionPlayer) {
+    public Answer(long answerId, long questionId, String contents, QAUser answerPlayer, Date answerDate, boolean receivedToQuestionPlayer, boolean receiveReward) {
         this.answerId = answerId;
         this.questionId = questionId;
         this.contents = contents;
         this.answerPlayer = answerPlayer;
         this.answerDate = answerDate;
         this.receivedToQuestionPlayer = receivedToQuestionPlayer;
+        this.receiveReward = receiveReward;
     }
 }

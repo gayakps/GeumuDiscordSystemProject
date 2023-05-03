@@ -18,6 +18,7 @@ import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.data.WaitingTicket;
 import gaya.pe.kr.plugin.util.exception.IllegalResponseObjectException;
 import gaya.pe.kr.qa.answer.data.Answer;
+import gaya.pe.kr.qa.answer.packet.client.AnswerModifyRequest;
 import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
@@ -26,6 +27,7 @@ import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
 import gaya.pe.kr.qa.packet.type.QAModifyType;
 import gaya.pe.kr.qa.question.data.Question;
+import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -38,7 +40,9 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -293,45 +297,48 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
             }
 
             case START_REWARD_GIVING: {
-                StartRewardGiving startRewardGiving = (StartRewardGiving) minecraftPacket;
 
                 NetworkManager networkManager = NetworkManager.getInstance();
                 ConfigOption configOption = OptionManager.getInstance().getConfigOption();
+                QARepository qaRepository = QAManager.getInstance().getQaRepository();
 
-
+                int periodDay = Integer.parseInt(configOption.getRewardGracePeriodDay());
 
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 
-                    TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(
-                            new String[]{onlinePlayer.getName()}, onlinePlayer, true
-                    );
+                    TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[]{onlinePlayer.getName()}, onlinePlayer, true);
 
                     networkManager.sendDataExpectResponse(targetQAUserDataRequest, onlinePlayer, QAUser[].class, (player, qaUsers) -> {
 
                         QAUser qaUser = qaUsers[0];
 
-                        int rewardAmount = qaUser.getRewardAmount();
+                        List<Answer> answerList = qaRepository.getQAUserAnswers(qaUser);
 
-                        if ( rewardAmount > 0 ) {
+                        for (Answer answer : answerList) {
 
-                            qaUser.clearRewardAmount();
+                            if (answer.isReceiveReward()) {
 
-                            UpdateQAUserRequest updateQAUserRequest = new UpdateQAUserRequest(new QAUser[]{qaUser});
+                                Date date = answer.getAnswerDate();
 
-                            networkManager.sendPacket(updateQAUserRequest, onlinePlayer, player1 -> {
+                                long diffDay = TimeUtil.getTimeDiffDay(date);
 
-                                for ( int a = 0; a < rewardAmount; a++ ) {
-                                    for (String s : configOption.getRewardCommand()) {
-                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%playername%", onlinePlayer.getName()));
-                                    }
-                                    player.sendMessage(configOption.getRewardPaymentSuccessBroadcast().replace("&", "§"));
+                                System.out.printf("%s | %d : %d", date.toString(), diffDay, periodDay);
+
+                                if ( diffDay >= periodDay ) {
+
+                                    AnswerModifyRequest answerModifyRequest = new AnswerModifyRequest(QAModifyType.MODIFY, new Answer[]{answer});
+                                    networkManager.sendPacket(answerModifyRequest, player1 ->  {
+                                        for (String s : configOption.getRewardCommand()) {
+                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%playername%", onlinePlayer.getName()));
+                                        }
+                                        player.sendMessage(configOption.getRewardPaymentSuccessBroadcast().replace("&", "§"));
+                                        answer.setReceiveReward(true);
+                                    }, player);
                                 }
 
-                            });
+                            }
+
                         }
-
-
-
 
                     });
 

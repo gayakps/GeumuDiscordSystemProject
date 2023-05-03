@@ -33,7 +33,6 @@ public class QAUserManager {
 
             String sql = "SELECT `user_profiles`.`player_name`,\n" +
                     "    `user_profiles`.`discord_user_id`,\n" +
-                    "    `user_profiles`.`reward_amount`,\n" +
                     "    `user_profiles`.`UUID`\n" +
                     "FROM `pixelmon_01_answer`.`user_profiles`;\n";
 
@@ -45,10 +44,9 @@ public class QAUserManager {
 
                 String playerName = resultSet.getString(1);
                 long discordUserId = resultSet.getLong(2);
-                int rewardAmount = resultSet.getInt(3);
-                String uuidStr = resultSet.getString(4);
+                String uuidStr = resultSet.getString(3);
 
-                QAUser qaUser = new QAUser(playerName, discordUserId, rewardAmount, UUID.fromString(uuidStr));
+                QAUser qaUser = new QAUser(playerName, discordUserId, UUID.fromString(uuidStr));
                 userHashSet.add(qaUser);
 
                 System.out.println(qaUser.toString() + " ADD --------------");
@@ -212,24 +210,21 @@ public class QAUserManager {
         DBConnection.taskTransaction(connection -> {
 
             String sql = "INSERT INTO `pixelmon_01_answer`.`user_profiles` " +
-                    "(`player_name`, `discord_user_id`, `reward_amount`, `UUID`) " +
-                    "VALUES (?, ?, ?, ?) " +
+                    "(`player_name`, `discord_user_id`, `UUID`) " +
+                    "VALUES (?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
                     "`player_name` = VALUES(`player_name`), " +
-                    "`discord_user_id` = VALUES(`discord_user_id`), " +
-                    "`reward_amount` = VALUES(`reward_amount`);";
+                    "`discord_user_id` = VALUES(`discord_user_id`), ";
 
             String playerName = qaUser.getGamePlayerName();
             long discordUserId = qaUser.getDiscordPlayerUserId();
-            int rewardAmount = qaUser.getRewardAmount();
             String uuid = qaUser.getUuid().toString();
 
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
             preparedStatement.setString(1, playerName);
             preparedStatement.setLong(2, discordUserId);
-            preparedStatement.setInt(3, rewardAmount);
-            preparedStatement.setString(4, uuid);
+            preparedStatement.setString(3, uuid);
 
             preparedStatement.executeUpdate();
 

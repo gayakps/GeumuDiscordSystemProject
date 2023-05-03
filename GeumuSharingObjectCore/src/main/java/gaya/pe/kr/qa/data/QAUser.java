@@ -19,14 +19,11 @@ public class QAUser implements Serializable {
 
     String gamePlayerName;
     long discordPlayerUserId = -1;
-    int rewardAmount;
-
     private UUID uuid;
 
-    public QAUser(String gamePlayerName, long discordPlayerUserId, int rewardAmount, UUID uuid) {
+    public QAUser(String gamePlayerName, long discordPlayerUserId, UUID uuid) {
         this.gamePlayerName = gamePlayerName;
         this.discordPlayerUserId = discordPlayerUserId;
-        this.rewardAmount = rewardAmount;
         this.uuid = uuid;
     }
 
@@ -41,19 +38,6 @@ public class QAUser implements Serializable {
         String discriminator = discordUser.getDiscriminator(); // 사용자 태그 (예: #1234)를 가져옵니다.
         this.gamePlayerName = username + "#" + discriminator;
         uuid = UUID.randomUUID();
-    }
-
-    public void addRewardAmount() {
-        rewardAmount++;
-    }
-
-    public int clearRewardAmount() {
-
-        int temp = rewardAmount;
-
-        rewardAmount = 0;
-        return temp;
-
     }
 
     @Override

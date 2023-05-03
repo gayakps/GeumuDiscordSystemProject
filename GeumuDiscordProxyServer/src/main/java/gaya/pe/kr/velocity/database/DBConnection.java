@@ -76,7 +76,6 @@ public class DBConnection {
         tableCreateList.add("CREATE TABLE IF NOT EXISTS `user_profiles` (\n" +
                 "  `player_name` varchar(45) NOT NULL,\n" +
                 "  `discord_user_id` int DEFAULT '-1',\n" +
-                "  `reward_amount` int DEFAULT '0',\n" +
                 "  `UUID` varchar(36) NOT NULL,\n" +
                 "  PRIMARY KEY (`UUID`),\n" +
                 "  UNIQUE KEY `discord_user_id_UNIQUE` (`discord_user_id`)\n" +
@@ -101,6 +100,8 @@ public class DBConnection {
                 "  `answer_qauser_uuid` varchar(36) NOT NULL,\n" +
                 "  `answer_date` datetime NOT NULL,\n" +
                 "  `receive_to_question_player` tinyint NOT NULL DEFAULT '0',\n" +
+                "  `received_reward` tinyint NOT NULL DEFAULT '0',\n" +
+
                 "  PRIMARY KEY (`id`,`question_id`),\n" +
                 "  KEY `answers_questions_id_fk` (`question_id`),\n" +
                 "  KEY `answers_user_profiles_UUID_fk` (`answer_qauser_uuid`),\n" +

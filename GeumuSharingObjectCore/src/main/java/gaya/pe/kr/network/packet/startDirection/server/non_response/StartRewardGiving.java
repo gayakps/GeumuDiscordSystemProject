@@ -4,7 +4,7 @@ import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.PacketType;
 
 public class StartRewardGiving extends AbstractMinecraftPacket {
-    protected StartRewardGiving(PacketType type) {
-        super(type);
+    public StartRewardGiving() {
+        super(PacketType.START_REWARD_GIVING);
     }
 }

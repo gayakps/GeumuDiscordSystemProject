@@ -1,5 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.option.manager;
 
+import gaya.pe.kr.network.packet.startDirection.server.non_response.StartRewardGiving;
 import gaya.pe.kr.util.option.data.abs.AbstractOption;
 import gaya.pe.kr.util.option.data.options.AnswerPatternOptions;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -13,10 +14,9 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 @Getter
@@ -43,6 +43,8 @@ public class ServerOptionManager {
     DiscordManager discordManager = DiscordManager.getInstance();
     NetworkManager networkManager = NetworkManager.getInstance();
 
+    Timer timer = new Timer();
+
     public void init() {
         loadConfiguration();
     }
@@ -59,6 +61,22 @@ public class ServerOptionManager {
             answerPatternOptions = new AnswerPatternOptions(load(path+"/answer.yml"));
             configOption = new ConfigOption(load(path+"/config.yml"));
             DBConnection.init(configOption);
+            Date now = new Date();
+            Date startDate = getStartTime(configOption.getRewardGracePeriodTime());
+
+            if (now.before(startDate)) {
+
+                System.out.println("보상 지급이 :" + startDate.toString() + " 에 예정 되어있습니다");
+
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("보상 지급 시작");
+                        networkManager.sendPacketAllChannel(new StartRewardGiving());
+                    }
+                }, startDate);
+
+            }
 
         } catch ( Exception e) {
             e.printStackTrace();
@@ -97,6 +115,30 @@ public class ServerOptionManager {
         return Arrays.asList(getConfigOption(), getAnswerPatternOptions(), getAnswerRankingOption(), getQuestionRankingOption()
         , getPlayerAnswerListOption(), getPlayerQuestionListOption(), getWaitingAnswerListOption(), getCommonlyUsedButtonOption());
 
+    }
+
+    private Date getStartTime(String getTime) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        Date time = null;
+        try {
+            time = timeFormat.parse(getTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // 현재 날짜를 가져옵니다.
+        Calendar calendar = Calendar.getInstance();
+
+        // 시간 문자열에서 시간 정보를 가져옵니다.
+        Calendar timeCalendar = Calendar.getInstance();
+        timeCalendar.setTime(time);
+
+        // 날짜와 시간을 조합합니다.
+        calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, timeCalendar.get(Calendar.SECOND));
+
+        return calendar.getTime();
     }
 
 }

@@ -18,6 +18,7 @@ import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
 import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetQuestionRemoveRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -77,8 +78,8 @@ public class AnswerCommand implements CommandExecutor {
                             DiscordAuthenticationRequest discordAuthenticationRequest = new DiscordAuthenticationRequest(player.getUniqueId(), player.getName(), Integer.parseInt(code));
                             networkManager.sendPacket(
                                     discordAuthenticationRequest
-                                    , player,
-                                    (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다"))
+                                    , (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다") )
+                                    ,player
                             );
                         } catch ( Exception e ) {
                             player.sendMessage(configOption.getInvalidAuthenticationCode().replace("&","§"));
@@ -163,8 +164,10 @@ public class AnswerCommand implements CommandExecutor {
                             PlayerRecentQuestionAnswerRequest playerRecentQuestionAnswerRequest = new PlayerRecentQuestionAnswerRequest(nickName, answerContent, player);
                             networkManager.sendPacket(playerRecentQuestionAnswerRequest, player, player1 -> {
                                 player1.sendMessage("전달 성공~");
-                            });
+                                String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
+                                player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
 
+                            });
 
                         } else {
                             long questionId = Long.parseLong(args[0]);
@@ -172,6 +175,9 @@ public class AnswerCommand implements CommandExecutor {
                             PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(questionId, answerContent, player);
                             networkManager.sendPacket(playerTransientProceedingAnswerRequest, player, player1 -> {
                                 player1.sendMessage("전달 성공~");
+                                String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
+                                player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+
                             });
                         }
 

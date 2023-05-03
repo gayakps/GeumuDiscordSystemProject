@@ -71,6 +71,7 @@ public class AnswerManager {
                     "    `answers`.`answer_qauser_uuid`,\n" +
                     "    `answers`.`answer_date`,\n" +
                     "    `answers`.`receive_to_question_player`\n" +
+                    "    `answers`.`received_reward`\n" +
                     "FROM `pixelmon_01_answer`.`answers`;\n";
 
 
@@ -86,6 +87,7 @@ public class AnswerManager {
                 String answerQAUserUUIDStr = resultSet.getString(4);
                 Date answerDate = resultSet.getDate(5);
                 boolean receivedToQuestionPlayer = resultSet.getBoolean(6);
+                boolean receivedReward = resultSet.getBoolean(7);
 
                 UUID uuid = UUID.fromString(answerQAUserUUIDStr);
                 if ( qaUserManager.existUser(uuid) ) {
@@ -93,7 +95,7 @@ public class AnswerManager {
                     QAUser answerUser = qaUserManager.getQAUserByUUID(uuid);
 
                     if ( questionManager.existQuest(questionId) ) {
-                        Answer answer = new Answer(answerId, questionId, contents, answerUser, answerDate, receivedToQuestionPlayer);
+                        Answer answer = new Answer(answerId, questionId, contents, answerUser, answerDate, receivedToQuestionPlayer, receivedReward);
                         answerIdByAnswerHashMap.put(answerId, answer);
                         System.out.println(answer.toString() + " ADDD -----------");
                     }
@@ -156,15 +158,15 @@ public class AnswerManager {
         boolean databaseResult = DBConnection.taskTransaction(connection -> {
 
             String sql = "INSERT INTO `pixelmon_01_answer`.`answers` " +
-                    "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`) " +
-                    "VALUES (?, ?, ?, ?, ?, ?) " +
+                    "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`, `receive_reward`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE " +
                     "`question_id` = ?, " +
                     "`contents` = ?, " +
                     "`answer_qauser_uuid` = ?, " +
                     "`answer_date` = ?, " +
-                    "`receive_to_question_player` = ?;";
-
+                    "`receive_to_question_player` = ?" +
+                    "`receive_reward` = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
             long answerId = answer.getAnswerId();
@@ -174,18 +176,21 @@ public class AnswerManager {
             Timestamp timestamp = new Timestamp(answer.getAnswerDate().getTime());
             boolean receivedToQuestionPlayer = finalQuestionerPlayer != null;
 
+
             preparedStatement.setLong(1, answerId);
             preparedStatement.setLong(2, questionId);
             preparedStatement.setString(3, answerContents);
             preparedStatement.setString(4, answerQAUserUUIDStr);
             preparedStatement.setTimestamp(5, timestamp);
             preparedStatement.setBoolean(6, receivedToQuestionPlayer);
+            preparedStatement.setBoolean(7, false);
 
-            preparedStatement.setLong(7, questionId);
-            preparedStatement.setString(8, answerContents);
-            preparedStatement.setString(9, answerQAUserUUIDStr);
-            preparedStatement.setTimestamp(10, timestamp);
-            preparedStatement.setBoolean(11, receivedToQuestionPlayer);
+            preparedStatement.setLong(8, questionId);
+            preparedStatement.setString(9, answerContents);
+            preparedStatement.setString(10, answerQAUserUUIDStr);
+            preparedStatement.setTimestamp(11, timestamp);
+            preparedStatement.setBoolean(12, receivedToQuestionPlayer);
+            preparedStatement.setBoolean(13, false);
 
             preparedStatement.executeUpdate();
 
@@ -234,8 +239,6 @@ public class AnswerManager {
 
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
             getQAUserAnswers(answerUser).add(answer);
-            answerUser.addRewardAmount(); // 보상 추가
-            QAUserManager.getInstance().updateQAUser(questionUser, false); // 업데이트
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
 
@@ -307,6 +310,17 @@ public class AnswerManager {
         }
 
         return qaRequestResult;
+
+    }
+
+    public void modifyAnswer(Answer answer) {
+
+        if ( existAnswer(answer.getAnswerId()) ) {
+            Answer targetAnswer = getAnswerByQuestId(answer.getAnswerId());
+            targetAnswer.setReceiveReward(answer.isReceiveReward());
+            targetAnswer.setReceivedToQuestionPlayer(answer.isReceivedToQuestionPlayer());
+            NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.MODIFY, new Answer[]{answer}));
+        }
 
     }
 
