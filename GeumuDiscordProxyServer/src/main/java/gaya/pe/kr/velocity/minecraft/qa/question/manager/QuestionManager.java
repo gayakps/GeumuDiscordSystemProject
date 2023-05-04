@@ -25,10 +25,9 @@ import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.annotation.Nullable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 public class QuestionManager {
 
@@ -439,8 +438,29 @@ public class QuestionManager {
     /**
      * @return DB에 내장되어있는 최종 질문 번호
      */
-    public long getQuestionNumber() {
-        return questIdByQuestHashMap.size()+1;
+    public int getQuestionNumber() {
+
+        try {
+            Connection connection = DBConnection.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT MAX(id) + 1 AS next_id FROM questions");
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt("next_id");
+                System.out.println("전체 데이터 개수: " + count);
+                return count;
+            }
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+
+
     }
 
     public List<Question> getQAUserQuestions(QAUser qaUser) {

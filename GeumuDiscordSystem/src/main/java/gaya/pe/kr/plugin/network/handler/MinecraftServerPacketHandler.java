@@ -80,8 +80,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 AbstractPlayerRequestResponse abstractPlayerRequestResponse = (AbstractPlayerRequestResponse) minecraftPacket;
 
-                System.out.printf("UUID : %s\n", abstractPlayerRequestResponse.getRequestPlayerUUID().toString());
-
                 long requestPacketId = abstractPlayerRequestResponse.getRequestPacketId();
                 if ( isWaitingTicket(requestPacketId ) ) {
                     WaitingTicket<Boolean> waitingTicket = getWaitingTicket(abstractPlayerRequestResponse.getRequestPacketId());
@@ -105,9 +103,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 try {
                     if (isWaitingTicket(requestPacketId)) {
                         handleWaitingTicket(requestPacketId, tObject);
-                    } else {
-                        //TODO 문제 발생
-                        throw new IllegalResponseObjectException("");
                     }
                 } catch (IllegalResponseObjectException e) {
                     e.printStackTrace();

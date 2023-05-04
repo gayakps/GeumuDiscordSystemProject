@@ -33,11 +33,10 @@ import org.sqlite.core.DB;
 import org.w3c.dom.Text;
 
 import javax.annotation.Nullable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.Instant;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 public class AnswerManager {
@@ -55,8 +54,9 @@ public class AnswerManager {
     HashMap<Long, Answer> answerIdByAnswerHashMap = new HashMap<>();
     HashMap<QAUser, List<Answer>> qaUserHasAnswer = new HashMap<>();
     ServerOptionManager serverOptionManager;
-
     QuestionManager questionManager;
+
+    int sizeTemp = -1;
 
     public void init() {
 
@@ -100,7 +100,7 @@ public class AnswerManager {
                     if ( questionManager.existQuest(questionId) ) {
                         Answer answer = new Answer(answerId, questionId, contents, answerUser, answerDate, receivedToQuestionPlayer, receivedReward);
                         answerIdByAnswerHashMap.put(answerId, answer);
-                        System.out.println(answer.toString() + " ADDD -----------");
+                        System.out.println(answer.toString() + " ADD -----------");
                     }
 
                 }
@@ -379,8 +379,28 @@ public class AnswerManager {
      * @return DB에 내장되어있는 최종 질문 번호
      */
     public int getAnswerNumber() {
-        List<Integer> result = DBConnection.getDataFromDataBase("SELECT COUNT(*) AS last_id FROM answer", "last_id", Integer.class);
-        return result.isEmpty() ? 1 : result.get(0);
+
+        try {
+            Connection connection = DBConnection.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT MAX(id) + 1 AS next_id FROM answers");
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt("next_id");
+                System.out.println("전체 데이터 개수: " + count);
+                return count;
+            }
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+
+
     }
 
     public List<Answer> getQAUserAnswers(QAUser qaUser) {

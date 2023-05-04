@@ -37,10 +37,6 @@ public class PlayerRequestResponseAsChat extends AbstractPlayerRequestResponse {
     @Override
     public void sendData(Player player) {
 
-        if ( messages .isEmpty() ) {
-            player.sendMessage("메세지가 없습니다");
-        }
-
         for (String message : messages) {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
         }

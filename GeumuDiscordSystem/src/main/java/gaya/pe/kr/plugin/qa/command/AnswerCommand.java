@@ -131,7 +131,6 @@ public class AnswerCommand implements CommandExecutor {
                         if ( !permissionLevelType.equals(PermissionLevelType.ADMIN) ) return false;
 
                         TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = new TargetPlayerRemoveRewardRequest(args[0], player);
-
                         networkManager.sendPacket(targetPlayerRemoveRewardRequest, player, player1 -> {
                             player1.sendMessage("전송성공 얏호");
                         });
@@ -170,7 +169,6 @@ public class AnswerCommand implements CommandExecutor {
                             String nickName = args[0];
                             PlayerRecentQuestionAnswerRequest playerRecentQuestionAnswerRequest = new PlayerRecentQuestionAnswerRequest(nickName, answerContent, player);
                             networkManager.sendPacket(playerRecentQuestionAnswerRequest, player, player1 -> {
-                                player1.sendMessage("전달 성공~");
                                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
                                 SchedulerUtil.runLaterTask(()-> {
                                     player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
@@ -181,7 +179,6 @@ public class AnswerCommand implements CommandExecutor {
 
                             PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(questionId, answerContent, player);
                             networkManager.sendPacket(playerTransientProceedingAnswerRequest, player, player1 -> {
-                                player1.sendMessage("전달 성공~");
                                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
                                 SchedulerUtil.runLaterTask(()-> {
                                     player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
