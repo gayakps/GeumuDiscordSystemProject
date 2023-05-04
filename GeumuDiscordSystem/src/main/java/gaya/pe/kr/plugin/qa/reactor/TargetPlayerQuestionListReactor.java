@@ -166,7 +166,9 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
         setUpDefaultPoketmonInventory(inventory);
 
-        if (PermissionLevelType.getPermissionLevelType(getPlayer()).equals(PermissionLevelType.STAFF) ) {
+        PermissionLevelType permissionLevelType = PermissionLevelType.getPermissionLevelType(getPlayer());
+
+        if ( permissionLevelType.equals(PermissionLevelType.STAFF) || permissionLevelType.equals(PermissionLevelType.ADMIN)) {
 
             List<String> lore = new ArrayList<>();
 

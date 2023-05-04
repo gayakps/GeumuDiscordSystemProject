@@ -43,14 +43,6 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
 
         MessageType messageType = receivedMessage.getType();
 
-        System.out.println(messageType + " <<< message Type " + receivedMessage.getContentRaw() + " || " + receivedMessage.getContentDisplay() + " || " + receivedMessage.getContentStripped());
-
-        if (messageType == MessageType.DEFAULT) {
-            System.out.println("Message content: " + receivedMessage.getContentRaw());
-        } else {
-            System.out.println("Unhandled message type: " + messageType);
-        }
-
         ConfigOption configOption = serverOptionManager.getConfigOption();
 
         if ( messageType.equals(MessageType.INLINE_REPLY ) ) {
@@ -102,8 +94,6 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
             String prefix = questionManager.getQuestPrefix();
             String receivedMessageContent = receivedMessage.getContentDisplay();
 
-            System.out.println(receivedMessageContent + " <<< " + prefix);
-
             if ( receivedMessageContent.startsWith(prefix)) {
 
                 //prefix 를 제외하고 모두 질문으로 인식하여 질문 과정을 거치게됨
@@ -113,16 +103,19 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
                 QARequestResult qaRequestResult = questionManager.processQuestion(playerTransientProceedingQuestionRequest);
 
                 if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
-                    VelocityThreadUtil.asyncTask( ()-> receivedMessage.delete().queue());
+                    VelocityThreadUtil.delayTask( ()-> receivedMessage.delete().queue(), 20000);
                 } else {
                     discordManager.sendMessageAndRemove(event.getChannel(), qaRequestResult.getMessage(), 3000, true, receivedMessage);
                 }
 
             } else {
                 // 질문 접두사로 질문안했다면?
-                discordManager.sendMessageAndRemove(event.getChannel(), questionManager.getQuestPrefixHelpMessage()
+                discordManager.sendMessageAndRemove(event.getChannel(),
+                        "> " + questionManager.getQuestPrefixHelpMessage()
                         .replace("%playername%", discordManager.getFullName(user))
-                        .replace("%prefix%", prefix), 3000, true, receivedMessage);
+                        .replace("%prefix%", prefix)
+                        , 5000, true, receivedMessage);
+
 
             }
         }

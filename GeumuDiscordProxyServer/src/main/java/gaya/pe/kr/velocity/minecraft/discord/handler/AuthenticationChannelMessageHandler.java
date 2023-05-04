@@ -1,5 +1,6 @@
 package gaya.pe.kr.velocity.minecraft.discord.handler;
 
+import gaya.pe.kr.qa.data.QAUser;
 import gaya.pe.kr.qa.question.data.Question;
 import gaya.pe.kr.util.TimeUtil;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
@@ -9,6 +10,7 @@ import gaya.pe.kr.velocity.minecraft.discord.exception.NotExpiredDiscordAuthenti
 import gaya.pe.kr.velocity.minecraft.discord.handler.abs.MessageChannelHandler;
 import gaya.pe.kr.velocity.minecraft.discord.manager.DiscordManager;
 import gaya.pe.kr.velocity.minecraft.option.manager.ServerOptionManager;
+import gaya.pe.kr.velocity.minecraft.qa.answer.manager.AnswerManager;
 import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import gaya.pe.kr.velocity.minecraft.qa.question.manager.QuestionManager;
 import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
@@ -19,13 +21,18 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
 
-    DiscordManager discordManager = DiscordManager.getInstance();
-    ServerOptionManager serverOptionManager = ServerOptionManager.getInstance();
+    DiscordManager discordManager;
+    ServerOptionManager serverOptionManager;
 
-    QuestionManager questionManager = QuestionManager.getInstance();
-    QAUserManager qaUserManager = QAUserManager.getInstance();
+    QuestionManager questionManager;
+    QAUserManager qaUserManager;
     public AuthenticationChannelMessageHandler(TextChannel textChannel) {
         super(textChannel);
+        qaUserManager = QAUserManager.getInstance();
+        questionManager = QuestionManager.getInstance();
+        discordManager = DiscordManager.getInstance();
+        serverOptionManager = ServerOptionManager.getInstance();
+        System.out.println("AuthenticationChannelMessageHandler created");
     }
 
     /**
@@ -46,14 +53,11 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
         String receivedMessageContent = receivedMessage.getContentRaw();
         MessageChannel messageChannel = event.getChannel();
-        System.out.printf("[ID : %s] Message Type : %s 내용 : %s\n", receivedMessage.getId(), receivedMessage.getType().name(), receivedMessageContent);
-
-        System.out.println(receivedMessageContent + " << 수신" + receivedMessageContent.startsWith(prefix));
 
         ConfigOption configOption = serverOptionManager.getConfigOption();
 
         if ( !receivedMessageContent.startsWith(prefix)) {
-            discordManager.sendMessageAndRemove(messageChannel, String.format("```%s```", configOption.getDiscordAuthenticationChannelHelpMessage()), 3000, true, receivedMessage);
+            discordManager.sendMessageAndRemove(messageChannel, String.format("```%s```", configOption.getDiscordAuthenticationChannelHelpMessage()), 5000, true, receivedMessage);
             return;
         }
 
@@ -66,17 +70,17 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
                 VelocityThreadUtil.delayTask(() -> receivedMessage.delete().queue(), 3000);
 
                 if ( discordManager.isAuthenticationPlayer(playerName) ) {
-                    user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
-                        privateChannel.sendMessage("```이미 등록되어있는 사용자의 이름입니다```").queue();
-                    });
+                    discordManager.sendMessageAndRemove(messageChannel, "```이미 등록되어있는 사용자명입니다```", 5000, true, receivedMessage);
                     return;
                 }
 
                 if ( qaUserManager.existUser(userId) ) {
-                    user.openPrivateChannel().queue((PrivateChannel privateChannel) -> {
-                        privateChannel.sendMessage("```이미 인증을 완료한 계정입니다```").queue();
-                    });
-                    return;
+                    QAUser qaUser = qaUserManager.getUser(userId);
+                    if ( !qaUser.getGamePlayerName().contains("#") ) { // # 이 있다면 디코로만 질문한 사람임
+                        discordManager.sendMessageAndRemove(messageChannel, "```이미 인증을 완료한 계정입니다```", 5000, true, receivedMessage);
+
+                        return;
+                    }
                 }
 
                 DiscordAuthentication discordAuthentication = discordManager.generateDiscordAuthentication(playerName, user);
@@ -99,7 +103,6 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
 
                     for (String s : configOption.getAuthenticationCodeGenerationFailAuthenticationCodeAlreadyGenerated()) {
                         privateChannel.sendMessage(String.format("%s", s.replace("%authentication_code_expire_time%", Long.toString(Math.abs(remainCodeExpireTime))))).queue();
-
                     }
 
                 });
@@ -111,8 +114,15 @@ public class AuthenticationChannelMessageHandler extends MessageChannelHandler {
                     }
                 });
 
+                for (String s : configOption.getAuthenticationCodeGenerationFailNotExistMinecraftAccount()) {
+                    discordManager.sendMessageAndRemove(messageChannel, "```"+s+"```", 5000, true, receivedMessage);
+                }
+
             }
 
+        }
+        else {
+            discordManager.sendMessageAndRemove(messageChannel, String.format("```%s```", configOption.getDiscordAuthenticationChannelHelpMessage()), 5000, true, receivedMessage);
         }
     }
 }

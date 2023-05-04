@@ -1,5 +1,6 @@
 package gaya.pe.kr.plugin.qa.manager;
 
+import gaya.pe.kr.plugin.qa.command.AnswerAdminCommand;
 import gaya.pe.kr.plugin.qa.command.AnswerCommand;
 import gaya.pe.kr.plugin.qa.command.QuestionCommand;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
@@ -27,6 +28,7 @@ public class QAManager {
     public void init() {
         registerCommand("질문", new QuestionCommand());
         registerCommand("답변", new AnswerCommand());
+        registerCommand("answer", new AnswerAdminCommand());
     }
 
 

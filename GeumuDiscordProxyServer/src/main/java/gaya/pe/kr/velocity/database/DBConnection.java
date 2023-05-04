@@ -72,7 +72,7 @@ public class DBConnection {
 
         tableCreateList.add("CREATE TABLE IF NOT EXISTS `user_profiles` (\n" +
                 "  `player_name` varchar(45) NOT NULL,\n" +
-                "  `discord_user_id` int DEFAULT '-1',\n" +
+                "  `discord_user_id` bigint DEFAULT '-1',\n" +
                 "  `UUID` varchar(36) NOT NULL,\n" +
                 "  PRIMARY KEY (`UUID`),\n" +
                 "  UNIQUE KEY `discord_user_id_UNIQUE` (`discord_user_id`)\n" +

@@ -17,6 +17,7 @@ import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.Nullable;
@@ -51,7 +52,10 @@ public class DiscordManager {
             qaUserManager = QAUserManager.getInstance();
 
             ConfigOption configOption = serverOptionManager.getConfigOption();
-            jda = JDABuilder.createDefault(configOption.getDiscordToken()).build();
+            jda = JDABuilder.createDefault(configOption.getDiscordToken())
+                    .enableIntents(GatewayIntent.GUILD_MESSAGES)
+                    .enableIntents(GatewayIntent.DIRECT_MESSAGES)
+                    .build();
 //            jda.addEventListener(new InitHandler("1090859961845825566", "1094161426005884928"));
             jda.addEventListener(new InitHandler(configOption.getAuthenticationChannelId(), configOption.getQuestionChannelId()));
             NetworkManager.getInstance().init();
@@ -189,4 +193,7 @@ public class DiscordManager {
 
     }
 
+    public TextChannel getQuestionChannel() {
+        return questionChannel;
+    }
 }

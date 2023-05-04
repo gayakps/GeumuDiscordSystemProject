@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -173,7 +174,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                             String[] soundData= configOption.getAnswerReceiveSuccessSound().split(":");
 
-                            player.playSound(player.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                            player.playSound(player.getLocation(), Sound.valueOf(soundData[0].toUpperCase(Locale.ROOT)), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
 
                             SchedulerUtil.runLaterTask( ()-> {
 

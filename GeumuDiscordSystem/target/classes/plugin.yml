@@ -1,12 +1,12 @@
 name: GeumuDiscordSystem
 version: '1.0-SNAPSHOT'
+api-version: 1.16
 main: gaya.pe.kr.plugin.GeumuDiscordSystem
 authors: [GEUMU]
 description: Geumu Discord & Minecraft Question System
 
 
 commands:
-  test123:
   질문:
   답변:
-  인증:
+  answer:

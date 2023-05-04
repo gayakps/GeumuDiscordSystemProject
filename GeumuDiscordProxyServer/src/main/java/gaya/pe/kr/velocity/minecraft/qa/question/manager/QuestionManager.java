@@ -71,7 +71,7 @@ public class QuestionManager {
                 long questionId = resultSet.getLong(1);
                 String questionUserUUID = resultSet.getString(2);
                 String contents = resultSet.getString(3);
-                Date questionDate = resultSet.getDate(4);
+                Date questionDate = resultSet.getTimestamp(4);
                 long discordMessageNumber = resultSet.getLong(5);
                 boolean answer = resultSet.getBoolean(6);
 
@@ -209,14 +209,12 @@ public class QuestionManager {
 
         if ( contentSize > maxLength ) {
             // 너무 길어
-            System.out.println("메세지가 너무 길어");
             qaRequestResult.setMessage(configOption.getQuestionFailQuestionTooLong().replace("%question_max_length%", Integer.toString(maxLength))); // 길이 제한
             return qaRequestResult;
         }
 
         if ( contentSize < minLength ) {
             // 너무 짧아
-            System.out.println("메세지가 너무 짧아");
             qaRequestResult.setMessage(configOption.getQuestionFailQuestionTooShort().replace("%question_min_length%", Integer.toString(minLength))); // 길이 제한
             return qaRequestResult;
         }
@@ -226,20 +224,17 @@ public class QuestionManager {
         if (requestType.equals(PlayerTransientProceedingQuestionRequest.RequestType.DISCORD)) {
             //TODO Discord 일 경우 현재 플레이어 중 디스코드 & 인게임에서 질문 여부를 파악한함
             qaUser = qaUserManager.getUser(playerTransientProceedingQuestionRequest.getDiscordUserId());
-            System.out.println("유저 찾았다 디코로");
         } else {
             qaUser = qaUserManager.getUser(playerTransientProceedingQuestionRequest.getPlayerName());
-            System.out.println("유저 찾았다 이름으로");
         }
 
-        if ( qaUser == null ) {
-            System.out.println("유저가 널인데?");
+        if ( qaUser != null ) {
+            System.out.println(qaUser.toString() + " <<< 정보");
         }
 
         int delay = configOption.getQuestionCooldown();
 
         List<Question> questions = getQAUserQuestions(qaUser);
-        System.out.println("모든 질문 찾아볼게");
 
         for (Question question : questions) {
 
@@ -251,7 +246,6 @@ public class QuestionManager {
                         .replace("%question_cooldown%", Integer.toString(delay))
                         .replace("%question_remain_cooldown%", Integer.toString(delay-(int)diffSec))
                 );
-                System.out.println("다시 할 시간이 없어");
                 return qaRequestResult;
             }
 
@@ -261,17 +255,13 @@ public class QuestionManager {
 
         AnswerPatternOptions answerPatternOptions = serverOptionManager.getAnswerPatternOptions();
 
-        System.out.println("모든 패턴 찾아볼게");
-
         for (PatternMatcher patternMatcher : answerPatternOptions.getPatternMatcherList()) {
-            System.out.println("패턴 : " + patternMatcher.toString());
             if ( patternMatcher.isMatch(content) ) {
                 String answer = patternMatcher.getMessage();
                 qaRequestResult.setMessage(configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
                         .replace("%playername%", configOption.getAnswerPlayerNamePlaceholderAutoAnswer())
                         .replace("%answer%", answer)
                 );
-                System.out.println("패턴이 매치가 됐어");
                 return qaRequestResult;
             }
         }
@@ -282,6 +272,7 @@ public class QuestionManager {
             long lastQuestionNumber = getQuestionNumber();
             Question question = new Question(lastQuestionNumber, content, qaUser );
             broadCastQuestion(question, qaRequestResult);
+            System.out.println(question.getQaUser().toString() + " <<< Questioner ");
         }
 
         return qaRequestResult;
@@ -295,7 +286,7 @@ public class QuestionManager {
         }
 
         DiscordManager discordManager = DiscordManager.getInstance();
-        Message message = discordManager.sendMessage( "```"+getQuestionFormat(question)+"```" , discordManager.getAuthChannel() ); // 디스코드 전체 전송
+        Message message = discordManager.sendMessage( "```"+getQuestionFormat(question)+"```" , discordManager.getQuestionChannel() ); // 디스코드 전체 전송
 
         QAUser qaUser = question.getQaUser();
 
@@ -427,7 +418,7 @@ public class QuestionManager {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(qaUserManager.getFullName(question.getQaUser())+"\n");
+        stringBuilder.append(qaUserManager.getFullName(question.getQaUser()));
         stringBuilder.append(String.format(" ( 질문번호 | %d )\n", question.getId()));
         stringBuilder.append(String.format("Q: %s", question.getContents()));
 
@@ -444,16 +435,16 @@ public class QuestionManager {
             Connection connection = DBConnection.getConnection();
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT MAX(id) + 1 AS next_id FROM questions");
-
+            int count = 0;
             if (resultSet.next()) {
-                int count = resultSet.getInt("next_id");
+                count = resultSet.getInt("next_id");
                 System.out.println("전체 데이터 개수: " + count);
-                return count;
             }
 
             resultSet.close();
             statement.close();
             connection.close();
+            return count;
         } catch (Exception e) {
             e.printStackTrace();
         }

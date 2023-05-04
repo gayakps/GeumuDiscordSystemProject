@@ -1,4 +1,5 @@
 gaya\pe\kr\plugin\util\data\WaitingTicket.class
+gaya\pe\kr\plugin\qa\command\tab\AnswerCommandTabCompletion.class
 gaya\pe\kr\plugin\qa\manager\OptionManager.class
 gaya\pe\kr\plugin\util\PlayerUtil.class
 gaya\pe\kr\plugin\qa\manager\QAManager$SingleTon.class
@@ -11,6 +12,7 @@ gaya\pe\kr\plugin\qa\command\QuestionCommand$1.class
 gaya\pe\kr\plugin\util\Filter.class
 gaya\pe\kr\plugin\network\manager\NetworkManager.class
 gaya\pe\kr\plugin\discord\command\DiscordAuthenticationCommand.class
+gaya\pe\kr\plugin\qa\command\AnswerAdminCommand.class
 gaya\pe\kr\plugin\util\exception\IllegalResponseObjectException.class
 gaya\pe\kr\plugin\network\handler\MinecraftServerPacketHandler.class
 gaya\pe\kr\plugin\network\manager\NetworkManager$SingleTon.class

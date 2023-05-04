@@ -3,6 +3,7 @@ package gaya.pe.kr.plugin.qa.command;
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
+import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
@@ -21,12 +22,15 @@ import gaya.pe.kr.qa.packet.client.TargetPlayerRemoveRewardRequest;
 import gaya.pe.kr.qa.packet.client.TargetQAUserDataRequest;
 import gaya.pe.kr.qa.question.packet.client.TargetQuestionRemoveRequest;
 import gaya.pe.kr.util.option.data.options.ConfigOption;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public class AnswerCommand implements CommandExecutor {
     @Override
@@ -94,66 +98,13 @@ public class AnswerCommand implements CommandExecutor {
                         }
                         break;
                     }
-                    case "removeq": {
-                        //해당 질문을 제거함
-
-                        if ( !permissionLevelType.equals(PermissionLevelType.STAFF) ) return false;
-
-                        try {
-                            int questionId = Integer.parseInt(args[0]);
-                            TargetQuestionRemoveRequest targetQuestionRemoveRequest = new TargetQuestionRemoveRequest(questionId, player.getName(), player.getUniqueId());
-                            networkManager.sendPacket(targetQuestionRemoveRequest, player, player1 -> {
-                                player1.sendMessage("성공적으로 질문 제거 요청을 함");
-                            });
-                        } catch ( NumberFormatException | ArrayIndexOutOfBoundsException e ) {
-                            player.sendMessage(configOption.getInvalidQuestionNumber());
-                        }
-                        break;
-                    }
-                    case "removea": {
-
-                        if ( !permissionLevelType.equals(PermissionLevelType.STAFF) ) return false;
-
-                        //해당 질문의 답변을 제거함
-                        try {
-                            int questionId = Integer.parseInt(args[0]);
-                            TargetAnswerByQuestionIdRemoveRequest targetAnswerByQuestionIdRemoveRequest = new TargetAnswerByQuestionIdRemoveRequest(questionId, player.getName(), player.getUniqueId());
-                            networkManager.sendPacket(targetAnswerByQuestionIdRemoveRequest, player, player1 -> {
-                                player1.sendMessage("성공적으로 답변 제거 요청을 함");
-                            });
-                        } catch ( NumberFormatException | ArrayIndexOutOfBoundsException e ) {
-                            player.sendMessage(configOption.getInvalidQuestionNumber());
-                        }
-                        break;
-                    }
-                    case "removereward": {
-
-                        if ( !permissionLevelType.equals(PermissionLevelType.ADMIN) ) return false;
-
-                        TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = new TargetPlayerRemoveRewardRequest(args[0], player);
-                        networkManager.sendPacket(targetPlayerRemoveRewardRequest, player, player1 -> {
-                            player1.sendMessage("전송성공 얏호");
-                        });
-
-                    }
-                    case "reload": {
-
-                        if ( !permissionLevelType.equals(PermissionLevelType.ADMIN) ) return false;
-
-                        MinecraftOptionReloadRequest minecraftOptionReloadRequest = new MinecraftOptionReloadRequest(player);
-
-                        networkManager.sendPacket(minecraftOptionReloadRequest, player, player1 -> {
-                            player1.sendMessage("전송성공 얏호");
-                        });
-
-                    }
 
                     default: {
 
                         boolean number = true;
 
                         try {
-                            Integer.parseInt(args[0]);
+                            Integer.parseInt(category);
                         } catch ( NumberFormatException e ) {
                             number = false;
                         }
@@ -165,25 +116,27 @@ public class AnswerCommand implements CommandExecutor {
                             return false;
                         }
 
-                        if ( number ) {
+                        if ( PlayerManager.getInstance().getPlayerList().contains(category) ) {
+                            // 특정 플레이어가 했던 질무ㄴ
                             String nickName = args[0];
                             PlayerRecentQuestionAnswerRequest playerRecentQuestionAnswerRequest = new PlayerRecentQuestionAnswerRequest(nickName, answerContent, player);
                             networkManager.sendPacket(playerRecentQuestionAnswerRequest, player, player1 -> {
                                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
                                 SchedulerUtil.runLaterTask(()-> {
-                                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0].toUpperCase(Locale.ROOT)), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
                                 },1);
                             });
                         } else {
-                            long questionId = Long.parseLong(args[0]);
-
-                            PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(questionId, answerContent, player);
-                            networkManager.sendPacket(playerTransientProceedingAnswerRequest, player, player1 -> {
-                                String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
-                                SchedulerUtil.runLaterTask(()-> {
-                                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
-                                },1);
-                            });
+                            if ( number ) {
+                                long questionId = Long.parseLong(args[0]);
+                                PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(questionId, answerContent, player);
+                                networkManager.sendPacket(playerTransientProceedingAnswerRequest, player, player1 -> {
+                                    String[] soundData = configOption.getAnswerSendSuccessSound().split(":");
+                                    SchedulerUtil.runLaterTask(() -> {
+                                        player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0].toUpperCase(Locale.ROOT)), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                                    }, 1);
+                                });
+                            }
                         }
 
                     }

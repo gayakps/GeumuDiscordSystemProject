@@ -88,7 +88,7 @@ public class AnswerManager {
                 long questionId = resultSet.getLong(2);
                 String contents = resultSet.getString(3);
                 String answerQAUserUUIDStr = resultSet.getString(4);
-                Date answerDate = resultSet.getDate(5);
+                Date answerDate = resultSet.getTimestamp(5);
                 boolean receivedToQuestionPlayer = resultSet.getBoolean(6);
                 boolean receivedReward = resultSet.getBoolean(7);
 
@@ -135,7 +135,7 @@ public class AnswerManager {
     private void answer(QARequestResult qaRequestResult, Question question, Answer answer) {
 
         DiscordManager discordManager = DiscordManager.getInstance();
-        Message message = discordManager.sendMessage( String.format("```%s\n%s```",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getAuthChannel() );
+        Message message = discordManager.sendMessage( String.format("```%s\n%s```",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getQuestionChannel() );
 
         question.setAnswer(true);
         question.setDiscordMessageId(message.getIdLong());
@@ -199,6 +199,8 @@ public class AnswerManager {
 
             preparedStatement.executeUpdate();
 
+            questionManager.modifyQuestionData(question, QAModifyType.MODIFY);
+
             ConfigOption configOption = serverOptionManager.getConfigOption();
             AnswerManager answerManager = AnswerManager.getInstance();
             int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
@@ -245,7 +247,7 @@ public class AnswerManager {
             this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
             getQAUserAnswers(answerUser).add(answer);
             NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
-            NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.ADD, new Question[]{question}));
+
 
         });
 
@@ -272,6 +274,11 @@ public class AnswerManager {
 
         Question question = questionManager.getQuestionByQuestId(questId);
 
+        if ( question.isAnswer() ) {
+            qaRequestResult.setMessage("§f[§c!§f] 이미 답변이 된 질문 입니다");
+            return qaRequestResult;
+        }
+
         QAUser questionUser = question.getQaUser();
 
         QAUser answerUser;
@@ -280,6 +287,10 @@ public class AnswerManager {
             answerUser = QAUserManager.getInstance().getUser(playerTransientProceedingAnswerRequest.getDiscordUserId());
         } else {
             answerUser = QAUserManager.getInstance().getUser(playerTransientProceedingAnswerRequest.getPlayerName());
+        }
+
+        if ( answerUser != null ) {
+            System.out.println(answerUser.toString() + " <<< 답한 사람");
         }
 
         if ( questionUser.equals(answerUser) ) {
@@ -308,6 +319,8 @@ public class AnswerManager {
             }
 
         }
+
+        qaRequestResult.setType(QARequestResult.Type.SUCCESS);
 
         if ( qaRequestResult.getType().equals(QARequestResult.Type.SUCCESS) ) {
             Answer answer = new Answer(getAnswerNumber(), questId, answerContent, answerUser);
@@ -385,15 +398,15 @@ public class AnswerManager {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT MAX(id) + 1 AS next_id FROM answers");
 
+            int count = 0;
             if (resultSet.next()) {
-                int count = resultSet.getInt("next_id");
-                System.out.println("전체 데이터 개수: " + count);
-                return count;
+                count = resultSet.getInt("next_id");
             }
 
             resultSet.close();
             statement.close();
             connection.close();
+            return count;
         } catch (Exception e) {
             e.printStackTrace();
         }

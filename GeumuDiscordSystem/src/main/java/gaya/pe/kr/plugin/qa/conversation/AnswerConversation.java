@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 @Getter
 public class AnswerConversation extends StringPrompt {
 
@@ -77,7 +79,7 @@ public class AnswerConversation extends StringPrompt {
                 targetPlayer.sendRawMessage("전달 성공~");
                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
                 SchedulerUtil.runLaterTask(()-> {
-                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0]), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
+                    player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0].toUpperCase(Locale.ROOT)), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
                 },1);
 
 

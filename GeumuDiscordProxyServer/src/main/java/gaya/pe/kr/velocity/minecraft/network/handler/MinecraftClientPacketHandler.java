@@ -96,6 +96,8 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
         Channel channel = channelHandlerContext.channel();
 
+        serverOptionManager = ServerOptionManager.getInstance();
+
         switch (minecraftPacket.getType()) {
 
             case DISCORD_AUTHENTICATION_REQUEST: {
@@ -148,7 +150,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
             case PLAYER_TRANSIENT_PROCEEDING_QUESTION_REQUEST: {
                 PlayerTransientProceedingQuestionRequest playerProceedingQuestionRequest = (PlayerTransientProceedingQuestionRequest) minecraftPacket;
                 QARequestResult qaRequestResult = questionManager.processQuestion(playerProceedingQuestionRequest);
-                System.out.println("작업 시작 " + qaRequestResult.getType() + " ||| 결과 메세지 : " + qaRequestResult.getMessage());
                 String message = qaRequestResult.getMessage();
                 PlayerRequestResponseAsChat response = new PlayerRequestResponseAsChat(playerProceedingQuestionRequest.getPlayerUUID(), playerProceedingQuestionRequest.getPacketID());
                 response.addMessage(message);

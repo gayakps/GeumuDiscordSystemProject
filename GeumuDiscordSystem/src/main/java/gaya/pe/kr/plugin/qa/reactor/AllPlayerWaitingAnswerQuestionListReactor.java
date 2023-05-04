@@ -2,6 +2,7 @@ package gaya.pe.kr.plugin.qa.reactor;
 
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
+import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.reactor.ranking.WeeklyAnswerRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
@@ -26,10 +27,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.countAnswersForUser;
@@ -42,6 +40,8 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
     QARepository qaRepository;
     int page = 1;
     int totalPage = 1;
+
+    HashMap<Integer, Question> hashMap = new LinkedHashMap<>();
 
     QAUser requestPlayerQAUser;
     public AllPlayerWaitingAnswerQuestionListReactor(Player player, QAUser requestPlayerQAUser, QARepository qaRepository) {
@@ -110,6 +110,7 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
                 itemStack = ItemCreator.createItemStack(Material.GREEN_WOOL, itemName, lore);
 
                 inventory.setItem(inventoryIndex, itemStack);
+                hashMap.put(inventoryIndex,question);
                 inventoryIndex++;
             } else {
                 break;
@@ -119,7 +120,9 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
         setUpDefaultPoketmonInventory(inventory);
 
 
-        if (PermissionLevelType.getPermissionLevelType(getPlayer()).equals(PermissionLevelType.STAFF) ) {
+        PermissionLevelType permissionLevelType = PermissionLevelType.getPermissionLevelType(getPlayer());
+
+        if ( permissionLevelType.equals(PermissionLevelType.STAFF) || permissionLevelType.equals(PermissionLevelType.ADMIN)) {
 
             List<String> lore = new ArrayList<>();
 
@@ -235,6 +238,15 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
                     weeklyAnswerRankingReactor.start();
                 });
                 break;
+            }
+            default: {
+
+                if ( hashMap.containsKey(clickedSlot) ) {
+                    Question question = hashMap.get(clickedSlot);
+                    AnswerConversation answerConversation = new AnswerConversation(question, getPlayer());
+                    AnswerConversation.startConversation(answerConversation, getPlayer());
+                }
+
             }
         }
     }

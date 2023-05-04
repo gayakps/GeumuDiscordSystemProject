@@ -46,10 +46,12 @@ public class ServerOptionManager {
     Timer timer = new Timer();
 
     public void init() {
-        loadConfiguration();
+        if ( loadConfiguration() ) {
+            DBConnection.init(configOption);
+        }
     }
 
-    public void loadConfiguration() {
+    public boolean loadConfiguration() {
         try {
             String path = "plugins/config_resources/";
             answerRankingOption = new AnswerRankingOption(load(path+"/GUI/answer_ranking.yml"));
@@ -77,11 +79,13 @@ public class ServerOptionManager {
 
             }
 
-            DBConnection.init(configOption);
+            return true;
+
 
         } catch ( Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public Map<String, Object> load(String yamlFileName) {

@@ -1,6 +1,8 @@
 package gaya.pe.kr.velocity.minecraft.discord.handler.abs;
 
+import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import lombok.Getter;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -21,10 +23,16 @@ public abstract class MessageChannelHandler extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
-        TextChannel paramTextChannel = event.getTextChannel();
-        if ( !textChannel.getId().equals(paramTextChannel.getId()) ) return;
-        if ( event.getAuthor().isBot() ) return;
-        handleEvent(event);
+
+        if ( event.getChannel().getType().equals(ChannelType.TEXT) ) {
+            TextChannel paramTextChannel = event.getTextChannel();
+
+            if ( !textChannel.getId().equals(paramTextChannel.getId()) ) return;
+            if ( event.getAuthor().isBot() ) return;
+            handleEvent(event);
+        }
+
+
     }
 
     protected abstract void handleEvent(MessageReceivedEvent event);
