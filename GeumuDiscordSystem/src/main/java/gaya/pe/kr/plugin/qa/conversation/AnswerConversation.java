@@ -81,8 +81,6 @@ public class AnswerConversation extends StringPrompt {
                 SchedulerUtil.runLaterTask(()-> {
                     player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0].toUpperCase(Locale.ROOT)), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력
                 },1);
-
-
             });
 
         }

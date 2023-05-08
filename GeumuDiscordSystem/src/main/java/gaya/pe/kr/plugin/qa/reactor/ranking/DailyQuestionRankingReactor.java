@@ -33,14 +33,13 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
     List<QAUser> qaUsers;
 
     public DailyQuestionRankingReactor(Player player, List<QAUser> qaUsers, QARepository qaRepository) {
-        super(player);
+        super(player, qaRepository);
         this.qaUsers = qaUsers;
-        this.qaRepository = qaRepository;
     }
 
 
     public void open() {
-        getPlayer().closeInventory();
+
 
         int startIndex = (page-1) * 36;
         int lastIndex = (page * 36);

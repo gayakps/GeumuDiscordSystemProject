@@ -317,24 +317,30 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                         for (Answer answer : answerList) {
 
-                            if (answer.isReceiveReward()) {
+                            player.sendMessage(answer.toString() + " << 님 질문");
+
+                            if ( !answer.isReceiveReward()) {
 
                                 Date date = answer.getAnswerDate();
 
                                 long diffDay = TimeUtil.getTimeDiffDay(date);
 
-                                System.out.printf("%s | %d : %d", date.toString(), diffDay, periodDay);
+                                System.out.printf("%s | %d : %d ( %s )", date.toString(), diffDay, periodDay, diffDay >= periodDay );
 
-                                if ( diffDay >= periodDay ) {
+                                if ( diffDay >= periodDay || true ) {
 
-                                    AnswerModifyRequest answerModifyRequest = new AnswerModifyRequest(QAModifyType.MODIFY, new Answer[]{answer});
-                                    networkManager.sendPacket(answerModifyRequest, player1 ->  {
-                                        for (String s : configOption.getRewardCommand()) {
-                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%playername%", onlinePlayer.getName()));
-                                        }
-                                        player.sendMessage(configOption.getRewardPaymentSuccessBroadcast().replace("&", "§"));
-                                        answer.setReceiveReward(true);
-                                    }, player);
+                                    answer.setReceiveReward(true);
+
+                                        AnswerModifyRequest answerModifyRequest = new AnswerModifyRequest(QAModifyType.MODIFY, new Answer[]{answer});
+                                        networkManager.sendPacket(answerModifyRequest, player, player1 ->  {
+                                            SchedulerUtil.runLaterTask(()-> {
+                                                for (String s : configOption.getRewardCommand()) {
+                                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%playername%", onlinePlayer.getName()));
+                                                }
+                                                player.sendMessage(configOption.getRewardPaymentSuccessBroadcast().replace("&", "§"));
+                                            }, 1);
+                                        });
+
                                 }
 
                             }

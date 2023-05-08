@@ -35,19 +35,15 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
     int page = 1;
     int totalPage = 1;
 
-
-    QARepository qaRepository;
     List<QAUser> qaUsers;
 
 
     public WeeklyAnswerRankingReactor(Player player, List<QAUser> qaUsers, QARepository qaRepository) {
-        super(player);
+        super(player, qaRepository);
         this.qaUsers = qaUsers;
-        this.qaRepository = qaRepository;
     }
 
     public void open() {
-        getPlayer().closeInventory();
 
         int startIndex = (page-1) * 36;
         int lastIndex = (page * 36);

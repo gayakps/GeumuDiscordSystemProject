@@ -23,4 +23,22 @@ public enum PermissionLevelType {
 
         }
 
+        public static boolean canAccess(PermissionLevelType playerPermissionLevel, PermissionLevelType requirePermissionLevel) {
+
+            switch ( requirePermissionLevel ) {
+                case ADMIN: {
+                    return playerPermissionLevel.equals(ADMIN);
+                }
+                case STAFF: {
+                    return playerPermissionLevel.equals(ADMIN) || playerPermissionLevel.equals(STAFF);
+                }
+                case USER: {
+                    return playerPermissionLevel.equals(ADMIN) || playerPermissionLevel.equals(STAFF) || playerPermissionLevel.equals(USER);
+                }
+            }
+
+            return playerPermissionLevel.equals(requirePermissionLevel);
+
+        }
+
     }

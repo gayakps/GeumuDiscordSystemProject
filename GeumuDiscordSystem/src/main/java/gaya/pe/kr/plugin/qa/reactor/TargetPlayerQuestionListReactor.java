@@ -7,6 +7,7 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.reactor.ranking.DailyQuestionRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
@@ -35,7 +36,6 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
 
     List<Question> targetPlayerQuestions;
-    QARepository qaRepository;
 
     HashMap<Integer, Question> answerAbleQuestions = new LinkedHashMap<>();
 
@@ -43,10 +43,8 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
     int totalPage = 1;
 
     public TargetPlayerQuestionListReactor(Player player, QAUser targetQAUser, QARepository qaRepository) {
-        super(player);
-        this.qaRepository = qaRepository;
+        super(player, qaRepository);
         this.targetPlayerQuestions = qaRepository.getQAUserQuestions(targetQAUser);
-
     }
 
     @Override
@@ -123,21 +121,25 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
                         }
                     }
 
-                    for (String s : playerQuestionListOption.getPlayerQuestionListAnsweredQuestionLore()) {
-                        lore.add(s
-                                .replace("%answer_content%", targetAnswer.getContents())
-                                .replace("%question_number%", Long.toString(question.getId()))
-                                .replace("%question_playername%", BukkitDiscordManager.getInstance().getFullName(question.getQaUser()))
-                                .replace("%question_time%", simpleDateFormat.format(question.getQuestionDate()))
-                                .replace("%answer_time%", simpleDateFormat.format(targetAnswer.getAnswerDate()))
-                                .replace("%answer_playername%", BukkitDiscordManager.getInstance().getFullName(targetAnswer.getAnswerPlayer()) )
-                        );
+                    if ( targetAnswer != null ) {
+                        for (String s : playerQuestionListOption.getPlayerQuestionListAnsweredQuestionLore()) {
+                            lore.add(s
+                                    .replace("%answer_content%", targetAnswer.getContents())
+                                    .replace("%question_number%", Long.toString(question.getId()))
+                                    .replace("%question_playername%", BukkitDiscordManager.getInstance().getFullName(question.getQaUser()))
+                                    .replace("%question_time%", simpleDateFormat.format(question.getQuestionDate()))
+                                    .replace("%answer_time%", simpleDateFormat.format(targetAnswer.getAnswerDate()))
+                                    .replace("%answer_playername%", BukkitDiscordManager.getInstance().getFullName(targetAnswer.getAnswerPlayer()) )
+                            );
+                        }
+
                     }
 
                     itemStack = ItemCreator.createItemStack(Material.RED_WOOL,
                             itemName,
                             lore
                     );
+
 
                 } else {
 
@@ -269,12 +271,12 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
             }
             case 45: {
                 //TODO 일간 질문수 랭킹
-                getPlayer().closeInventory();
-                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                    DailyQuestionRankingReactor questionRankingReactor = new DailyQuestionRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
-                    questionRankingReactor.start();
-                });
-                break;
+                    getPlayer().closeInventory();
+                    NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                        DailyQuestionRankingReactor questionRankingReactor = new DailyQuestionRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                        questionRankingReactor.start();
+                    });
+                    break;
             }
             default: {
                 if ( answerAbleQuestions.containsKey(clickedSlot) ) {

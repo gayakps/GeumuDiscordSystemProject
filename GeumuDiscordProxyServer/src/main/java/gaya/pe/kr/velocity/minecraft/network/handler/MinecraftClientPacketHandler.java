@@ -420,13 +420,14 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
                 if ( qaUserManager.existUser(targetPlayerName) ) {
 
-
                     QAUser qaUser = qaUserManager.getUser(targetPlayerName);
                     List<Answer> answerList = answerManager.getQAUserAnswers(qaUser);
 
                     for (Answer answer : answerList) {
                         answer.setReceiveReward(true);
+                        answerManager.modifyAnswer(answer);
                     }
+
 
                     BukkitAnswerModify bukkitAnswerModify = new BukkitAnswerModify(QAModifyType.MODIFY, answerList.toArray(new Answer[0]));
                     sendPacketAllChannel(bukkitAnswerModify);
@@ -471,7 +472,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                 for (Answer answer : answerModifyRequest.getAnswers()) {
                     answerManager.modifyAnswer(answer);
                 }
-
                 break;
             }
             default:

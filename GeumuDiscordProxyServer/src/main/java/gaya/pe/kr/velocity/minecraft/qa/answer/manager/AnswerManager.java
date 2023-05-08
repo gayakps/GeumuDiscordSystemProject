@@ -33,6 +33,7 @@ import org.sqlite.core.DB;
 import org.w3c.dom.Text;
 
 import javax.annotation.Nullable;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
@@ -134,6 +135,8 @@ public class AnswerManager {
 
     private void answer(QARequestResult qaRequestResult, Question question, Answer answer) {
 
+
+
         DiscordManager discordManager = DiscordManager.getInstance();
         Message message = discordManager.sendMessage( String.format("```%s\n%s```",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getQuestionChannel() );
 
@@ -163,96 +166,107 @@ public class AnswerManager {
         Player finalQuestionerPlayer = questionerPlayer;
         boolean databaseResult = DBConnection.taskTransaction(connection -> {
 
-            String sql = "INSERT INTO `pixelmon_01_answer`.`answers` " +
-                    "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`, `received_reward`) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?) " +
-                    "ON DUPLICATE KEY UPDATE " +
-                    "`question_id` = ?, " +
-                    "`contents` = ?, " +
-                    "`answer_qauser_uuid` = ?, " +
-                    "`answer_date` = ?, " +
-                    "`receive_to_question_player` = ?," +
-                    "`received_reward` = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            try {
 
-            long answerId = answer.getAnswerId();
-            long questionId = question.getId();
-            String answerContents = answer.getContents();
-            String answerQAUserUUIDStr = answer.getAnswerPlayer().getUuid().toString();
-            Timestamp timestamp = new Timestamp(answer.getAnswerDate().getTime());
-            boolean receivedToQuestionPlayer = finalQuestionerPlayer != null;
+                String sql = "INSERT INTO `pixelmon_01_answer`.`answers` " +
+                        "(`id`, `question_id`, `contents`, `answer_qauser_uuid`, `answer_date`, `receive_to_question_player`, `received_reward`) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                        "ON DUPLICATE KEY UPDATE " +
+                        "`question_id` = ?, " +
+                        "`contents` = ?, " +
+                        "`answer_qauser_uuid` = ?, " +
+                        "`answer_date` = ?, " +
+                        "`receive_to_question_player` = ?," +
+                        "`received_reward` = ?";
 
-            preparedStatement.setLong(1, answerId);
-            preparedStatement.setLong(2, questionId);
-            preparedStatement.setString(3, answerContents);
-            preparedStatement.setString(4, answerQAUserUUIDStr);
-            preparedStatement.setTimestamp(5, timestamp);
-            preparedStatement.setBoolean(6, receivedToQuestionPlayer);
-            preparedStatement.setBoolean(7, false);
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
-            preparedStatement.setLong(8, questionId);
-            preparedStatement.setString(9, answerContents);
-            preparedStatement.setString(10, answerQAUserUUIDStr);
-            preparedStatement.setTimestamp(11, timestamp);
-            preparedStatement.setBoolean(12, receivedToQuestionPlayer);
-            preparedStatement.setBoolean(13, false);
+                long answerId = answer.getAnswerId();
+                long questionId = question.getId();
+                String answerContents = answer.getContents();
+                String answerQAUserUUIDStr = answer.getAnswerPlayer().getUuid().toString();
+                Timestamp timestamp = new Timestamp(answer.getAnswerDate().getTime());
+                boolean receivedToQuestionPlayer = finalQuestionerPlayer != null;
 
-            preparedStatement.executeUpdate();
+                preparedStatement.setLong(1, answerId);
+                preparedStatement.setLong(2, questionId);
+                preparedStatement.setString(3, answerContents);
+                preparedStatement.setString(4, answerQAUserUUIDStr);
+                preparedStatement.setTimestamp(5, timestamp);
+                preparedStatement.setBoolean(6, receivedToQuestionPlayer);
+                preparedStatement.setBoolean(7, false);
 
-            questionManager.modifyQuestionData(question, QAModifyType.MODIFY);
+                preparedStatement.setLong(8, questionId);
+                preparedStatement.setString(9, answerContents);
+                preparedStatement.setString(10, answerQAUserUUIDStr);
+                preparedStatement.setTimestamp(11, timestamp);
+                preparedStatement.setBoolean(12, receivedToQuestionPlayer);
+                preparedStatement.setBoolean(13, false);
 
-            ConfigOption configOption = serverOptionManager.getConfigOption();
-            AnswerManager answerManager = AnswerManager.getInstance();
-            int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
+                preparedStatement.executeUpdate();
 
-            if (finalQuestionerPlayer != null) {
 
-                qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOnline()
-                        .replace("%playername%", QAUserManager.getInstance().getFullName(answerUser))
-                        .replace("%answer_count_total%", Long.toString(question.getId()))
-                        .replace("%answer_count_total%", Integer.toString(answerCountTotal))
-                ); // 답변자에게 전달
 
-                BroadCastMessage broadCastMessage = new BroadCastMessage(
-                        configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
-                                .replace("%answer_playername%", QAUserManager.getInstance().getFullName(answerUser))
-                                .replace("%answer%", answer.getContents())
-                );
+                ConfigOption configOption = serverOptionManager.getConfigOption();
+                AnswerManager answerManager = AnswerManager.getInstance();
+                int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
 
-                NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
+                this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
+                getQAUserAnswers(answerUser).add(answer);
+                NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
 
-                Channel channel = PlayerListHandler.getPlayerAsChannel(questionUser.getGamePlayerName());
+                if (finalQuestionerPlayer != null) {
 
-                VelocityThreadUtil.asyncTask(() -> {
-                    ChannelFuture channelFuture = channel.writeAndFlush(new ExpectQuestionAnswerResponse(questionUser, answerUser, question, answer));
-                    try {
-                        channelFuture.get();
-                        answer.setReceivedToQuestionPlayer(true); // 정상 전달했을경우
-                    } catch (ExecutionException | InterruptedException e) {
-                        throw new RuntimeException(e);
+                    qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOnline()
+                            .replace("%playername%", QAUserManager.getInstance().getFullName(questionUser))
+                            .replace("%question_number%", Long.toString(question.getId()))
+                            .replace("%answer_count_total%", Integer.toString(answerCountTotal))
+                    ); // 답변자에게 전달
+
+                    BroadCastMessage broadCastMessage = new BroadCastMessage(
+                            configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
+                                    .replace("%answer_playername%", QAUserManager.getInstance().getFullName(answerUser))
+                                    .replace("%answer%", answer.getContents())
+                    );
+
+                    NetworkManager.getInstance().sendPacketAllChannel(broadCastMessage); // 전체 서버로 메세지 전송
+
+                    Channel channel = PlayerListHandler.getPlayerAsChannel(questionUser.getGamePlayerName());
+
+                    if ( channel != null ) {
+                        VelocityThreadUtil.asyncTask(() -> {
+                            ChannelFuture channelFuture = channel.writeAndFlush(new ExpectQuestionAnswerResponse(questionUser, answerUser, question, answer));
+                            try {
+                                channelFuture.get();
+                                answer.setReceivedToQuestionPlayer(true); // 정상 전달했을경우
+                            } catch (ExecutionException | InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
                     }
-                });
 
 
-            } else {
-                //    @RequirePlaceHolder( placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
+                } else {
+                    //    @RequirePlaceHolder( placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
 
-                qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOffline()
-                        .replace("%playername%", QAUserManager.getInstance().getFullName(answerUser))
-                        .replace("%answer_count_total%", Long.toString(question.getId()))
-                        .replace("%answer_count_total%", Integer.toString(answerCountTotal))
-                ); // 답변자에게 전달
+                    qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOffline()
+                            .replace("%playername%", QAUserManager.getInstance().getFullName(answerUser))
+                            .replace("%answer_count_total%", Long.toString(question.getId()))
+                            .replace("%answer_count_total%", Integer.toString(answerCountTotal))
+                    ); // 답변자에게 전달
+                }
+            } catch ( Exception e ) {
+                e.printStackTrace();
             }
 
-            this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
-            getQAUserAnswers(answerUser).add(answer);
-            NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
 
 
         });
 
         if ( !databaseResult ) {
             message.delete().queue();
+        } else {
+            questionManager.modifyQuestionData(question, QAModifyType.MODIFY);
         }
 
     }
@@ -290,7 +304,12 @@ public class AnswerManager {
         }
 
         if ( answerUser != null ) {
-            System.out.println(answerUser.toString() + " <<< 답한 사람");
+
+            if ( answerUser.getDiscordPlayerUserId() == -1 ) {
+                qaRequestResult.setMessage("§f[§c!§f] 인증을 하지 않으면 답변할 수 없습니다");
+                return qaRequestResult;
+            }
+
         }
 
         if ( questionUser.equals(answerUser) ) {
@@ -337,7 +356,22 @@ public class AnswerManager {
             Answer targetAnswer = getAnswerByQuestId(answer.getAnswerId());
             targetAnswer.setReceiveReward(answer.isReceiveReward());
             targetAnswer.setReceivedToQuestionPlayer(answer.isReceivedToQuestionPlayer());
-            NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.MODIFY, new Answer[]{answer}));
+
+            boolean result = DBConnection.taskTransaction(connection -> {
+
+                String sql = "update `pixelmon_01_answer`.`answers` set receive_to_question_player = ?, received_reward = ? where id = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setBoolean(1, targetAnswer.isReceivedToQuestionPlayer());
+                preparedStatement.setBoolean(2, targetAnswer.isReceiveReward());
+                preparedStatement.setBigDecimal(3, BigDecimal.valueOf(targetAnswer.getAnswerId()));
+                preparedStatement.executeUpdate();
+
+            });
+
+            if ( result ) {
+                NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.MODIFY, new Answer[]{targetAnswer}));
+            }
+
         }
 
     }
@@ -370,10 +404,26 @@ public class AnswerManager {
         }
 
         if ( removeTarget != null ) {
-            answerIdByAnswerHashMap.remove(removeTarget.getAnswerId());
-            NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.REMOVE, new Answer[]{removeTarget}));
-            return removeTarget;
+
+            boolean result = DBConnection.taskTransaction(connection -> {
+
+                String sql = "delete from `pixelmon_01_answer`.`questions` where id = ?";
+
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+                preparedStatement.setBigDecimal(1, BigDecimal.valueOf(questId));
+
+                preparedStatement.executeUpdate();
+
+            });
+
+            if ( result ) {
+                answerIdByAnswerHashMap.remove(removeTarget.getAnswerId());
+                NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.REMOVE, new Answer[]{removeTarget}));
+                return removeTarget;
+            }
         }
+
         return null;
     }
 

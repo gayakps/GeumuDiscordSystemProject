@@ -35,10 +35,10 @@ public class AnswerAdminCommand implements CommandExecutor {
                     case "removeq": {
                         //해당 질문을 제거함
 
-                        if ( !permissionLevelType.equals(PermissionLevelType.STAFF) ) return false;
+                        if ( !PermissionLevelType.canAccess(permissionLevelType, PermissionLevelType.STAFF) ) return false;
 
                         try {
-                            int questionId = Integer.parseInt(args[0]);
+                            int questionId = Integer.parseInt(args[1]);
                             TargetQuestionRemoveRequest targetQuestionRemoveRequest = new TargetQuestionRemoveRequest(questionId, player.getName(), player.getUniqueId());
                             networkManager.sendPacket(targetQuestionRemoveRequest, player, player1 -> {
                                 player1.sendMessage("성공적으로 질문 제거 요청을 함");
@@ -50,11 +50,11 @@ public class AnswerAdminCommand implements CommandExecutor {
                     }
                     case "removea": {
 
-                        if ( !permissionLevelType.equals(PermissionLevelType.STAFF) ) return false;
+                        if ( !PermissionLevelType.canAccess(permissionLevelType, PermissionLevelType.STAFF) ) return false;
 
                         //해당 질문의 답변을 제거함
                         try {
-                            int questionId = Integer.parseInt(args[0]);
+                            int questionId = Integer.parseInt(args[1]);
                             TargetAnswerByQuestionIdRemoveRequest targetAnswerByQuestionIdRemoveRequest = new TargetAnswerByQuestionIdRemoveRequest(questionId, player.getName(), player.getUniqueId());
                             networkManager.sendPacket(targetAnswerByQuestionIdRemoveRequest, player, player1 -> {
                                 player1.sendMessage("성공적으로 답변 제거 요청을 함");
@@ -66,17 +66,17 @@ public class AnswerAdminCommand implements CommandExecutor {
                     }
                     case "removereward": {
 
-                        if ( !permissionLevelType.equals(PermissionLevelType.ADMIN) ) return false;
+                        if ( !PermissionLevelType.canAccess(permissionLevelType, PermissionLevelType.ADMIN) ) return false;
 
-                        TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = new TargetPlayerRemoveRewardRequest(args[0], player);
+                        TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = new TargetPlayerRemoveRewardRequest(args[1], player);
                         networkManager.sendPacket(targetPlayerRemoveRewardRequest, player, player1 -> {
                             player1.sendMessage("전송성공 얏호");
                         });
-
+                        break;
                     }
                     case "reload": {
 
-                        if ( !permissionLevelType.equals(PermissionLevelType.ADMIN) ) return false;
+                        if ( !PermissionLevelType.canAccess(permissionLevelType, PermissionLevelType.ADMIN) ) return false;
 
                         MinecraftOptionReloadRequest minecraftOptionReloadRequest = new MinecraftOptionReloadRequest(player);
 

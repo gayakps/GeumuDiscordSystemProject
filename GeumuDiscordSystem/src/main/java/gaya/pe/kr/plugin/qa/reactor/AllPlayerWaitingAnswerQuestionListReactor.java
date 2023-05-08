@@ -7,6 +7,7 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.reactor.ranking.WeeklyAnswerRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
@@ -37,7 +38,6 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
 
 
     List<Question> notAnsweredQuestions;
-    QARepository qaRepository;
     int page = 1;
     int totalPage = 1;
 
@@ -45,10 +45,9 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
 
     QAUser requestPlayerQAUser;
     public AllPlayerWaitingAnswerQuestionListReactor(Player player, QAUser requestPlayerQAUser, QARepository qaRepository) {
-        super(player);
+        super(player, qaRepository);
         this.notAnsweredQuestions = qaRepository.getNotAnsweredQuestion();
         this.requestPlayerQAUser = requestPlayerQAUser;
-        this.qaRepository = qaRepository;
     }
 
     @Override
@@ -232,11 +231,12 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
                 break;
             }
             case 45: {
-                getPlayer().closeInventory();
-                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                    WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
-                    weeklyAnswerRankingReactor.start();
-                });
+                    getPlayer().closeInventory();
+                    NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                        weeklyAnswerRankingReactor.start();
+                    });
+
                 break;
             }
             default: {

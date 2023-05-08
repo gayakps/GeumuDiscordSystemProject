@@ -57,8 +57,9 @@ public class AnswerCommand implements CommandExecutor {
 
                 switch ( category ) {
                     case "목록": {
-                        TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[] {args[0]} , player, false);
+                        TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[] {args[1]} , player, false);
                         networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
+
 
                             if ( qaUsers == null ) {
                                 player.sendMessage(configOption.getInvalidPlayerName().replace("&","§"));
@@ -138,6 +139,8 @@ public class AnswerCommand implements CommandExecutor {
                                 });
                             }
                         }
+
+                        break;
 
                     }
                     case "conversation": {

@@ -141,7 +141,7 @@ public class QAUserManager {
         DiscordManager discordManager = DiscordManager.getInstance();
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(qaUser.getGamePlayerName());
+        stringBuilder.append(qaUser.getGamePlayerName()).append(" ");
 
         if ( qaUser.getDiscordPlayerUserId() != -1 ) {
             User user = discordManager.getJda().getUserById(qaUser.getDiscordPlayerUserId());

@@ -29,7 +29,9 @@ public class AnswerRankingService {
                     LocalDate answerDate = LocalDateTime.ofInstant(a.getAnswerDate().toInstant(), ZoneId.systemDefault()).toLocalDate();
                     return !answerDate.isBefore(startDate) && !answerDate.isAfter(endDate);
                 })
+                .distinct()
                 .forEach(a -> answerCountMap.put(a.getAnswerPlayer(), answerCountMap.getOrDefault(a.getAnswerPlayer(), 0) + 1));
+
 
         return answerCountMap;
     }

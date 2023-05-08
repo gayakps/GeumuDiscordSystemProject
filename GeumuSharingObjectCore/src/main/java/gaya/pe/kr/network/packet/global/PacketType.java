@@ -10,10 +10,7 @@ import gaya.pe.kr.qa.answer.packet.server.ExpectQuestionAnswerResponse;
 import gaya.pe.kr.qa.packet.client.*;
 import gaya.pe.kr.qa.packet.server.BukkitAnswerModify;
 import gaya.pe.kr.qa.packet.server.BukkitQuestionModify;
-import gaya.pe.kr.qa.question.packet.client.PlayerQuestionListByQuestionIdRequest;
-import gaya.pe.kr.qa.question.packet.client.PlayerTransientProceedingQuestionRequest;
-import gaya.pe.kr.qa.question.packet.client.QuestionModifyRequest;
-import gaya.pe.kr.qa.question.packet.client.TargetPlayerGetQuestionRequest;
+import gaya.pe.kr.qa.question.packet.client.*;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -56,7 +53,7 @@ public enum PacketType {
     ALL_QA_USER_DATA_REQUEST(0x21, PacketStartDirection.CLIENT, AllQAUserDataRequest.class),
 
     TARGET_ANSWER_BY_QUESTION_ID_REMOVE_REQUEST(0x22, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
-    TARGET_QUESTION_REMOVE_REQUEST(0x23, PacketStartDirection.CLIENT, TargetAnswerByQuestionIdRemoveRequest.class),
+    TARGET_QUESTION_REMOVE_REQUEST(0x23, PacketStartDirection.CLIENT, TargetQuestionRemoveRequest.class),
 
     TARGET_PLAYER_CHAT(0x24, PacketStartDirection.SERVER, TargetPlayerChat.class),
 

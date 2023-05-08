@@ -37,6 +37,11 @@ public class QARankingService {
             if (itemDate != null && itemUser != null) {
                 QARankingResult<T> result = resultMap.get(itemUser);
 
+                if ( result == null ) {
+                    result = new QARankingResult<T>(itemUser,0,0,0,0,0);
+                    resultMap.put(itemUser, result);
+                }
+
                 LocalDate itemLocalDate = itemDate.toLocalDate();
                 if (itemLocalDate.equals(today.minusDays(1))) {
                     result.yesterdayCount++;

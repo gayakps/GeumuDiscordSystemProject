@@ -25,6 +25,7 @@ import gaya.pe.kr.velocity.minecraft.qa.manager.QAUserManager;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.annotation.Nullable;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -120,10 +121,26 @@ public class QuestionManager {
 
     public Question removeQuestionByQuestId(long questId) {
         if (questIdByQuestHashMap.containsKey(questId) ) {
+
             Question question = questIdByQuestHashMap.get(questId);
-            NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.REMOVE, new Question[]{question}));
-            questIdByQuestHashMap.remove(questId);
-            return question;
+
+            boolean result = DBConnection.taskTransaction(connection -> {
+
+                String sql = "delete from `pixelmon_01_answer`.`questions` where id = ?";
+
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+                preparedStatement.setBigDecimal(1, BigDecimal.valueOf(questId));
+
+                preparedStatement.executeUpdate();
+
+            });
+
+            if ( result ) {
+                NetworkManager.getInstance().sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.REMOVE, new Question[]{question}));
+                questIdByQuestHashMap.remove(questId);
+                return question;
+            }
         }
         return null;
     }
@@ -226,10 +243,6 @@ public class QuestionManager {
             qaUser = qaUserManager.getUser(playerTransientProceedingQuestionRequest.getDiscordUserId());
         } else {
             qaUser = qaUserManager.getUser(playerTransientProceedingQuestionRequest.getPlayerName());
-        }
-
-        if ( qaUser != null ) {
-            System.out.println(qaUser.toString() + " <<< 정보");
         }
 
         int delay = configOption.getQuestionCooldown();
@@ -375,7 +388,6 @@ public class QuestionManager {
 
                     PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
-
                     long questionId = question.getId();
                     String uuid = question.getQaUser().getUuid().toString();
                     String contents = question.getContents();
@@ -383,7 +395,7 @@ public class QuestionManager {
                     long discordMessage = question.getDiscordMessageId();
                     boolean answer = question.isAnswer();
 
-                        preparedStatement.setLong(1, questionId);
+                    preparedStatement.setLong(1, questionId);
                     preparedStatement.setString(2, uuid);
                     preparedStatement.setString(3, contents);
                     preparedStatement.setTimestamp(4, timestamp);
@@ -397,6 +409,8 @@ public class QuestionManager {
                     preparedStatement.setBoolean(11, answer);
 
                     preparedStatement.executeUpdate();
+
+                    System.out.println(question.toString() + " <<< 처리 완료");
 
                     updateQuestionData(question);
 

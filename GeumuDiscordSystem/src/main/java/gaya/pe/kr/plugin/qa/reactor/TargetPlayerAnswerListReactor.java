@@ -6,6 +6,7 @@ import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.reactor.ranking.WeeklyAnswerRankingReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
@@ -38,14 +39,13 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
 
     List<Answer> targetPlayerAnswers = new ArrayList<>();
-    QARepository qaRepository;
     QAUser targetPlayerQAUser;
 
     int page = 1;
     int totalPage = 1;
 
     public TargetPlayerAnswerListReactor(Player player,QAUser targetPlayerQAUser, QARepository qaRepository) {
-        super(player);
+        super(player, qaRepository);
         this.targetPlayerQAUser = targetPlayerQAUser;
         targetPlayerAnswers = qaRepository.getQAUserAnswers(targetPlayerQAUser);
     }
@@ -72,7 +72,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
         }
 
         if ( targetPlayerAnswers.isEmpty() ) {
-            getPlayer().sendMessage("§c질문한 목록이 없습니다");
+            getPlayer().sendMessage("§c답변한 목록이 없습니다");
             return;
         }
 
@@ -110,30 +110,34 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
                     }
                 }
 
+                if ( targetQuestion != null ) {
+                    String itemName = playerAnswerListOption.getAnsweredQuestionName().replace("%question_content%", targetQuestion.getContents());
 
-                String itemName = playerAnswerListOption.getAnsweredQuestionName().replace("%question_content%", targetQuestion.getContents());
+                    //    @RequirePlaceHolder( placeholders =
+                    //    {"%answer_content%", "%question_number%", "%question_playername%", "%question_time%", "%answer_time%", "%answer_playername%"} )
+                    for (String s : playerAnswerListOption.getAnsweredQuestionLore()) {
+                        lore.add(s
+                                .replace("%answer_content%", targetAnswer.getContents())
+                                .replace("%question_number%", Long.toString(targetQuestion.getId()))
+                                .replace("%question_playername%", BukkitDiscordManager.getInstance().getFullName(targetQuestion.getQaUser()))
+                                .replace("%question_time%", simpleDateFormat.format(targetQuestion.getQuestionDate()))
+                                .replace("%answer_time%", simpleDateFormat.format(targetAnswer.getAnswerDate()))
+                                .replace("%answer_playername%", BukkitDiscordManager.getInstance().getFullName(targetAnswer.getAnswerPlayer()))
+                        );
+                    }
 
-                //    @RequirePlaceHolder( placeholders =
-                //    {"%answer_content%", "%question_number%", "%question_playername%", "%question_time%", "%answer_time%", "%answer_playername%"} )
-                for (String s : playerAnswerListOption.getAnsweredQuestionLore()) {
-                    lore.add(s
-                            .replace("%answer_content%", targetAnswer.getContents())
-                            .replace("%question_number%", Long.toString(targetQuestion.getId()))
-                            .replace("%question_playername%", BukkitDiscordManager.getInstance().getFullName(targetQuestion.getQaUser()))
-                            .replace("%question_time%", simpleDateFormat.format(targetQuestion.getQuestionDate()))
-                            .replace("%answer_time%", simpleDateFormat.format(targetAnswer.getAnswerDate()))
-                            .replace("%answer_playername%", BukkitDiscordManager.getInstance().getFullName(targetAnswer.getAnswerPlayer()))
+                    itemStack = ItemCreator.createItemStack(Material.RED_WOOL,
+                            itemName,
+                            lore
                     );
+
+
+                    inventory.setItem(inventoryIndex, itemStack);
+                    inventoryIndex++;
                 }
 
-                itemStack = ItemCreator.createItemStack(Material.RED_WOOL,
-                        itemName,
-                        lore
-                );
 
 
-                inventory.setItem(inventoryIndex, itemStack);
-                inventoryIndex++;
 
             } else {
                 break;
@@ -258,12 +262,12 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
                 break;
             }
             case 45: {
-                getPlayer().closeInventory();
-                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                    WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
-                    weeklyAnswerRankingReactor.open();
-                });
-                break;
+                    getPlayer().closeInventory();
+                    NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                        weeklyAnswerRankingReactor.open();
+                    });
+                    break;
             }
         }
 

@@ -40,11 +40,11 @@ public class DBConnection {
 
         config.setMaxLifetime(580000);
         config.setIdleTimeout(10000);
-        config.setConnectionTimeout(10000);
+        config.setConnectionTimeout(5000);
         config.setValidationTimeout(10000);
         config.setMinimumIdle(20);
         config.setPoolName("그무 시스템");
-        config.setLeakDetectionThreshold(24000);
+        config.setLeakDetectionThreshold(12000);
 
         dataSource = new HikariDataSource(config);
 
@@ -98,7 +98,7 @@ public class DBConnection {
                 "  `answer_date` datetime NOT NULL,\n" +
                 "  `receive_to_question_player` tinyint NOT NULL DEFAULT '0',\n" +
                 "  `received_reward` tinyint NOT NULL DEFAULT '0',\n" +
-                "  PRIMARY KEY (`id`,`question_id`),\n" +
+                "  PRIMARY KEY (`id`),\n" +
                 "  KEY `answers_questions_id_fk` (`question_id`),\n" +
                 "  KEY `answers_user_profiles_UUID_fk` (`answer_qauser_uuid`),\n" +
                 "  CONSTRAINT `answers_questions_id_fk` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n" +
@@ -114,9 +114,14 @@ public class DBConnection {
             connection.setAutoCommit(false);
             dbTransaction.task(connection);
             connection.commit();
-            connection.close();
+
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+
+            connection = null;
             return true;
-        } catch ( SQLException e ) {
+        } catch ( Exception e ) {
             e.printStackTrace();
             try {
                 if (connection != null) {
