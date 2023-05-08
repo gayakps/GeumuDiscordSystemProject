@@ -5,9 +5,12 @@ import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.qa.data.QARankingResult;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.reactor.TargetPlayerAnswerListReactor;
+import gaya.pe.kr.plugin.qa.reactor.TargetPlayerQuestionListReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.service.AnswerRankingService;
 import gaya.pe.kr.plugin.qa.service.QARankingService;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
@@ -27,9 +30,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
 
@@ -38,6 +39,7 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
 
     List<QAUser> qaUsers;
 
+    HashMap<Integer, QAUser> qaUserHashMap = new LinkedHashMap<>();
 
     public WeeklyAnswerRankingReactor(Player player, List<QAUser> qaUsers, QARepository qaRepository) {
         super(player, qaRepository);
@@ -49,7 +51,7 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
         int startIndex = (page-1) * 36;
         int lastIndex = (page * 36);
 
-        List<QARankingResult<Answer>> answerQARankingResult = QARankingService.calculateRankings(qaUsers, qaRepository.getAllAnswers());
+        List<QARankingResult<Answer>> answerQARankingResult = QARankingService.calculateRankings(qaUsers, getQaRepository().getAllAnswers());
 
         totalPage = ( answerQARankingResult.size() / 36 ) + 1;
 
@@ -106,6 +108,7 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
                         , lore
                 );
 
+                qaUserHashMap.put(inventoryIndex, qaUser);
                 inventory.setItem(inventoryIndex, head);
                 inventoryIndex++;
 
@@ -130,6 +133,9 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
         inventory.setItem(50, ItemCreator.createItemStack(Material.getMaterial(commonlyUsedButtonOption.getNextPageButtonType().toUpperCase(Locale.ROOT)), commonlyUsedButtonOption.getNextPageButtonName()));
 
         setInventory(inventory);
+
+            getPlayer().openInventory(inventory);
+
     }
 
     @Override
@@ -139,6 +145,38 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
 
     @Override
     protected void clickInventory(InventoryClickEvent event) {
+
+        int clickedSlot = event.getSlot();
+
+        switch ( clickedSlot ) {
+            case 48: {
+                page--;
+                open();
+                break;
+            }
+            case 50: {
+                page++;
+                open();
+                // 다음페이지
+                break;
+            }
+            default: {
+
+                if ( qaUserHashMap.containsKey(clickedSlot) ) {
+
+                    QAUser qaUser = qaUserHashMap.get(clickedSlot);
+
+                    getPlayer().closeInventory();
+                    TargetPlayerAnswerListReactor targetPlayerAnswerListReactor = new TargetPlayerAnswerListReactor(getPlayer(), qaUser, getQaRepository());
+                    targetPlayerAnswerListReactor.start();
+
+                    close();
+
+                }
+                break;
+            }
+        }
+
 
     }
 

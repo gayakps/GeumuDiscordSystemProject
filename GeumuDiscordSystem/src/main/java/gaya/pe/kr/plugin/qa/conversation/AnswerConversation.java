@@ -49,7 +49,7 @@ public class AnswerConversation extends StringPrompt {
     @NotNull
     @Override
     public String getPromptText(@NotNull ConversationContext conversationContext) {
-        return ">>>> 채팅창에 답장을 입력해주세요 <<<<";
+        return String.format("\n\n\n§e§l>>>> §f[§a§l%s§f] 에 대한 답장을 입력해주세요 §e§l<<<<\n\n\n", question.getContents());
     }
 
     @Nullable

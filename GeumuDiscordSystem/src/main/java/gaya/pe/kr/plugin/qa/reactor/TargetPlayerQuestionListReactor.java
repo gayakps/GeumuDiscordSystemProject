@@ -45,7 +45,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
     public TargetPlayerQuestionListReactor(Player player, QAUser targetQAUser, QARepository qaRepository) {
         super(player, qaRepository);
-        this.targetPlayerQuestions = qaRepository.getQAUserQuestions(targetQAUser);
+        this.targetPlayerQuestions = getQaRepository().getQAUserQuestions(targetQAUser);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
         PlayerQuestionListOption playerQuestionListOption = optionManager.getPlayerQuestionListOption();
 
-        List<Answer> answerList = qaRepository.getAllAnswers();
+        List<Answer> answerList = getQaRepository().getAllAnswers();
 
         Comparator<Question> answerComparator = (q1, q2) -> {
             if (q1.isAnswer() == q2.isAnswer()) {
@@ -177,7 +177,7 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
             LocalDate startDate = LocalDate.now();
 
-            Map<QAUser, Integer> questionCountMap = getQuestionCountMap(qaRepository.getAllQuestions(), startDate, startDate);
+            Map<QAUser, Integer> questionCountMap = getQuestionCountMap(getQaRepository().getAllQuestions(), startDate, startDate);
 
             List<Map.Entry<QAUser, Integer>> sortedEntries = questionCountMap.entrySet().stream()
                     .sorted(Map.Entry.<QAUser, Integer>comparingByValue().reversed())
@@ -249,7 +249,6 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
 
         setInventory(inventory);
-
         getPlayer().openInventory(inventory);
 
     }
@@ -271,13 +270,13 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
                 break;
             }
             case 45: {
-                //TODO 일간 질문수 랭킹
-                    getPlayer().closeInventory();
-                    NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                        DailyQuestionRankingReactor questionRankingReactor = new DailyQuestionRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
-                        questionRankingReactor.start();
-                    });
-                    break;
+                getPlayer().closeInventory();
+                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                    DailyQuestionRankingReactor questionRankingReactor = new DailyQuestionRankingReactor(getPlayer(), Arrays.asList(qaUsers), getQaRepository());
+                    questionRankingReactor.start();
+                });
+                close();
+                break;
             }
             default: {
                 if ( answerAbleQuestions.containsKey(clickedSlot) ) {

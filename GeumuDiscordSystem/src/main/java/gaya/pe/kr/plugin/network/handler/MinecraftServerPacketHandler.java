@@ -125,12 +125,12 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                         case ADD:
                         case MODIFY: {
                             qaRepository.addAnswer(answer);
-                            System.out.println(qaRepository.getAllAnswers().toString() + " ADD");
+                            System.out.println(answer.toString() + " " + bukkitAnswerModify.getQaModifyType().name());
                             break;
                         }
                         case REMOVE: {
                             qaRepository.removeAnswer(answer);
-                            System.out.println(qaRepository.getAllAnswers().toString() + " REMOVE");
+                            System.out.println(answer.toString() + " REMOVE");
                             break;
                         }
                     }
@@ -151,12 +151,12 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                         case ADD:
                         case MODIFY: {
                             qaRepository.addQuestion(question);
-                            System.out.println(qaRepository.getAllQuestions().toString() + " ADD");
+                            System.out.println(question.toString() + " " + bukkitQuestionModify.getQaModifyType().name());
                             break;
                         }
                         case REMOVE: {
                             qaRepository.removeQuestion(question);
-                            System.out.println(qaRepository.getAllQuestions().toString() + " REMOVE");
+                            System.out.println(question.toString() + " REMOVE");
                             break;
                         }
                     }
@@ -210,10 +210,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
 
                             }, answerReceivedTitleFadeInTime+answerReceivedTitleFadeStayTime+answerReceivedTitleFadeOutTime);
                         },1);
-
-
-
-
 
 
                     }

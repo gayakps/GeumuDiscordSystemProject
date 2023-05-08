@@ -6,6 +6,7 @@ import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.qa.answer.data.Answer;
 import gaya.pe.kr.qa.answer.packet.client.AnswerModifyRequest;
 import gaya.pe.kr.qa.data.QAUser;
@@ -33,47 +34,55 @@ public class PlayerConnectionListener implements Listener {
         Player player = event.getPlayer();
         networkManager.sendPacket(new UpdatePlayerList(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList())));
 
-        TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest( new String[] {player.getName()} , player, true);
-        networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
+        ConfigOption configOption = OptionManager.getInstance().getConfigOption();
 
-            QARepository qaRepository = QAManager.getInstance().getQaRepository();
+        SchedulerUtil.runLaterTask( ()-> {
 
-            ConfigOption configOption = OptionManager.getInstance().getConfigOption();
+            if ( !player.isOnline() ) return;
 
-            QAUser qaUser = qaUsers[0];
+            TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest( new String[] {player.getName()} , player, true);
+            networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
 
-            List<Question> questionList = qaRepository.getQAUserQuestions(qaUser); // 내가 질문했던 것 중에
-            List<Answer> notReceivedAnswers = new ArrayList<>();
+                QARepository qaRepository = QAManager.getInstance().getQaRepository();
 
-            for (Question question : questionList) {
-                if ( question.isAnswer() ) { // 답변이 완료되었고
-                    for (Answer answer : qaRepository.getAllAnswers()) { // 모든 답변 중에
-                        if ( answer.getQuestionId() == question.getId() ) { // 내 질문에 대한 답변 중
-                            if ( !answer.isReceivedToQuestionPlayer() ) { // 질문자에게 답변 알람이 가지 않은것들을
-                                notReceivedAnswers.add(answer);
-                                answer.setReceivedToQuestionPlayer(true);
+
+                QAUser qaUser = qaUsers[0];
+
+                List<Question> questionList = qaRepository.getQAUserQuestions(qaUser); // 내가 질문했던 것 중에
+                List<Answer> notReceivedAnswers = new ArrayList<>();
+
+                for (Question question : questionList) {
+                    if ( question.isAnswer() ) { // 답변이 완료되었고
+                        for (Answer answer : qaRepository.getAllAnswers()) { // 모든 답변 중에
+                            if ( answer.getQuestionId() == question.getId() ) { // 내 질문에 대한 답변 중
+                                if ( !answer.isReceivedToQuestionPlayer() ) { // 질문자에게 답변 알람이 가지 않은것들을
+                                    notReceivedAnswers.add(answer);
+                                    answer.setReceivedToQuestionPlayer(true);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if ( !notReceivedAnswers.isEmpty() ) {
+                if ( !notReceivedAnswers.isEmpty() ) {
 
-                int answerReceivedTitleFadeInTime = configOption.getAnswerReceiveTitleFadeInTime();
-                int answerReceivedTitleFadeOutTime = configOption.getAnswerReceiveTitleFadeOutTime();
-                int answerReceivedTitleFadeStayTime = configOption.getAnswerReceiveTitleStayTime();
+                    int answerReceivedTitleFadeInTime = configOption.getAnswerReceiveTitleFadeInTime();
+                    int answerReceivedTitleFadeOutTime = configOption.getAnswerReceiveTitleFadeOutTime();
+                    int answerReceivedTitleFadeStayTime = configOption.getAnswerReceiveTitleStayTime();
 
-                AnswerModifyRequest answerModifyRequest = new AnswerModifyRequest(QAModifyType.MODIFY, notReceivedAnswers.toArray(new Answer[0]));
-                networkManager.sendPacket(answerModifyRequest, player, player2 -> GeumuDiscordSystem.msg(player2, ""));
+                    AnswerModifyRequest answerModifyRequest = new AnswerModifyRequest(QAModifyType.MODIFY, notReceivedAnswers.toArray(new Answer[0]));
+                    networkManager.sendPacket(answerModifyRequest, player, player2 -> GeumuDiscordSystem.msg(player2, ""));
 
-                int count = notReceivedAnswers.size();
-                GeumuDiscordSystem.msg(player, configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter().replace("%arrived_answer_count%", Integer.toString(count)));
-                player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterTitle().replace("%arrived_answer_count%", Integer.toString(count)), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
+                    int count = notReceivedAnswers.size();
+                    GeumuDiscordSystem.msg(player, configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter().replace("%arrived_answer_count%", Integer.toString(count)));
+                    player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterTitle().replace("%arrived_answer_count%", Integer.toString(count)), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
 
-            }
+                }
 
-        });
+            });
+        }, configOption.getAnswerAnnouncerDelayWhenLogIn()*20);
+
+
 
     }
 

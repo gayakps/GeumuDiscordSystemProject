@@ -39,7 +39,7 @@ import static gaya.pe.kr.plugin.qa.service.AnswerRankingService.getAnswerCountMa
 public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
 
-    List<Answer> targetPlayerAnswers = new ArrayList<>();
+    List<Answer> targetPlayerAnswers;
     QAUser targetPlayerQAUser;
 
     int page = 1;
@@ -48,7 +48,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
     public TargetPlayerAnswerListReactor(Player player,QAUser targetPlayerQAUser, QARepository qaRepository) {
         super(player, qaRepository);
         this.targetPlayerQAUser = targetPlayerQAUser;
-        targetPlayerAnswers = qaRepository.getQAUserAnswers(targetPlayerQAUser);
+        targetPlayerAnswers = getQaRepository().getQAUserAnswers(targetPlayerQAUser);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
 
                 Question targetQuestion = null;
 
-                for (Question question : qaRepository.getAllQuestions()) {
+                for (Question question : getQaRepository().getAllQuestions()) {
                     if ( targetAnswer.getQuestionId() == question.getId() ) {
                         targetQuestion = question;
                         break;
@@ -158,7 +158,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
             LocalDate today = LocalDate.now();
 
             LocalDate weekStart = today.minusDays(6);
-            Map<QAUser, Integer> answerCountMap = getAnswerCountMap(qaRepository.getAllAnswers(), weekStart, today);
+            Map<QAUser, Integer> answerCountMap = getAnswerCountMap(getQaRepository().getAllAnswers(), weekStart, today);
 
             List<Map.Entry<QAUser, Integer>> sortedEntries = answerCountMap.entrySet().stream()
                     .sorted(Map.Entry.<QAUser, Integer>comparingByValue().reversed())
@@ -216,7 +216,7 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
             System.out.println("월간 답변 수: " + monthlyQuestions);
             System.out.println("전체 답변 질문 수: " + totalQuestions);
 
-            long receivedRewardCount = qaRepository.getQAUserAnswers(targetPlayerQAUser).stream().filter(answer -> !answer.isReceiveReward()).count();
+            long receivedRewardCount = getQaRepository().getQAUserAnswers(targetPlayerQAUser).stream().filter(answer -> !answer.isReceiveReward()).count();
 
             //    @RequirePlaceHolder( placeholders = {"%answer_count_yesterday%"
             //    , "%answer_count_daily%", "%answer_count_weekly%", "%answer_count_monthly%", "%answer_count_total%", "%reward_count%"})
@@ -265,9 +265,10 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
             case 45: {
                     getPlayer().closeInventory();
                     NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), getQaRepository());
                         weeklyAnswerRankingReactor.open();
                     });
+                close();
                     break;
             }
         }

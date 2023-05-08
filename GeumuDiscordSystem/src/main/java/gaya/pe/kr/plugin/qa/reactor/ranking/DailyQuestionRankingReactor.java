@@ -3,8 +3,10 @@ package gaya.pe.kr.plugin.qa.reactor.ranking;
 import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.qa.data.QARankingResult;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.reactor.TargetPlayerQuestionListReactor;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
 import gaya.pe.kr.plugin.qa.service.QARankingService;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.plugin.util.ItemCreator;
 import gaya.pe.kr.plugin.util.MinecraftInventoryReactor;
 import gaya.pe.kr.qa.answer.data.Answer;
@@ -21,9 +23,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
 
@@ -33,6 +33,8 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
     QARepository qaRepository;
     List<QAUser> qaUsers;
 
+    HashMap<Integer, QAUser> qaUserHashMap = new LinkedHashMap<>();
+
     public DailyQuestionRankingReactor(Player player, List<QAUser> qaUsers, QARepository qaRepository) {
         super(player, qaRepository);
         this.qaUsers = qaUsers;
@@ -41,11 +43,10 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
 
     public void open() {
 
-
         int startIndex = (page-1) * 36;
         int lastIndex = (page * 36);
 
-        List<QARankingResult<Question>> questionQARankingResult = QARankingService.calculateRankings(qaUsers, qaRepository.getAllQuestions());
+        List<QARankingResult<Question>> questionQARankingResult = QARankingService.calculateRankings(qaUsers, getQaRepository().getAllQuestions());
 
         totalPage = ( questionQARankingResult.size() / 36 ) + 1;
 
@@ -64,7 +65,7 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
         OptionManager optionManager = OptionManager.getInstance();
         QuestionRankingOption questionRankingOption = optionManager.getQuestionRankingOption();
 
-        Inventory inventory = Bukkit.createInventory(null, 54, String.format("답변 랭킹 - %d / %d", page, totalPage));
+        Inventory inventory = Bukkit.createInventory(null, 54, String.format("질문 랭킹 - %d / %d", page, totalPage));
 
         int inventoryIndex = 9;
         for ( int index = startIndex; index < lastIndex; index++ ) {
@@ -76,9 +77,6 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
                 List<String> lore = new ArrayList<>();
 
 
-                //    @RequirePlaceHolder(placeholders =
-                //    {"%question_count_yesterday%", "%question_count_daily%",
-                //    "%question_count_weekly%", "%question_count_monthly%", "%question_count_total%"})
                 for (String s : questionRankingOption.getQuestionRankingInfoLore()) {
                     lore.add(
                             s
@@ -96,6 +94,8 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
                                 .replace("%ranking%", Integer.toString(qaRankingResult.getRank()))
                         , lore
                 );
+
+                qaUserHashMap.put(inventoryIndex, qaUser);
 
                 inventory.setItem(inventoryIndex, head);
                 inventoryIndex++;
@@ -121,14 +121,13 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
         inventory.setItem(50, ItemCreator.createItemStack(Material.getMaterial(commonlyUsedButtonOption.getNextPageButtonType().toUpperCase(Locale.ROOT)), commonlyUsedButtonOption.getNextPageButtonName()));
 
         setInventory(inventory);
+
+        getPlayer().openInventory(inventory);
     }
 
     @Override
     protected void init() {
-
-        Inventory inventory = null;
-        setInventory(inventory);
-
+        open();
     }
 
     @Override
@@ -138,11 +137,31 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
 
         switch ( clickedSlot ) {
             case 48: {
+                page--;
+                open();
                 break;
             }
             case 50: {
-
+                page++;
+                open();
                 // 다음페이지
+                break;
+            }
+            default: {
+
+
+                if ( qaUserHashMap.containsKey(clickedSlot) ) {
+
+                    QAUser qaUser = qaUserHashMap.get(clickedSlot);
+
+                    getPlayer().closeInventory();
+
+                    TargetPlayerQuestionListReactor targetPlayerQuestionListReactor = new TargetPlayerQuestionListReactor(getPlayer(), qaUser, getQaRepository());
+                    targetPlayerQuestionListReactor.start();
+
+                    close();
+
+                }
                 break;
             }
         }

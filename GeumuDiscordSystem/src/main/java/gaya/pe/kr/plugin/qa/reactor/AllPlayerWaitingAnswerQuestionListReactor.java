@@ -47,7 +47,7 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
     QAUser requestPlayerQAUser;
     public AllPlayerWaitingAnswerQuestionListReactor(Player player, QAUser requestPlayerQAUser, QARepository qaRepository) {
         super(player, qaRepository);
-        this.notAnsweredQuestions = qaRepository.getNotAnsweredQuestion();
+        this.notAnsweredQuestions = getQaRepository().getNotAnsweredQuestion();
         this.requestPlayerQAUser = requestPlayerQAUser;
     }
 
@@ -131,7 +131,7 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
             LocalDate today = LocalDate.now();
 
             LocalDate weekStart = today.minusDays(6);
-            Map<QAUser, Integer> answerCountMap = getAnswerCountMap(qaRepository.getAllAnswers(), weekStart, today);
+            Map<QAUser, Integer> answerCountMap = getAnswerCountMap(getQaRepository().getAllAnswers(), weekStart, today);
 
             List<Map.Entry<QAUser, Integer>> sortedEntries = answerCountMap.entrySet().stream()
                     .sorted(Map.Entry.<QAUser, Integer>comparingByValue().reversed())
@@ -169,7 +169,7 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
         {
             List<String> index49ItemLore = new ArrayList<>();
 
-            List<Answer> answers = qaRepository.getQAUserAnswers(requestPlayerQAUser);
+            List<Answer> answers = getQaRepository().getQAUserAnswers(requestPlayerQAUser);
             long receivedRewardCount = answers.stream().filter(answer -> !answer.isReceiveReward()).count();
 
             LocalDate today = LocalDate.now();
@@ -234,9 +234,10 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
             case 45: {
                     getPlayer().closeInventory();
                     NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), qaRepository);
+                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), getQaRepository());
                         weeklyAnswerRankingReactor.start();
                     });
+                close();
 
                 break;
             }

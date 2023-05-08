@@ -1,7 +1,9 @@
 package gaya.pe.kr.plugin.util;
 
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
+import gaya.pe.kr.plugin.qa.manager.QAManager;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
+import gaya.pe.kr.plugin.thread.SchedulerUtil;
 import gaya.pe.kr.util.option.data.options.gui.CommonlyUsedButtonOption;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,6 +26,15 @@ public abstract class MinecraftInventoryReactor implements Listener {
     Inventory inventory;
     Player player;
 
+    public QARepository getQaRepository() {
+
+        if ( qaRepository == null ) {
+            qaRepository = QAManager.getInstance().getQaRepository();
+        }
+
+        return qaRepository;
+    }
+
     protected QARepository qaRepository;
 
     public MinecraftInventoryReactor(Player player, QARepository qaRepository) {
@@ -36,9 +47,8 @@ public abstract class MinecraftInventoryReactor implements Listener {
 
 
     public void start() {
-
         EventUtil.register(this);
-        init();
+        SchedulerUtil.runLaterTask(this::init,1);
     }
 
     @EventHandler
