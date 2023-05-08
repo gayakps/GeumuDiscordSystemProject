@@ -10,14 +10,16 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldPrepender;
+import java.util.function.Supplier;
 
 public class MinecraftServerInitializer extends ChannelInitializer<SocketChannel> {
 
     PacketStartDirection packetStartDirection;
-    SimpleChannelInboundHandler<AbstractMinecraftPacket> simpleChannelInboundHandler;
-    public MinecraftServerInitializer(PacketStartDirection packetStartDirection, SimpleChannelInboundHandler<AbstractMinecraftPacket> simpleChannelInboundHandler) {
+    Supplier<SimpleChannelInboundHandler<AbstractMinecraftPacket>> handlerSupplier;
+
+    public MinecraftServerInitializer(PacketStartDirection packetStartDirection, Supplier<SimpleChannelInboundHandler<AbstractMinecraftPacket>> handlerSupplier) {
         this.packetStartDirection = packetStartDirection;
-        this.simpleChannelInboundHandler = simpleChannelInboundHandler;
+        this.handlerSupplier = handlerSupplier;
     }
 
     @Override
@@ -29,9 +31,7 @@ public class MinecraftServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(new LengthFieldPrepender(2));
         pipeline.addLast(new PacketDecoder(packetStartDirection));
         pipeline.addLast(new MinecraftLengthFieldBasedFrameDecoder(packetStartDirection));
-        pipeline.addLast(simpleChannelInboundHandler);
-
-
+        pipeline.addLast(handlerSupplier.get());
     }
 }
 

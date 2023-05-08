@@ -58,9 +58,17 @@ public class AnswerCommand implements CommandExecutor {
 
                 switch ( category ) {
                     case "목록": {
-                        TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[] {args[1]} , player, false);
-                        networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
 
+                        String targetPlayerName;
+
+                        try {
+                            targetPlayerName = args[1];
+                        } catch ( ArrayIndexOutOfBoundsException e ) {
+                            targetPlayerName = player.getName();
+                        }
+
+                        TargetQAUserDataRequest targetQAUserDataRequest = new TargetQAUserDataRequest(new String[] {targetPlayerName} , player, false);
+                        networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
 
                             if ( qaUsers == null ) {
                                 GeumuDiscordSystem.msg(player, configOption.getInvalidPlayerName());

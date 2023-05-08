@@ -80,8 +80,11 @@ public final class GeumuDiscordSystem extends JavaPlugin implements CommandExecu
     }
 
     public static void msg(Player player, String... s) {
+
         for (String s1 : s) {
-            player.sendMessage(String.format("%s", s1).replace("&", "§"));
+            if ( !s1.isEmpty() ) {
+                player.sendRawMessage(String.format("%s", s1).replace("&", "§"));
+            }
         }
     }
 

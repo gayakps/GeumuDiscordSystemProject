@@ -31,17 +31,18 @@ public class NetworkManager {
         return SingleTon.NETWORK_MANAGER;
     }
 
-    MinecraftClientPacketHandler minecraftClientPacketHandler = new MinecraftClientPacketHandler();
 
     public void init() {
         new Thread(() -> {
             EventLoopGroup bossGroup = new NioEventLoopGroup();
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
+
+
                 ServerBootstrap bootstrap = new ServerBootstrap()
                         .group(bossGroup, workerGroup)
                         .channel(NioServerSocketChannel.class)
-                        .childHandler(new MinecraftServerInitializer(PacketStartDirection.SERVER, minecraftClientPacketHandler))
+                        .childHandler(new MinecraftServerInitializer(PacketStartDirection.SERVER, () -> new MinecraftClientPacketHandler()))
                         .option(ChannelOption.SO_BACKLOG, 128)
                         .childOption(ChannelOption.SO_KEEPALIVE, true);
                 ChannelFuture future = bootstrap.bind(8080).sync();
@@ -61,16 +62,20 @@ public class NetworkManager {
         }).start();
     }
 
-    public MinecraftClientPacketHandler getMinecraftClientPacketHandler() {
-        return minecraftClientPacketHandler;
-    }
 
     public void sendPacket(Channel channel, AbstractMinecraftPacket minecraftPacket) {
-        getMinecraftClientPacketHandler().sendPacket(channel, minecraftPacket);
+        MinecraftClientPacketHandler.channelGroup.forEach(channel1 -> {
+            if ( channel1.equals(channel) ) {
+                channel.writeAndFlush(minecraftPacket);
+                return;
+            }
+        });
     }
 
     public void sendPacketAllChannel(AbstractMinecraftPacket minecraftPacket) {
-        getMinecraftClientPacketHandler().sendPacketAllChannel(minecraftPacket);
+        MinecraftClientPacketHandler.channelGroup.forEach(channel -> {
+           channel.writeAndFlush(minecraftPacket);
+        });
     }
 
 

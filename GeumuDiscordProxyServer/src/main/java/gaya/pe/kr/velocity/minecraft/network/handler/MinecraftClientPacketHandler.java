@@ -58,6 +58,10 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     QAUserManager qaUserManager = QAUserManager.getInstance();
     public static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
+    public MinecraftClientPacketHandler() {
+        System.out.println("MinecraftClientPacketHandler 가 추가되었습니다");
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // 예외 처리

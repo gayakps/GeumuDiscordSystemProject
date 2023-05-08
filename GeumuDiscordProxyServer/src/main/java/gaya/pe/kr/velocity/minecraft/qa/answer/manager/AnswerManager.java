@@ -207,14 +207,14 @@ public class AnswerManager {
                 preparedStatement.setString(4, answerQAUserUUIDStr);
                 preparedStatement.setTimestamp(5, timestamp);
                 preparedStatement.setBoolean(6, receivedToQuestionPlayer);
-                preparedStatement.setBoolean(7, false);
+                preparedStatement.setBoolean(7, false );
 
                 preparedStatement.setLong(8, questionId);
                 preparedStatement.setString(9, answerContents);
                 preparedStatement.setString(10, answerQAUserUUIDStr);
                 preparedStatement.setTimestamp(11, timestamp);
                 preparedStatement.setBoolean(12, receivedToQuestionPlayer);
-                preparedStatement.setBoolean(13, false);
+                preparedStatement.setBoolean(13, false );
 
                 preparedStatement.executeUpdate();
 

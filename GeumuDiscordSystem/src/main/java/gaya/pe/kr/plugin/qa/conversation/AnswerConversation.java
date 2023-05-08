@@ -49,7 +49,7 @@ public class AnswerConversation extends StringPrompt {
     @NotNull
     @Override
     public String getPromptText(@NotNull ConversationContext conversationContext) {
-        return "채팅창에 답변을 입력해주세요";
+        return ">>>> 채팅창에 답장을 입력해주세요 <<<<";
     }
 
     @Nullable
@@ -60,7 +60,7 @@ public class AnswerConversation extends StringPrompt {
             Player player1 = (Player) conversationContext.getForWhom();
 
             if ( input == null || input.length() == 0 ) {
-                player1.sendRawMessage("§c답장을 입력해주세요");
+                GeumuDiscordSystem.msg(player1, "&f[&c&l!&f] 답장을 입력해주세요");
                 return null;
             }
 
@@ -73,10 +73,8 @@ public class AnswerConversation extends StringPrompt {
 
             NetworkManager networkManager = NetworkManager.getInstance();
 
-
             PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(question.getId(), input, player);
             networkManager.sendPacket(playerTransientProceedingAnswerRequest, player1, targetPlayer -> {
-                targetPlayer.sendRawMessage("전달 성공~");
                 String[] soundData= configOption.getAnswerSendSuccessSound().split(":");
                 SchedulerUtil.runLaterTask(()-> {
                     player1.playSound(player1.getLocation(), Sound.valueOf(soundData[0].toUpperCase(Locale.ROOT)), Integer.parseInt(soundData[1]), Integer.parseInt(soundData[2])); // 사운드 입력

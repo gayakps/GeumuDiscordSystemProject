@@ -36,18 +36,19 @@ public class NetworkManager {
 
     Channel channel;
 
-    MinecraftServerPacketHandler minecraftServerPacketHandler = new MinecraftServerPacketHandler();
+    MinecraftServerPacketHandler minecraftServerPacketHandler;
 
     public void init() {
 
         new Thread(() -> {
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
+                minecraftServerPacketHandler = new MinecraftServerPacketHandler();
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap.group(workerGroup)
                         .channel(NioSocketChannel.class)
                         .option(ChannelOption.SO_KEEPALIVE, true)
-                        .handler(new MinecraftServerInitializer(PacketStartDirection.CLIENT, minecraftServerPacketHandler));
+                        .handler(new MinecraftServerInitializer(PacketStartDirection.CLIENT, () -> minecraftServerPacketHandler));
                 ChannelFuture future = bootstrap.connect("localhost", 8080).sync();
                 channel = future.channel();
                 future.channel().closeFuture().sync();

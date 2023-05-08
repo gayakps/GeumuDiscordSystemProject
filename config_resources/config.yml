@@ -6,7 +6,7 @@ DataBase:
   DB_PASSWORD: "153456"
 
 Discord:
-  token: "OTg5MTk2NTE3ODAzOTYyNDI4.GmiO24.NAq6JH6S4ulMgXtjD4YAmPWwAgQiVPLt3QdSMc"
+  token: "OTg5MTk2NTE3ODAzOTYyNDI4.GmiO24.NAq6JH6S4ulMgXtjD4YAmPWwAgQi"
   question_channel_id: '1094161426005884928'
   authentication_channel_id: '1090859961845825566'
   # ↑ 계정 인증용 채널 ID입니다. 질문 플러그인을 사용하기 위해서는 굳이 계정 인증을 할 필요는 없지만 할 경우, 디스코드에서 답변한 것들이 기록으로 남는 장점이 있습니다.
