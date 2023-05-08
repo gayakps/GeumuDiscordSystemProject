@@ -1,5 +1,6 @@
 package gaya.pe.kr.plugin.qa.command;
 
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
@@ -50,7 +51,7 @@ public class QuestionCommand implements CommandExecutor {
                     networkManager.sendDataExpectResponse(targetQAUserDataRequest, player, QAUser[].class, (player1, qaUsers) -> {
 
                         if ( qaUsers == null ) {
-                            player.sendMessage(configOption.getInvalidPlayerName().replace("&", "§"));
+                            GeumuDiscordSystem.msg(player, configOption.getInvalidPlayerName());
                             return;
                         }
 
@@ -70,7 +71,7 @@ public class QuestionCommand implements CommandExecutor {
                 if ( questionContents.length() == 0 ) return false;
                 PlayerTransientProceedingQuestionRequest playerTransientProceedingQuestionRequest = new PlayerTransientProceedingQuestionRequest(player.getName(), player.getUniqueId(), questionContents);
                 networkManager.sendPacket(playerTransientProceedingQuestionRequest, player, player1 -> {
-                    player1.sendMessage("데이터를 정상적으로 송신합니다");
+                    GeumuDiscordSystem.msg(player1, "");
                 });
 
             } else {
@@ -78,19 +79,19 @@ public class QuestionCommand implements CommandExecutor {
                 switch ( permissionLevelType ) {
                     case ADMIN: {
                         for (String message : configOption.getQuestionHelpSuccessAdmin()) {
-                            player.sendMessage(message);
+                            GeumuDiscordSystem.msg(player, message);
                         }
                         break;
                     }
                     case USER: {
                         for (String message : configOption.getQuestionHelpSuccessUser()) {
-                            player.sendMessage(message);
+                            GeumuDiscordSystem.msg(player, message);
                         }
                         break;
                     }
                     case STAFF: {
                         for (String message : configOption.getQuestionHelpSuccessStaff()) {
-                            player.sendMessage(message);
+                            GeumuDiscordSystem.msg(player, message);
                         }
                         break;
                     }

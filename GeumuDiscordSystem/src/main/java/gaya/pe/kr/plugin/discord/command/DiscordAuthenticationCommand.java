@@ -1,6 +1,7 @@
 package gaya.pe.kr.plugin.discord.command;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,7 +17,7 @@ public class DiscordAuthenticationCommand implements CommandExecutor {
             Player player = ((Player) sender).getPlayer();
             String code = args[0];
             DiscordAuthenticationRequest discordAuthenticationRequest = new DiscordAuthenticationRequest(player.getUniqueId(), player.getName(), Integer.parseInt(code) );
-            NetworkManager.getInstance().sendPacket(discordAuthenticationRequest, player, (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다")));
+            NetworkManager.getInstance().sendPacket(discordAuthenticationRequest, player, (player1 -> GeumuDiscordSystem.msg(player1, "")));
         }
 
         return false;

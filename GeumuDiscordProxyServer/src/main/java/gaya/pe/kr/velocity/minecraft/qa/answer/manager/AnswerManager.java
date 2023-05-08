@@ -26,6 +26,7 @@ import gaya.pe.kr.velocity.minecraft.thread.VelocityThreadUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.checkerframework.checker.units.qual.A;
@@ -135,13 +136,25 @@ public class AnswerManager {
 
     private void answer(QARequestResult qaRequestResult, Question question, Answer answer) {
 
-
-
         DiscordManager discordManager = DiscordManager.getInstance();
         Message message = discordManager.sendMessage( String.format("```%s\n%s```",questionManager.getQuestionFormat(question), getAnswerFormat(answer)) , discordManager.getQuestionChannel() );
 
         question.setAnswer(true);
-        question.setDiscordMessageId(message.getIdLong());
+
+        if ( question.getDiscordMessageId() != -1 ) {
+
+            TextChannel channel = discordManager.getQuestionChannel();
+
+            try {
+                Message deleteTargetMessage = channel.retrieveMessageById(question.getDiscordMessageId()).submit().get();
+                if ( deleteTargetMessage != null ) {
+                    deleteTargetMessage.delete().queue();
+                }
+            } catch ( Exception e ) {
+                e.printStackTrace();
+            }
+
+        }
 
         QAUser questionUser = question.getQaUser();
         QAUser answerUser = answer.getAnswerPlayer();
@@ -205,8 +218,6 @@ public class AnswerManager {
 
                 preparedStatement.executeUpdate();
 
-
-
                 ConfigOption configOption = serverOptionManager.getConfigOption();
                 AnswerManager answerManager = AnswerManager.getInstance();
                 int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
@@ -250,8 +261,8 @@ public class AnswerManager {
                     //    @RequirePlaceHolder( placeholders = {"%playername%", "%question_number%", "%answer_count_total%"})
 
                     qaRequestResult.setMessage(configOption.getQuestionNumberAnswerSendSuccessIfQuestionerOffline()
-                            .replace("%playername%", QAUserManager.getInstance().getFullName(answerUser))
-                            .replace("%answer_count_total%", Long.toString(question.getId()))
+                            .replace("%playername%", QAUserManager.getInstance().getFullName(questionUser))
+                            .replace("%question_number%", Long.toString(question.getId()))
                             .replace("%answer_count_total%", Integer.toString(answerCountTotal))
                     ); // 답변자에게 전달
                 }
@@ -353,7 +364,7 @@ public class AnswerManager {
     public void modifyAnswer(Answer answer) {
 
         if ( existAnswer(answer.getAnswerId()) ) {
-            Answer targetAnswer = getAnswerByQuestId(answer.getAnswerId());
+            Answer targetAnswer = getAnswerByAnswerId(answer.getAnswerId());
             targetAnswer.setReceiveReward(answer.isReceiveReward());
             targetAnswer.setReceivedToQuestionPlayer(answer.isReceivedToQuestionPlayer());
 

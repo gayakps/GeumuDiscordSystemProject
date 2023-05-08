@@ -120,11 +120,21 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 BukkitAnswerModify bukkitAnswerModify = (BukkitAnswerModify) minecraftPacket;
 
                 for (Answer answer : bukkitAnswerModify.getAnswers()) {
-                    if ( bukkitAnswerModify.getQaModifyType().equals(QAModifyType.ADD) ) {
-                        qaRepository.addAnswer(answer);
-                    } else {
-                        qaRepository.removeAnswer(answer);
+
+                    switch ( bukkitAnswerModify.getQaModifyType() ) {
+                        case ADD:
+                        case MODIFY: {
+                            qaRepository.addAnswer(answer);
+                            System.out.println(qaRepository.getAllAnswers().toString() + " ADD");
+                            break;
+                        }
+                        case REMOVE: {
+                            qaRepository.removeAnswer(answer);
+                            System.out.println(qaRepository.getAllAnswers().toString() + " REMOVE");
+                            break;
+                        }
                     }
+
                 }
 
                 break;
@@ -136,11 +146,21 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 BukkitQuestionModify bukkitQuestionModify = (BukkitQuestionModify) minecraftPacket;
 
                 for (Question question : bukkitQuestionModify.getQuestions()) {
-                    if ( bukkitQuestionModify.getQaModifyType().equals(QAModifyType.ADD) ) {
-                        qaRepository.addQuestion(question);
-                    } else {
-                        qaRepository.removeQuestion(question);
+
+                    switch ( bukkitQuestionModify.getQaModifyType() ) {
+                        case ADD:
+                        case MODIFY: {
+                            qaRepository.addQuestion(question);
+                            System.out.println(qaRepository.getAllQuestions().toString() + " ADD");
+                            break;
+                        }
+                        case REMOVE: {
+                            qaRepository.removeQuestion(question);
+                            System.out.println(qaRepository.getAllQuestions().toString() + " REMOVE");
+                            break;
+                        }
                     }
+
                 }
 
                 break;
@@ -184,7 +204,8 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                                 String subTitle = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnlineSubtitle();
                                 String message = configOption.getQuestionNumberAnswerReceiveSuccessIfQuestionerOnline().replace("%question_number%", Long.toString(question.getId()));
 
-                                player.sendMessage(message.replace("&", "§"));
+                                GeumuDiscordSystem.msg(player, message);
+
                                 player.sendTitle(title, subTitle, answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
 
                             }, answerReceivedTitleFadeInTime+answerReceivedTitleFadeStayTime+answerReceivedTitleFadeOutTime);
@@ -337,7 +358,7 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                                                 for (String s : configOption.getRewardCommand()) {
                                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%playername%", onlinePlayer.getName()));
                                                 }
-                                                player.sendMessage(configOption.getRewardPaymentSuccessBroadcast().replace("&", "§"));
+                                                GeumuDiscordSystem.msg(player,  configOption.getRewardPaymentSuccessBroadcast());
                                             }, 1);
                                         });
 

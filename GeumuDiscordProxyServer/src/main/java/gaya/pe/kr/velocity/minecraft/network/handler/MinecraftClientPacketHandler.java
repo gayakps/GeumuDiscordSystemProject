@@ -428,7 +428,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                         answerManager.modifyAnswer(answer);
                     }
 
-
                     BukkitAnswerModify bukkitAnswerModify = new BukkitAnswerModify(QAModifyType.MODIFY, answerList.toArray(new Answer[0]));
                     sendPacketAllChannel(bukkitAnswerModify);
                     response.addMessage(configOption.getRemoveRewardSuccess().replace("%playername%", targetPlayerName));

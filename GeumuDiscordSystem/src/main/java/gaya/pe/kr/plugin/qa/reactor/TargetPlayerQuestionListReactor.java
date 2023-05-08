@@ -1,5 +1,6 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
@@ -64,12 +65,12 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
         int size = targetPlayerQuestions.size();
 
         if ( startIndex > lastIndex || page < 1 || size < startIndex ) {
-            getPlayer().sendMessage("§c접근할 수 없는 페이지 입니다");
+            GeumuDiscordSystem.msg(getPlayer(), "&f[&c&l!&f] 접근할 수 없는 페이지 입니다");
             return;
         }
 
         if ( targetPlayerQuestions.isEmpty() ) {
-            getPlayer().sendMessage("§c질문한 목록이 없습니다");
+            GeumuDiscordSystem.msg(getPlayer(), "&f[&c&l!&f] 질문한 목록이 없습니다");
             return;
         }
 

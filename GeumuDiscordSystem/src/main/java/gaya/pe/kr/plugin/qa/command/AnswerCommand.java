@@ -2,6 +2,7 @@ package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.network.packet.startDirection.client.DiscordAuthenticationRequest;
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.player.manager.PlayerManager;
 import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
@@ -62,7 +63,7 @@ public class AnswerCommand implements CommandExecutor {
 
 
                             if ( qaUsers == null ) {
-                                player.sendMessage(configOption.getInvalidPlayerName().replace("&","§"));
+                                GeumuDiscordSystem.msg(player, configOption.getInvalidPlayerName());
                                 return;
                             }
 
@@ -86,16 +87,17 @@ public class AnswerCommand implements CommandExecutor {
                         break;
                     }
                     case "디스코드": {
+
                         try {
                             String code = args[2];
                             DiscordAuthenticationRequest discordAuthenticationRequest = new DiscordAuthenticationRequest(player.getUniqueId(), player.getName(), Integer.parseInt(code));
                             networkManager.sendPacket(
                                     discordAuthenticationRequest
-                                    , (player1 -> player1.sendMessage("데이터를 성공적으로 보냈습니다") )
+                                    , (player1 -> GeumuDiscordSystem.msg(player, "") )
                                     ,player
                             );
                         } catch ( Exception e ) {
-                            player.sendMessage(configOption.getInvalidAuthenticationCode().replace("&","§"));
+                            GeumuDiscordSystem.msg(player, configOption.getInvalidAuthenticationCode());
                         }
                         break;
                     }
@@ -113,7 +115,7 @@ public class AnswerCommand implements CommandExecutor {
                         String answerContent = UtilMethod.getOneLineString(args, 1);
 
                         if ( answerContent.length() == 0 ) {
-                            player.sendMessage("§c답장을 입력해주세요");
+                            GeumuDiscordSystem.msg(player, "&f[&c&l!&f] 답장을 입력해주세요");
                             return false;
                         }
 
@@ -148,7 +150,7 @@ public class AnswerCommand implements CommandExecutor {
                         String answerContent = UtilMethod.getOneLineString(args, 1);
 
                         if ( answerContent.length() == 0 ) {
-                            player.sendMessage("§c답장을 입력해주세요");
+                            GeumuDiscordSystem.msg(player, "&f[&c&l!&f] 답장을 입력해주세요");
                             return false;
                         }
 
@@ -168,19 +170,19 @@ public class AnswerCommand implements CommandExecutor {
                 switch ( permissionLevelType ) {
                     case ADMIN: {
                         for (String message : configOption.getQuestionHelpSuccessAdmin()) {
-                            player.sendMessage(message);
+                            GeumuDiscordSystem.msg(player, message);
                         }
                         break;
                     }
                     case USER: {
                         for (String message : configOption.getQuestionHelpSuccessUser()) {
-                            player.sendMessage(message);
+                            GeumuDiscordSystem.msg(player, message);
                         }
                         break;
                     }
                     case STAFF: {
                         for (String message : configOption.getQuestionHelpSuccessStaff()) {
-                            player.sendMessage(message);
+                            GeumuDiscordSystem.msg(player, message);
                         }
                         break;
                     }

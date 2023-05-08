@@ -19,11 +19,15 @@ public class QuestionRankingService {
                     LocalDate questionDate = new java.util.Date(q.getQuestionDate().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate(); // 수정된 부분
                     return !questionDate.isBefore(startDate) && !questionDate.isAfter(endDate);
                 })
-                .distinct()
-                .forEach(q -> questionCountMap.put(q.getQaUser(), questionCountMap.getOrDefault(q.getQaUser(), 0) + 1));
+                .forEach(q -> {
+                    QAUser qaUser = q.getQaUser();
+                    questionCountMap.put(qaUser, questionCountMap.getOrDefault(qaUser, 0) + 1);
+                });
 
         return questionCountMap;
     }
+
+
 
     public static int countQuestionsForUser(List<Question> questions, LocalDate startDate, LocalDate endDate) {
         return (int) questions.stream()

@@ -11,6 +11,7 @@ C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\m
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\qa\reactor\TargetPlayerAnswerListReactor.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\GeumuDiscordSystem.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\util\exception\IllegalResponseObjectException.java
+C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\qa\command\tab\AnswerCommandTabCompletion.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\thread\abstaract\MinecraftScheduler.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\util\EventUtil.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\network\handler\MinecraftServerPacketHandler.java
@@ -33,6 +34,7 @@ C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\m
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\discord\manager\BukkitDiscordManager.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\qa\reactor\ranking\DailyQuestionRankingReactor.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\thread\SchedulerUtil.java
+C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\qa\command\AnswerAdminCommand.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\qa\type\PermissionLevelType.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\network\manager\NetworkManager.java
 C:\Users\gayak\Desktop\작업\GeumuDiscordSystemProject\GeumuDiscordSystem\src\main\java\gaya\pe\kr\plugin\discord\command\DiscordAuthenticationCommand.java

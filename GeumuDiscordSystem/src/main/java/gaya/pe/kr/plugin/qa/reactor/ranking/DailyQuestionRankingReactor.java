@@ -1,5 +1,6 @@
 package gaya.pe.kr.plugin.qa.reactor.ranking;
 
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.qa.data.QARankingResult;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.repository.QARepository;
@@ -51,12 +52,12 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
         int size = questionQARankingResult.size();
 
         if ( startIndex > lastIndex || page < 1 || size < startIndex ) {
-            getPlayer().sendMessage("§c접근할 수 없는 페이지 입니다");
+            GeumuDiscordSystem.msg(getPlayer(), "&f[&c&l!&f] 접근할 수 없는 페이지 입니다");
             return;
         }
 
         if ( questionQARankingResult.isEmpty() ) {
-            getPlayer().sendMessage("§c데이터가 존재하지 않습니다");
+            GeumuDiscordSystem.msg(getPlayer(), "&f[&c&l!&f] 데이터가 존재하지 않습니다");
             return;
         }
 

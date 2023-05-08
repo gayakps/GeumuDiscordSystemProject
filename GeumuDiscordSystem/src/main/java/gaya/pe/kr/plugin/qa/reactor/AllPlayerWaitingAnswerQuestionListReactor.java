@@ -1,5 +1,6 @@
 package gaya.pe.kr.plugin.qa.reactor;
 
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.conversation.AnswerConversation;
@@ -67,12 +68,12 @@ public class AllPlayerWaitingAnswerQuestionListReactor extends MinecraftInventor
         int size = notAnsweredQuestions.size();
 
         if (startIndex > lastIndex || page < 1 || size < startIndex) {
-            getPlayer().sendMessage("§c접근할 수 없는 페이지 입니다");
+            GeumuDiscordSystem.msg(getPlayer(), "&f[&c&l!&f] 접근할 수 없는 페이지 입니다");
             return;
         }
 
         if (notAnsweredQuestions.isEmpty()) {
-            getPlayer().sendMessage("§c서버에 등록된 질문 목록이 없습니다");
+            GeumuDiscordSystem.msg(getPlayer(), "&f[&c&l!&f] 질문 목록이 없습니다");
             return;
         }
 

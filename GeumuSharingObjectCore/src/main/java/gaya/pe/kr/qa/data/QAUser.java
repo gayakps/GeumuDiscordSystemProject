@@ -55,4 +55,14 @@ public class QAUser implements Serializable {
         return qaUser.getGamePlayerName().equals(getGamePlayerName());
     }
 
+    @Override
+    public int hashCode() {
+        int result = getUuid() != null ? getUuid().hashCode() : 0;
+        result = 31 * result + (getGamePlayerName() != null ? getGamePlayerName().hashCode() : 0);
+        if (getDiscordPlayerUserId() != -1) {
+            result = 31 * result + (int) (getDiscordPlayerUserId() ^ (getDiscordPlayerUserId() >>> 32));
+        }
+        return result;
+    }
+
 }

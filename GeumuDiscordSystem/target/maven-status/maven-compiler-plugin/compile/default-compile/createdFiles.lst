@@ -15,6 +15,7 @@ gaya\pe\kr\plugin\discord\command\DiscordAuthenticationCommand.class
 gaya\pe\kr\plugin\qa\command\AnswerAdminCommand.class
 gaya\pe\kr\plugin\util\exception\IllegalResponseObjectException.class
 gaya\pe\kr\plugin\network\handler\MinecraftServerPacketHandler.class
+gaya\pe\kr\plugin\qa\type\PermissionLevelType$1.class
 gaya\pe\kr\plugin\network\manager\NetworkManager$SingleTon.class
 gaya\pe\kr\plugin\GeumuDiscordSystem.class
 gaya\pe\kr\plugin\manager\ConfigurationManager.class

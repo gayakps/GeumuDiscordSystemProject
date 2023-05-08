@@ -1,6 +1,7 @@
 package gaya.pe.kr.plugin.player.listener;
 
 import gaya.pe.kr.network.packet.startDirection.client.UpdatePlayerList;
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.manager.QAManager;
@@ -61,7 +62,8 @@ public class PlayerConnectionListener implements Listener {
                 int answerReceivedTitleFadeOutTime = configOption.getAnswerReceiveTitleFadeOutTime();
                 int answerReceivedTitleFadeStayTime = configOption.getAnswerReceiveTitleStayTime();
 
-                player.sendMessage(configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter().replace("%arrived_answer_count%", Integer.toString(count)).replace("&", "§"));
+                GeumuDiscordSystem.msg(player, configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfter().replace("%arrived_answer_count%", Integer.toString(count)));
+
                 player.sendTitle(configOption.getAnswerReceiveSuccessIfQuestionerOfflineAndJoinAfterTitle().replace("%arrived_answer_count%", Integer.toString(count)), configOption.getAnswerReceiveSuccessIfQuestionerOnlineSubtitle(), answerReceivedTitleFadeInTime, answerReceivedTitleFadeStayTime, answerReceivedTitleFadeOutTime);
 
             }

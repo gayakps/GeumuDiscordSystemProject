@@ -1,6 +1,7 @@
 package gaya.pe.kr.plugin.qa.command;
 
 import gaya.pe.kr.network.packet.startDirection.client.MinecraftOptionReloadRequest;
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.network.manager.NetworkManager;
 import gaya.pe.kr.plugin.qa.manager.OptionManager;
 import gaya.pe.kr.plugin.qa.type.PermissionLevelType;
@@ -41,10 +42,11 @@ public class AnswerAdminCommand implements CommandExecutor {
                             int questionId = Integer.parseInt(args[1]);
                             TargetQuestionRemoveRequest targetQuestionRemoveRequest = new TargetQuestionRemoveRequest(questionId, player.getName(), player.getUniqueId());
                             networkManager.sendPacket(targetQuestionRemoveRequest, player, player1 -> {
-                                player1.sendMessage("성공적으로 질문 제거 요청을 함");
+                                GeumuDiscordSystem.msg(player1, "");
                             });
                         } catch ( NumberFormatException | ArrayIndexOutOfBoundsException e ) {
-                            player.sendMessage(configOption.getInvalidQuestionNumber());
+                            GeumuDiscordSystem.msg(player, configOption.getInvalidQuestionNumber());
+
                         }
                         break;
                     }
@@ -57,10 +59,11 @@ public class AnswerAdminCommand implements CommandExecutor {
                             int questionId = Integer.parseInt(args[1]);
                             TargetAnswerByQuestionIdRemoveRequest targetAnswerByQuestionIdRemoveRequest = new TargetAnswerByQuestionIdRemoveRequest(questionId, player.getName(), player.getUniqueId());
                             networkManager.sendPacket(targetAnswerByQuestionIdRemoveRequest, player, player1 -> {
-                                player1.sendMessage("성공적으로 답변 제거 요청을 함");
+                                GeumuDiscordSystem.msg(player1, "");
                             });
                         } catch ( NumberFormatException | ArrayIndexOutOfBoundsException e ) {
-                            player.sendMessage(configOption.getInvalidQuestionNumber());
+                            GeumuDiscordSystem.msg(player, configOption.getInvalidQuestionNumber());
+
                         }
                         break;
                     }
@@ -70,7 +73,8 @@ public class AnswerAdminCommand implements CommandExecutor {
 
                         TargetPlayerRemoveRewardRequest targetPlayerRemoveRewardRequest = new TargetPlayerRemoveRewardRequest(args[1], player);
                         networkManager.sendPacket(targetPlayerRemoveRewardRequest, player, player1 -> {
-                            player1.sendMessage("전송성공 얏호");
+                            GeumuDiscordSystem.msg(player1, "");
+
                         });
                         break;
                     }
@@ -81,7 +85,7 @@ public class AnswerAdminCommand implements CommandExecutor {
                         MinecraftOptionReloadRequest minecraftOptionReloadRequest = new MinecraftOptionReloadRequest(player);
 
                         networkManager.sendPacket(minecraftOptionReloadRequest, player, player1 -> {
-                            player1.sendMessage("전송성공 얏호");
+                            GeumuDiscordSystem.msg(player1, "");
                         });
 
                     }

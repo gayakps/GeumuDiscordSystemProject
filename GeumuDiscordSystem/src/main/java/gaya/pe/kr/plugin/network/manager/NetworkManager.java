@@ -4,6 +4,7 @@ import gaya.pe.kr.network.connection.initializer.MinecraftServerInitializer;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPacket;
 import gaya.pe.kr.network.packet.global.AbstractMinecraftPlayerRequestPacket;
 import gaya.pe.kr.network.packet.global.PacketStartDirection;
+import gaya.pe.kr.plugin.GeumuDiscordSystem;
 import gaya.pe.kr.plugin.discord.manager.BukkitDiscordManager;
 import gaya.pe.kr.plugin.network.handler.MinecraftServerPacketHandler;
 import gaya.pe.kr.plugin.thread.SchedulerUtil;
@@ -85,14 +86,14 @@ public class NetworkManager {
                 SchedulerUtil.runLaterTask( ()-> {
                     if ( minecraftServerPacketHandler.isWaitingTicket(requestTicketId) ) {
                         minecraftServerPacketHandler.removeWaitingTicket(requestTicketId);
-                        msg(sender, "&c서버로 부터 응답이 없습니다 다시 시도해주세요");
+                        GeumuDiscordSystem.msg(sender, "&f[&c&l!&f] §c&l메인 서버로부터 응답이 없습니다");
                     }
                 }, 20*5);
 
                 waitingTicket.executeWaitingTicket();
 
             } catch (InterruptedException | ExecutionException e ) {
-                sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");
+                GeumuDiscordSystem.msg(sender, "&f[&c&l!&f] §c&l데이터 송신에 문제가 발생했습니다");
                 e.printStackTrace();
             }
         });
@@ -107,7 +108,7 @@ public class NetworkManager {
                 Void result = channelFuture.get();
                 sendSuccessAfterConsumer.accept(sender);
             } catch (InterruptedException | ExecutionException e ) {
-                sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");
+                GeumuDiscordSystem.msg(sender, "&f[&c&l!&f] §c&l데이터 송신에 문제가 발생했습니다");
                 e.printStackTrace();
             }
         });
@@ -131,14 +132,14 @@ public class NetworkManager {
                     SchedulerUtil.runLaterTask( ()-> {
                         if ( minecraftServerPacketHandler.isWaitingTicket(requestTicketId) ) {
                             minecraftServerPacketHandler.removeWaitingTicket(requestTicketId);
-                            msg(sender, "&c서버로 부터 응답이 없습니다 다시 시도해주세요");
+                            GeumuDiscordSystem.msg(sender, "&f[&c&l!&f] §c&l메인 서버로부터 응답이 없습니다");
                         }
                     }, 20*5);
 
                     sendSuccessAfterConsumer.accept(sender);
 
             } catch (InterruptedException | ExecutionException e ) {
-                sender.sendMessage("§c데이터 송신에 문제가 발생했습니다!");
+                GeumuDiscordSystem.msg(sender, "&f[&c&l!&f] §c&l데이터 송신에 문제가 발생했습니다");
                 e.printStackTrace();
             }
         });
