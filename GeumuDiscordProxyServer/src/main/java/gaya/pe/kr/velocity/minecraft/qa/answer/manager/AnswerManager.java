@@ -219,11 +219,14 @@ public class AnswerManager {
                 preparedStatement.executeUpdate();
 
                 ConfigOption configOption = serverOptionManager.getConfigOption();
-                AnswerManager answerManager = AnswerManager.getInstance();
-                int answerCountTotal = answerManager.getQAUserAnswers(answerUser).size();
+
+
+                List<Answer> answers = getQAUserAnswers(answerUser);
+                answers.add(answer);
+
+                int answerCountTotal = answers.size();
 
                 this.answerIdByAnswerHashMap.put(answer.getAnswerId(), answer);
-                getQAUserAnswers(answerUser).add(answer);
                 NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.ADD, new Answer[]{answer}));
 
                 if (finalQuestionerPlayer != null) {
