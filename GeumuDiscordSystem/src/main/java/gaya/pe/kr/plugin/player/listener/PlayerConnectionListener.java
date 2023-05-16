@@ -45,7 +45,6 @@ public class PlayerConnectionListener implements Listener {
 
                 QARepository qaRepository = QAManager.getInstance().getQaRepository();
 
-
                 QAUser qaUser = qaUsers[0];
 
                 List<Question> questionList = qaRepository.getQAUserQuestions(qaUser); // 내가 질문했던 것 중에

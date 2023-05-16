@@ -68,6 +68,21 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
         cause.printStackTrace();
     }
 
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        Channel channel = ctx.channel();
+        String ip = channel.remoteAddress().toString();
+        try {
+            channelGroup.remove(channel);
+            PlayerListHandler.removeChannel(channel);
+            System.out.printf("Channel : %s [IP : %s] Inactive", channel.toString(), ip);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
 
@@ -80,16 +95,17 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
         VelocityThreadUtil.delayTask(()-> {
             BukkitQuestionModify bukkitQuestionModify = new BukkitQuestionModify( QAModifyType.ADD, questionManager.getAllQuestions().toArray(new Question[0]));
             sendPacket(channel, bukkitQuestionModify);
-        }, 1000);
+        }, 1500);
 
 
         VelocityThreadUtil.delayTask(()-> {
             BukkitAnswerModify bukkitAnswerModify = new BukkitAnswerModify(QAModifyType.ADD, answerManager.getAllAnswers().toArray(new Answer[0]));
             sendPacket(channel, bukkitAnswerModify);
-        }, 1000);
+        }, 3000);
 
 
         System.out.printf("%s Client Connection & send packet\n", channel.toString());
+
         channelGroup.add(channel);
     }
 
@@ -232,7 +248,7 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                                     playerRecentQuestionAnswerRequest.getPlayerUUID(),
                                     playerRecentQuestionAnswerRequest.getPacketID(),
                                     "/질문 목록 "+questioner.getGamePlayerName(),
-                                    configOption.getAnswerSendFailNotExistRecentQuestionAndRemainOldQuestion(),
+                                    configOption.getAnswerSendFailNotExistRecentQuestionAndRemainOldQuestion().replace("%remain_question%", Integer.toString(questionerQuestions.size())),
                                     configOption.getAnswerSendFailNotExistRecentQuestionAndRemainOldQuestionHoverMessage()
                             );
                             sendPacket(channel, playerRequestResponseAsClickableCommandChat);
@@ -486,11 +502,13 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
     public void sendPacket(Channel channel, AbstractMinecraftPacket minecraftPacket) {
 
         VelocityThreadUtil.asyncTask( ()-> {
-            ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
-            try {
-                channelFuture.get();
-            } catch (ExecutionException | InterruptedException e) {
-                throw new RuntimeException(e);
+            if ( channel.isActive() ) {
+                ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
+                try {
+                    channelFuture.get();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -517,11 +535,13 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
 
         VelocityThreadUtil.asyncTask( ()-> {
             for (Channel channel : channelGroup) {
-                ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
-                try {
-                    channelFuture.get();
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
+                if ( channel.isActive() ) {
+                    ChannelFuture channelFuture = channel.writeAndFlush(minecraftPacket);
+                    try {
+                        channelFuture.get();
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         });

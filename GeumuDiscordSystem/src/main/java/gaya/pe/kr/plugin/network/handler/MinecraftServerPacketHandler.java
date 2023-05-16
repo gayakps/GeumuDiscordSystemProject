@@ -175,7 +175,6 @@ public class MinecraftServerPacketHandler extends SimpleChannelInboundHandler<Ab
                 if ( questionerGamePlayerName != null ) {
 
                     ConfigOption configOption = OptionManager.getInstance().getConfigOption();
-
                     Player player = Bukkit.getPlayer(questioner.getGamePlayerName());
 
                     if ( player != null ) {

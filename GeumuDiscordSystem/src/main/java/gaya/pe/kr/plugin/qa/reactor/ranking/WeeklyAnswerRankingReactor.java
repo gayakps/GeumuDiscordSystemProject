@@ -123,7 +123,7 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
             inventory.setItem(index, ItemCreator.createItemStack(Material.BLACK_STAINED_GLASS, ""));
         }
 
-        inventory.setItem(1, ItemCreator.createItemStack(Material.RED_STAINED_GLASS, answerRankingOption.getDailyAnswerRanking()));
+        inventory.setItem(1, ItemCreator.createItemStack(Material.RED_STAINED_GLASS_PANE, answerRankingOption.getDailyAnswerRanking()));
         inventory.setItem(3, ItemCreator.createItemStack(Material.BLUE_STAINED_GLASS, answerRankingOption.getWeeklyAnswerRanking()));
         inventory.setItem(5, ItemCreator.createItemStack(Material.GREEN_STAINED_GLASS, answerRankingOption.getMonthlyAnswerRanking()));
         inventory.setItem(7, ItemCreator.createItemStack(Material.YELLOW_STAINED_GLASS, answerRankingOption.getTotalAnswerRanking()));
@@ -132,9 +132,13 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
         inventory.setItem(49, ItemCreator.createItemStack(Material.PAPER, ""));
         inventory.setItem(50, ItemCreator.createItemStack(Material.getMaterial(commonlyUsedButtonOption.getNextPageButtonType().toUpperCase(Locale.ROOT)), commonlyUsedButtonOption.getNextPageButtonName()));
 
+
         setInventory(inventory);
 
+        SchedulerUtil.runLaterTask( ()-> {
             getPlayer().openInventory(inventory);
+        }, 1);
+
 
     }
 
@@ -167,8 +171,10 @@ public class WeeklyAnswerRankingReactor extends MinecraftInventoryReactor {
                     QAUser qaUser = qaUserHashMap.get(clickedSlot);
 
                     getPlayer().closeInventory();
-                    TargetPlayerAnswerListReactor targetPlayerAnswerListReactor = new TargetPlayerAnswerListReactor(getPlayer(), qaUser, getQaRepository());
-                    targetPlayerAnswerListReactor.start();
+                    SchedulerUtil.runLaterTask( ()-> {
+                        TargetPlayerAnswerListReactor targetPlayerAnswerListReactor = new TargetPlayerAnswerListReactor(getPlayer(), qaUser, getQaRepository());
+                        targetPlayerAnswerListReactor.start();
+                    },1);
 
                     close();
 

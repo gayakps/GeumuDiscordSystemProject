@@ -58,13 +58,12 @@ public abstract class MinecraftInventoryReactor implements Listener {
 
         if ( clickedInventory == null ) return;
 
-        Inventory nowInventory = event.getInventory();
 
         Player clickedPlayer = (Player) event.getWhoClicked();
 
         if ( !clickedPlayer.getUniqueId().equals(player.getUniqueId()) ) return;
 
-        if ( !clickedInventory.equals(nowInventory) ) return;
+        if ( !clickedInventory.equals(getInventory()) ) return;
 
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
@@ -77,7 +76,7 @@ public abstract class MinecraftInventoryReactor implements Listener {
 
         Inventory nowInventory = event.getInventory();
 
-        if ( !nowInventory.equals(this.inventory) ) return;
+        if ( !nowInventory.equals(getInventory()) ) return;
 
         closeInventory(event);
     }

@@ -122,7 +122,9 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
 
         setInventory(inventory);
 
-        getPlayer().openInventory(inventory);
+        SchedulerUtil.runLaterTask( ()-> {
+            getPlayer().openInventory(inventory);
+        }, 1);
     }
 
     @Override
@@ -149,15 +151,17 @@ public class DailyQuestionRankingReactor extends MinecraftInventoryReactor {
             }
             default: {
 
-
                 if ( qaUserHashMap.containsKey(clickedSlot) ) {
 
                     QAUser qaUser = qaUserHashMap.get(clickedSlot);
 
                     getPlayer().closeInventory();
 
-                    TargetPlayerQuestionListReactor targetPlayerQuestionListReactor = new TargetPlayerQuestionListReactor(getPlayer(), qaUser, getQaRepository());
-                    targetPlayerQuestionListReactor.start();
+                    SchedulerUtil.runLaterTask( ()-> {
+                        TargetPlayerQuestionListReactor targetPlayerQuestionListReactor = new TargetPlayerQuestionListReactor(getPlayer(), qaUser, getQaRepository());
+                        targetPlayerQuestionListReactor.start();
+                    }, 1);
+
 
                     close();
 

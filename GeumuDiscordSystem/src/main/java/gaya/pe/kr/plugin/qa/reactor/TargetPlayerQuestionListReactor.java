@@ -86,9 +86,9 @@ public class TargetPlayerQuestionListReactor extends MinecraftInventoryReactor {
 
         Comparator<Question> answerComparator = (q1, q2) -> {
             if (q1.isAnswer() == q2.isAnswer()) {
-                return 0;
+                return 1;
             }
-            return q1.isAnswer() ? -1 : 1;
+            return q1.isAnswer() ? -1 : 0;
         };
 
         targetPlayerQuestions.sort(answerComparator);

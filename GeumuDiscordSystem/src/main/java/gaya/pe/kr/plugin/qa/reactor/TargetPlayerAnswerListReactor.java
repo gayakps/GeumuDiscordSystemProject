@@ -263,13 +263,13 @@ public class TargetPlayerAnswerListReactor extends MinecraftInventoryReactor {
                 break;
             }
             case 45: {
-                    getPlayer().closeInventory();
-                    NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
-                        WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), getQaRepository());
-                        weeklyAnswerRankingReactor.open();
-                    });
+                getPlayer().closeInventory();
+                NetworkManager.getInstance().sendDataExpectResponse(new AllQAUserDataRequest(getPlayer()), getPlayer(), QAUser[].class, (player, qaUsers) -> {
+                    WeeklyAnswerRankingReactor weeklyAnswerRankingReactor = new WeeklyAnswerRankingReactor(getPlayer(), Arrays.asList(qaUsers), getQaRepository());
+                    weeklyAnswerRankingReactor.start();
+                });
                 close();
-                    break;
+                break;
             }
         }
 

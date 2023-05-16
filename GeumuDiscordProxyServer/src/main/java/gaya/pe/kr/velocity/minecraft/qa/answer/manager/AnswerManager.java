@@ -237,9 +237,12 @@ public class AnswerManager {
                             .replace("%answer_count_total%", Integer.toString(answerCountTotal))
                     ); // 답변자에게 전달
 
+                    QAUserManager qaUserManager = QAUserManager.getInstance();
+
                     BroadCastMessage broadCastMessage = new BroadCastMessage(
                             configOption.getAnswerSendSuccessIfQuestionerOnlineBroadcast()
-                                    .replace("%answer_playername%", QAUserManager.getInstance().getFullName(answerUser))
+                                    .replace("%question_playername%", qaUserManager.getFullName(questionUser))
+                                    .replace("%answer_playername%",qaUserManager.getFullName(answerUser))
                                     .replace("%answer%", answer.getContents())
                     );
 
@@ -421,19 +424,27 @@ public class AnswerManager {
 
             boolean result = DBConnection.taskTransaction(connection -> {
 
-                String sql = "delete from `pixelmon_01_answer`.`questions` where id = ?";
-
+                String sql = "delete from `pixelmon_01_answer`.`answers` where answers.question_id = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
                 preparedStatement.setBigDecimal(1, BigDecimal.valueOf(questId));
-
                 preparedStatement.executeUpdate();
 
             });
 
             if ( result ) {
                 answerIdByAnswerHashMap.remove(removeTarget.getAnswerId());
-                NetworkManager.getInstance().sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.REMOVE, new Answer[]{removeTarget}));
+
+                NetworkManager networkManager = NetworkManager.getInstance();
+
+                for (Question allQuestion : questionManager.getAllQuestions()) {
+                    if ( removeTarget.getQuestionId() == allQuestion.getId() ) {
+                        allQuestion.setAnswer(false);
+                        networkManager.sendPacketAllChannel(new BukkitQuestionModify(QAModifyType.MODIFY, new Question[]{allQuestion}));
+                        break;
+                    }
+                }
+
+                networkManager.sendPacketAllChannel(new BukkitAnswerModify(QAModifyType.REMOVE, new Answer[]{removeTarget}));
                 return removeTarget;
             }
         }
