@@ -197,7 +197,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                     //TODO 질문자가 존재하기 떄문에 최근 질문 등등을 가져와야함
 
                     QAUser questioner = qaUserManager.getUser(playerRecentQuestionAnswerRequest.getTargetPlayerName()); // 질문자
-
                     Question recentQuestion = questionManager.getTargetQAUserRecentQuestion(questioner);
 
                     if ( recentQuestion != null ) {
@@ -216,7 +215,6 @@ public class MinecraftClientPacketHandler extends SimpleChannelInboundHandler<Ab
                             response.addMessage(qaRequestResult.getMessage());
 
                         } else {
-                            //TODO 최근 질문이 이미 답변이 되었다면
 
                             int questionableAmount = questionManager.getQuestionableAmount(questioner);
 

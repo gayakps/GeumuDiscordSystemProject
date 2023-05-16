@@ -305,11 +305,6 @@ public class AnswerManager {
 
         Question question = questionManager.getQuestionByQuestId(questId);
 
-        if ( question.isAnswer() ) {
-            qaRequestResult.setMessage("§f[§c!§f] 이미 답변이 된 질문 입니다");
-            return qaRequestResult;
-        }
-
         QAUser questionUser = question.getQaUser();
 
         QAUser answerUser;

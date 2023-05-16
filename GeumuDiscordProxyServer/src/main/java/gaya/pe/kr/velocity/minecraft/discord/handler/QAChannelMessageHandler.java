@@ -67,6 +67,11 @@ public class QAChannelMessageHandler extends MessageChannelHandler {
 
                 Question question = questionManager.getQuestionByDiscordMessageId(repliedMessageId);
 
+                if ( question.isAnswer() ) {
+                    discordManager.sendMessageAndRemove(event.getChannel(), "```이미 답변이 된 질문입니다```", 5000, true, receivedMessage);
+                    return;
+                }
+
                 String receivedMessageContent = receivedMessage.getContentDisplay();
 
                 PlayerTransientProceedingAnswerRequest playerTransientProceedingAnswerRequest = new PlayerTransientProceedingAnswerRequest(question.getId(), receivedMessageContent, answerUser.getDiscordPlayerUserId());
